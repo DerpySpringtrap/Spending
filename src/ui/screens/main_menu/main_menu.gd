@@ -2,7 +2,10 @@ extends Control
 ## Title screen: Continue / New Run / Options / Quit, with the Warden standing
 ## in the swamp and embers drifting up.
 
-var _options: PanelContainer
+## Full-screen overlay (dim + centred panel), so the panel stays centred at
+## any window size.
+var _options: Control
+var _first_option: Control
 var _buttons: VBoxContainer
 
 
@@ -113,21 +116,35 @@ func _build_embers() -> void:
 
 
 func _build_options() -> void:
-	_options = PanelContainer.new()
+	_options = Control.new()
+	_options.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_options.visible = false
-	_options.set_anchors_preset(Control.PRESET_CENTER)
-	_options.custom_minimum_size = Vector2(520, 0)
-	_options.position = Vector2(700, 340)
 	add_child(_options)
+	var dim := ColorRect.new()
+	dim.color = Color(UIStyle.BG_DEEP, 0.7)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dim.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed:
+			_toggle_options())
+	_options.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_options.add_child(center)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(520, 0)
+	center.add_child(panel)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
-	_options.add_child(box)
+	panel.add_child(box)
 	box.add_child(UIBuild.label("Options", &"HeadingLabel"))
 	var fast := CheckButton.new()
 	fast.text = "Fast animations"
 	fast.button_pressed = Settings.fast_mode
 	fast.toggled.connect(func(on): Settings.fast_mode = on)
 	box.add_child(fast)
+	_first_option = fast
 	var numbers := CheckButton.new()
 	numbers.text = "Damage numbers"
 	numbers.button_pressed = Settings.show_damage_numbers
@@ -159,7 +176,7 @@ func _toggle_options() -> void:
 		Settings.save_settings()
 		(_buttons.get_child(0) as Control).grab_focus()
 	else:
-		(_options.get_child(0).get_child(1) as Control).grab_focus()
+		_first_option.grab_focus()
 
 
 func _unhandled_input(event: InputEvent) -> void:

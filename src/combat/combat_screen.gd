@@ -128,7 +128,10 @@ func _start_fight() -> void:
 
 func _spawn_view(c: Combatant, parent: Control) -> void:
 	var view := CombatantView.new().setup(c)
+	var slot := _free_enemy_slot() if parent == _enemy_row else -1
 	parent.add_child(view)
+	if slot >= 0:
+		parent.move_child(view, slot)
 	_views[c.id] = view
 	view.gui_input.connect(func(event):
 		if _potion_slot >= 0 and event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not c.is_dead:
@@ -138,6 +141,37 @@ func _spawn_view(c: Combatant, parent: Control) -> void:
 		var t := view.create_tween()
 		t.tween_interval(UIStyle.dur(0.1 * _views.size()))
 		t.tween_property(view, "modulate:a", 1.0, UIStyle.dur(0.35))
+
+
+## Summons take over a defeated enemy's slot (e.g. Broodlings reappear beside
+## the Matriarch) instead of being appended to the end of the row, which
+## would shove the boss sideways. The dead view moves to a hidden holder so
+## anything still referencing it keeps working. Returns -1 if no slot is free.
+func _free_enemy_slot() -> int:
+	for child in _enemy_row.get_children():
+		if child is CombatantView and child.is_dead_shown():
+			var index := child.get_index()
+			_enemy_row.remove_child(child)
+			_graveyard().add_child(child)
+			return index
+	return -1
+
+
+func _graveyard() -> Control:
+	var holder := get_node_or_null("Graveyard") as Control
+	if holder == null:
+		holder = Control.new()
+		holder.name = "Graveyard"
+		holder.visible = false
+		add_child(holder)
+	return holder
+
+
+## Living enemies in on-screen order (left to right), for keyboard targeting.
+func _enemies_on_screen() -> Array[EnemyCombatant]:
+	var living := combat.living_enemies()
+	living.sort_custom(func(a, b): return _view(a).get_index() < _view(b).get_index())
+	return living
 
 
 func _random_encounter() -> EncounterData:
@@ -647,7 +681,7 @@ func _activate(card: CardInstance) -> void:
 
 
 func _targeting_input(event: InputEvent) -> bool:
-	var living := combat.living_enemies()
+	var living := _enemies_on_screen()
 	if event.is_action_pressed("ui_left"):
 		_target_index = wrapi(_target_index - 1, 0, living.size())
 		_point_keyboard_target()
@@ -676,7 +710,7 @@ func _targeting_input(event: InputEvent) -> bool:
 
 
 func _point_keyboard_target() -> void:
-	var living := combat.living_enemies()
+	var living := _enemies_on_screen()
 	if living.is_empty():
 		return
 	_target_index = clampi(_target_index, 0, living.size() - 1)
