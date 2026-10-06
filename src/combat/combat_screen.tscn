@@ -1,12 +1,256 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=16 format=3]
 
-[ext_resource type="Script" path="res://src/combat/combat_screen.gd" id="1_combat"]
+[ext_resource type="Script" path="res://src/combat/combat_screen.gd" id="1_uxdkv"]
+[ext_resource type="Script" path="res://src/ui/components/biome_backdrop.gd" id="2_koqov"]
+[ext_resource type="Script" path="res://src/ui/components/top_bar.gd" id="3_m7du2"]
+[ext_resource type="Script" path="res://src/ui/components/energy_orb.gd" id="4_os0ag"]
+[ext_resource type="Script" path="res://src/ui/components/resource_gauge.gd" id="5_3kh43"]
+[ext_resource type="Script" path="res://src/ui/components/pile_button.gd" id="6_2grya"]
+[ext_resource type="Script" path="res://src/ui/components/hand_view.gd" id="7_rsb7j"]
+[ext_resource type="Script" path="res://src/presentation/combat_fx.gd" id="8_5liuh"]
+[ext_resource type="Script" path="res://src/ui/components/targeting_arrow.gd" id="9_6w3p8"]
+[ext_resource type="Script" path="res://src/ui/components/turn_banner.gd" id="10_7jlo2"]
+[ext_resource type="Script" path="res://src/ui/components/pile_viewer.gd" id="11_at84j"]
+[ext_resource type="Script" path="res://src/ui/components/result_overlay.gd" id="12_i10vw"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_eppld"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_h7waq"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_m653t"]
 
 [node name="CombatScreen" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1_combat")
+mouse_filter = 1
+script = ExtResource("1_uxdkv")
+
+[node name="Backdrop" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("2_koqov")
+
+[node name="World" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="PlayerAnchor" type="Control" parent="World"]
+unique_name_in_owner = true
+layout_mode = 1
+anchor_left = 0.2
+anchor_top = 0.66
+anchor_right = 0.2
+anchor_bottom = 0.66
+offset_left = -150.0
+offset_top = -330.0
+offset_right = 150.0
+offset_bottom = 90.0
+mouse_filter = 2
+
+[node name="EnemyRow" type="HBoxContainer" parent="World"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.46
+anchor_top = 0.66
+anchor_right = 0.96
+anchor_bottom = 0.66
+offset_top = -310.0
+offset_bottom = 90.0
+mouse_filter = 2
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="HUD" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="TopBar" type="PanelContainer" parent="HUD"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 64.0
+script = ExtResource("3_m7du2")
+
+[node name="EnergyOrb" type="Control" parent="HUD"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 110)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -350.0
+offset_right = 150.0
+offset_bottom = -240.0
+script = ExtResource("4_os0ag")
+
+[node name="ResourceGauge" type="Control" parent="HUD"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 64)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 160.0
+offset_top = -330.0
+offset_right = 420.0
+offset_bottom = -266.0
+script = ExtResource("5_3kh43")
+
+[node name="DrawPile" type="Button" parent="HUD"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 112)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = -136.0
+offset_right = 126.0
+offset_bottom = -24.0
+focus_mode = 0
+theme_override_styles/focus = SubResource("StyleBoxEmpty_eppld")
+flat = true
+script = ExtResource("6_2grya")
+
+[node name="DiscardPile" type="Button" parent="HUD"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 112)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -126.0
+offset_top = -136.0
+offset_right = -30.0
+offset_bottom = -24.0
+focus_mode = 0
+theme_override_styles/focus = SubResource("StyleBoxEmpty_h7waq")
+flat = true
+script = ExtResource("6_2grya")
+
+[node name="ExhaustPile" type="Button" parent="HUD"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 112)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -126.0
+offset_top = -270.0
+offset_right = -30.0
+offset_bottom = -158.0
+focus_mode = 0
+theme_override_styles/focus = SubResource("StyleBoxEmpty_m653t")
+flat = true
+script = ExtResource("6_2grya")
+
+[node name="EndTurnButton" type="Button" parent="HUD"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -330.0
+offset_top = -300.0
+offset_right = -146.0
+offset_bottom = -236.0
+focus_mode = 0
+theme_type_variation = &"PrimaryButton"
+text = "End Turn"
+
+[node name="Message" type="Label" parent="HUD"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -400.0
+offset_right = 400.0
+offset_bottom = -360.0
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(1, 0.419608, 0.419608, 1)
+theme_override_colors/font_outline_color = Color(0.0392157, 0.0313726, 0.0509804, 1)
+theme_override_constants/outline_size = 8
+horizontal_alignment = 1
+
+[node name="HandView" type="Control" parent="HUD"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 220.0
+offset_top = -300.0
+offset_right = -220.0
+mouse_filter = 2
+script = ExtResource("7_rsb7j")
+
+[node name="FxLayer" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("8_5liuh")
+
+[node name="TargetingArrow" type="Control" parent="FxLayer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("9_6w3p8")
+
+[node name="TurnBanner" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("10_7jlo2")
+
+[node name="PileViewer" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("11_at84j")
+
+[node name="ResultOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("12_i10vw")

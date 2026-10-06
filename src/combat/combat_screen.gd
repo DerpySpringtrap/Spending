@@ -1,49 +1,84 @@
 extends Control
-## Milestone 1 placeholder combat screen: plain Controls, no art, no animation.
+## Combat screen and presentation director.
 ##
-## It reads CombatState directly after each action, which is fine while there
-## is no presentation queue. The Milestone 2 screen replaces this with proper
-## components that replay EventBus beats.
+## Flow: player input → CombatState (resolves instantly, emits EventBus
+## signals) → this director turns each signal into a beat on the
+## PresentationQueue → beats animate the views. Views are only ever updated
+## from signal payloads, so what's on screen is always the replay of what
+## happened, in order. Input is accepted only when the queue is idle.
 ##
-## Mouse: click a card, then click an enemy for single-target cards.
-## Keyboard: 1-9/0 select a card (then 1-5 pick a target), E ends the turn,
-## A auto-plays the turn, Esc cancels.
+## Controls: drag cards (mouse), or ←/→ + Accept, then ←/→ to pick a target
+## (keyboard/gamepad). E / Y ends the turn, Q / LB and W / RB show the draw
+## and discard piles, 1-9 play a card by position, A auto-plays (debug).
 
-const CARD_SIZE := Vector2(190, 240)
-const ENEMY_SIZE := Vector2(260, 190)
-const TYPE_COLORS := {
-	CardData.CardType.ATTACK: Color("#5a2a26"),
-	CardData.CardType.SKILL: Color("#26405a"),
-	CardData.CardType.POWER: Color("#4a2a5a"),
-	CardData.CardType.STATUS: Color("#3a3a3a"),
-	CardData.CardType.CURSE: Color("#2a1a2a"),
-}
+enum Mode { LOCKED, HAND, TARGETING }
+
+const PLAY_SPOT := Vector2(0.5, 0.42)  # Fraction of the screen where played cards pause.
+
+@onready var _world: Control = %World
+@onready var _player_anchor: Control = %PlayerAnchor
+@onready var _enemy_row: HBoxContainer = %EnemyRow
+@onready var _hand: HandView = %HandView
+@onready var _fx: CombatFX = %FxLayer
+@onready var _arrow: TargetingArrow = %TargetingArrow
+@onready var _energy: EnergyOrb = %EnergyOrb
+@onready var _gauge: ResourceGauge = %ResourceGauge
+@onready var _draw_pile: PileButton = %DrawPile
+@onready var _discard_pile: PileButton = %DiscardPile
+@onready var _exhaust_pile: PileButton = %ExhaustPile
+@onready var _end_turn: Button = %EndTurnButton
+@onready var _top_bar: TopBar = %TopBar
+@onready var _banner: TurnBanner = %TurnBanner
+@onready var _pile_viewer: PileViewer = %PileViewer
+@onready var _result: ResultOverlay = %ResultOverlay
+@onready var _message: Label = %Message
 
 var combat: CombatState
-var _selected_card: CardInstance
-var _hover_target: Combatant
-var _refresh_queued := false
+var queue: PresentationQueue
+var _views: Dictionary = {}             # combatant id -> CombatantView
+var _in_flight: Dictionary = {}         # card uid -> CardView (played, awaiting its pile)
+var _counts := {"draw": 0, "discard": 0, "exhaust": 0}
+var _mode := Mode.LOCKED
+var _target_index := 0
+var _targeting_card: CardInstance
+var _enemy_banner_shown := false
 var _ai := GreedyPlayerAI.new()
-## [Signal, Callable] pairs connected to the global EventBus, disconnected on exit.
 var _connections: Array = []
-
-var _enemy_row: HBoxContainer
-var _player_label: RichTextLabel
-var _hand_row: HBoxContainer
-var _piles_label: Label
-var _prompt: Label
-var _end_turn_button: Button
-var _autoplay_button: Button
-var _log: RichTextLabel
-var _overlay: Control
-var _overlay_label: Label
-var _overlay_buttons: HBoxContainer
 
 
 func _ready() -> void:
-	_build_ui()
+	UIStyle.speed = 2.0 if Settings.fast_mode else maxf(UIStyle.speed, 1.0)
+	queue = PresentationQueue.new()
+	queue.name = "PresentationQueue"
+	add_child(queue)
+	queue.idle.connect(_on_queue_idle)
+	_fx.shake_target = _world
+	_hand.arrow = _arrow
+	_hand.can_pick_up = _can_pick_up
+	_hand.target_at = _enemy_at
+	_hand.play_requested.connect(_on_play_requested)
+	_hand.target_changed.connect(_on_drag_target_changed)
+	_hand.drag_cancelled.connect(func(_c): _clear_highlights())
+	_hand.rejected.connect(func(_c, reason): _show_message(reason))
+	_end_turn.pressed.connect(_end_player_turn)
+	_draw_pile.pile_name = "Draw"
+	_discard_pile.pile_name = "Discard"
+	_exhaust_pile.pile_name = "Exhaust"
+	_exhaust_pile.accent = UIStyle.BURN
+	_draw_pile.pressed.connect(_open_pile.bind(&"draw"))
+	_discard_pile.pressed.connect(_open_pile.bind(&"discard"))
+	_exhaust_pile.pressed.connect(_open_pile.bind(&"exhaust"))
+	_pile_viewer.closed.connect(_on_queue_idle)
 	_connect_bus()
 	_start_fight()
+
+
+func _exit_tree() -> void:
+	for pair in _connections:
+		if (pair[0] as Signal).is_connected(pair[1]):
+			(pair[0] as Signal).disconnect(pair[1])
+	_connections.clear()
+	Engine.time_scale = 1.0
 
 
 # =============================================================================
@@ -57,11 +92,29 @@ func _start_fight() -> void:
 	GameManager.pending_encounter = null
 	if enc == null:
 		enc = _random_encounter()
-	_log_line("[color=#F6B43C][b]A fight begins: %s[/b][/color]" % ", ".join(enc.enemies.map(func(e): return e.display_name)))
 	combat = CombatState.create(RunState.get_class_data(), RunState.deck, RunState.hp, RunState.max_hp,
 			RunState.relics, enc, RunState.ascension, RunState.rng)
+	_top_bar.refresh()
+	_top_bar.set_location("Act %d · %s" % [RunState.act, String(EncounterData.Pool.keys()[enc.pool]).capitalize()])
+	_gauge.setup(combat.player.get_resource_data(), 0)
+	_energy.set_energy(0, combat.get_max_energy())
+	_counts.draw = combat.draw_pile.size()
+	_update_piles()
+	_spawn_view(combat.player, _player_anchor)
+	for enemy in combat.enemies:
+		_spawn_view(enemy, _enemy_row)
 	combat.start()
-	_queue_refresh()
+
+
+func _spawn_view(c: Combatant, parent: Control) -> void:
+	var view := CombatantView.new().setup(c)
+	parent.add_child(view)
+	_views[c.id] = view
+	if parent == _enemy_row:
+		view.modulate.a = 0.0
+		var t := view.create_tween()
+		t.tween_interval(UIStyle.dur(0.1 * _views.size()))
+		t.tween_property(view, "modulate:a", 1.0, UIStyle.dur(0.35))
 
 
 func _random_encounter() -> EncounterData:
@@ -71,291 +124,557 @@ func _random_encounter() -> EncounterData:
 	return RunState.rng.pick(options, &"encounters")
 
 
-func _connect_bus() -> void:
-	var refresh := func(_a = null, _b = null, _c = null, _d = null): _queue_refresh()
-	for sig in [EventBus.energy_changed, EventBus.class_resource_changed, EventBus.card_drawn,
-			EventBus.card_played, EventBus.damage_dealt, EventBus.block_gained, EventBus.block_cleared,
-			EventBus.status_applied, EventBus.status_removed, EventBus.intent_changed, EventBus.combatant_died]:
-		_listen(sig, refresh)
-	_listen(EventBus.card_played, _on_card_played)
-	_listen(EventBus.damage_dealt, _on_damage_dealt)
-	_listen(EventBus.block_gained, _on_block_gained)
-	_listen(EventBus.status_applied, _on_status_applied)
-	_listen(EventBus.combatant_died, func(c): _log_line("[color=#999]%s dies.[/color]" % c.display_name))
-	_listen(EventBus.turn_started, _on_turn_started)
-	_listen(EventBus.class_resource_maxed, func(_id): _log_line("[color=#FF7A2A][b]OVERHEAT![/b][/color]"))
-	_listen(EventBus.deck_shuffled, func(n): _log_line("[color=#777]Discard pile shuffled into draw pile (%d).[/color]" % n))
-	_listen(EventBus.card_created, func(c, pile): _log_line("A [b]%s[/b] is added to your %s pile." % [c.data.display_name, pile]))
-	_listen(EventBus.combat_ended, func(victory): _show_result.call_deferred(victory))
-
-
 func _listen(sig: Signal, callable: Callable) -> void:
 	sig.connect(callable)
 	_connections.append([sig, callable])
 
 
-func _exit_tree() -> void:
-	for pair in _connections:
-		if (pair[0] as Signal).is_connected(pair[1]):
-			(pair[0] as Signal).disconnect(pair[1])
-	_connections.clear()
+func _connect_bus() -> void:
+	_listen(EventBus.turn_started, _on_turn_started)
+	_listen(EventBus.energy_changed, _on_energy_changed)
+	_listen(EventBus.class_resource_changed, _on_resource_changed)
+	_listen(EventBus.class_resource_maxed, _on_resource_maxed)
+	_listen(EventBus.card_drawn, _on_card_drawn)
+	_listen(EventBus.deck_shuffled, _on_deck_shuffled)
+	_listen(EventBus.card_played, _on_card_played)
+	_listen(EventBus.card_discarded, _on_card_discarded)
+	_listen(EventBus.card_exhausted, _on_card_exhausted)
+	_listen(EventBus.card_created, _on_card_created)
+	_listen(EventBus.attack_started, _on_attack_started)
+	_listen(EventBus.damage_dealt, _on_damage_dealt)
+	_listen(EventBus.block_gained, _on_block_gained)
+	_listen(EventBus.block_broken, _on_block_broken)
+	_listen(EventBus.block_cleared, _on_block_cleared)
+	_listen(EventBus.healed, _on_healed)
+	_listen(EventBus.status_applied, _on_status_applied)
+	_listen(EventBus.status_removed, _on_status_removed)
+	_listen(EventBus.status_triggered, _on_status_triggered)
+	_listen(EventBus.intent_changed, _on_intent_changed)
+	_listen(EventBus.combatant_died, _on_combatant_died)
+	_listen(EventBus.relic_triggered, _on_relic_triggered)
+	_listen(EventBus.combat_ended, _on_combat_ended)
+
+
+# =============================================================================
+# Beats: one handler per EventBus signal (see docs/HOOKS_AND_ASSETS.md)
+# =============================================================================
+
+func _view(c: Combatant) -> CombatantView:
+	return _views.get(c.id) if c != null else null
+
+
+func _on_turn_started(c: Combatant, is_player: bool) -> void:
+	if is_player:
+		_enemy_banner_shown = false
+		queue.push(&"banner", 0, 0.75, func(): _banner.show_banner("Your Turn"))
+	elif not _enemy_banner_shown:
+		_enemy_banner_shown = true
+		queue.push(&"banner", 0, 0.6, func(): _banner.show_banner("Enemy Turn", UIStyle.DAMAGE.lightened(0.2), 0.3))
+
+
+func _on_energy_changed(current: int, max_energy: int) -> void:
+	queue.push(PresentationQueue.INSTANT, 0, 0.0, func(): _energy.set_energy(current, max_energy))
+
+
+func _on_resource_changed(_id: StringName, _old: int, new_value: int, max_value: int) -> void:
+	queue.push(&"resource", 0, 0.08, func(): _gauge.set_value(new_value, max_value))
+
+
+func _on_resource_maxed(_id: StringName) -> void:
+	queue.push(&"overheat", 0, 0.6, func():
+		_gauge.flash()
+		_banner.show_banner("Overheat!", UIStyle.BURN, 0.25)
+		_fx.shake(16)
+		_fx.burst(_view(combat.player).hit_point(), UIStyle.BURN, 40, 520, -200))
+
+
+func _on_card_drawn(card: CardInstance) -> void:
+	queue.push(&"draw", card.uid, 0.08, func(i: int):
+		_counts.draw -= 1
+		_update_piles()
+		var view := CardView.new().setup(card)
+		view.modulate.a = 0.0
+		_hand.add_card(view, _draw_pile.center_global())
+		view.create_tween().tween_property(view, "modulate:a", 1.0, UIStyle.dur(0.12)).set_delay(UIStyle.dur(0.02 * i)))
+
+
+func _on_deck_shuffled(count: int) -> void:
+	queue.push(&"shuffle", 0, 0.4, func():
+		for k in mini(count, 6):
+			_fly_card_back(_discard_pile.center_global(), _draw_pile.center_global(), k * 0.04)
+		_counts.draw = count
+		_counts.discard = 0
+		_update_piles())
+
+
+func _on_card_played(card: CardInstance, _targets: Array) -> void:
+	var is_power := card.data.type == CardData.CardType.POWER
+	var is_attack := card.data.type == CardData.CardType.ATTACK
+	queue.push(&"play", card.uid, 0.3 if not is_power else 0.45, func():
+		var view := _take_from_hand(card)
+		_in_flight[card.uid] = view
+		var player_view := _view(combat.player)
+		if is_attack:
+			player_view.play_attack()
+		else:
+			player_view.play_cast()
+		var t := view.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		if is_power:
+			_in_flight.erase(card.uid)
+			var dest := player_view.hit_point() - view.pivot_offset
+			t.tween_property(view, "global_position", dest, UIStyle.dur(0.4))
+			t.tween_property(view, "scale", Vector2(0.15, 0.15), UIStyle.dur(0.4))
+			t.tween_property(view, "modulate", Color(2, 1.6, 1.2, 0.0), UIStyle.dur(0.4))
+			t.chain().tween_callback(func():
+				_fx.burst(player_view.hit_point(), UIStyle.GOLD, 24, 300, -100)
+				view.queue_free())
+		else:
+			var spot := get_viewport_rect().size * PLAY_SPOT
+			t.tween_property(view, "global_position", spot - view.pivot_offset + Vector2(0, CardView.SIZE.y / 2), UIStyle.dur(0.22))
+			t.tween_property(view, "rotation", 0.0, UIStyle.dur(0.22))
+			t.tween_property(view, "scale", Vector2(1.1, 1.1), UIStyle.dur(0.22)))
+
+
+func _on_card_discarded(card: CardInstance, _manual: bool) -> void:
+	queue.push(&"discard", card.uid, 0.14, func(i: int):
+		var view: CardView = _in_flight.get(card.uid)
+		_in_flight.erase(card.uid)
+		if view == null:
+			view = _take_from_hand(card)
+		_fly_to_pile(view, _discard_pile, i * 0.03, func():
+			_counts.discard += 1
+			_update_piles()))
+
+
+func _on_card_exhausted(card: CardInstance) -> void:
+	queue.push(&"exhaust", card.uid, 0.35, func():
+		var view: CardView = _in_flight.get(card.uid)
+		_in_flight.erase(card.uid)
+		if view == null:
+			view = _take_from_hand(card)
+		_counts.exhaust += 1
+		_update_piles()
+		var t := view.create_tween().set_parallel(true)
+		t.tween_property(view, "modulate", Color(1.6, 0.7, 0.3, 0.0), UIStyle.dur(0.35))
+		t.tween_property(view, "position:y", view.position.y - 60, UIStyle.dur(0.35))
+		t.chain().tween_callback(view.queue_free)
+		_fx.burst(view.global_position + view.pivot_offset - Vector2(0, CardView.SIZE.y * view.scale.y / 2), UIStyle.BURN, 26, 200, -260))
+
+
+func _on_card_created(card: CardInstance, pile: StringName) -> void:
+	queue.push(&"create", card.uid, 0.5, func():
+		var view := CardView.new().setup(card)
+		_fx.add_child(view)
+		var center := get_viewport_rect().size * Vector2(0.5, 0.4)
+		view.global_position = center - view.size / 2
+		view.pivot_offset = view.size / 2
+		view.scale = Vector2(0.2, 0.2)
+		var t := view.create_tween()
+		t.tween_property(view, "scale", Vector2.ONE, UIStyle.dur(0.2)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		t.tween_interval(UIStyle.dur(0.25))
+		t.tween_callback(_route_created_card.bind(view, pile)))
+
+
+func _route_created_card(view: CardView, pile: StringName) -> void:
+	view.pivot_offset = Vector2(CardView.SIZE.x / 2, CardView.SIZE.y)
+	if pile == &"hand":
+		_hand.add_card(view, view.global_position + view.pivot_offset)
+		return
+	var key := "discard"
+	var button := _discard_pile
+	if pile == &"draw":
+		key = "draw"
+		button = _draw_pile
+	elif pile == &"exhaust":
+		key = "exhaust"
+		button = _exhaust_pile
+	_fly_to_pile(view, button, 0.0, func():
+		_counts[key] += 1
+		_update_piles())
+
+
+func _on_attack_started(attacker: Combatant, _targets: Array) -> void:
+	if attacker is EnemyCombatant:
+		queue.push(&"lunge", attacker.id, 0.2, func(): _view(attacker).play_attack())
+
+
+func _on_damage_dealt(info: DamageInfo) -> void:
+	var big := info.type == DamageInfo.Type.ATTACK and info.amount >= 15
+	queue.push(&"hit", info.target.id, 0.34 if big else 0.24, func():
+		var view := _view(info.target)
+		if view == null:
+			return
+		view.set_hp(info.hp_after, info.target.max_hp)
+		view.set_block(info.block_after)
+		var at := view.hit_point()
+		match info.type:
+			DamageInfo.Type.POISON:
+				_fx.burst(at, UIStyle.POISON, 14, 120, 600, 60.0, 1.0, Vector2.DOWN)
+			DamageInfo.Type.BURN:
+				_fx.burst(at, UIStyle.BURN, 22, 260, -380, 50.0)
+			_:
+				_fx.burst(at, Color(1, 0.9, 0.75), 14 if not big else 28, 380, 600)
+		if info.hp_lost > 0:
+			view.play_hurt()
+			view.flash()
+			_fx.number(view.head_point(), str(info.hp_lost), UIStyle.damage_color(info.type), big)
+			if info.type == DamageInfo.Type.ATTACK or info.type == DamageInfo.Type.OTHER:
+				_fx.shake(clampf(info.hp_lost * 0.6, 3.0, 18.0))
+		elif info.blocked > 0:
+			_fx.number(view.head_point(), "Blocked", UIStyle.BLOCK)
+			_fx.burst(at, UIStyle.BLOCK, 12, 260, 300)
+		if big:
+			_fx.hit_stop(0.08)
+		if info.target == combat.player:
+			_top_bar.set_hp(info.hp_after, info.target.max_hp))
+
+
+func _on_block_gained(c: Combatant, amount: int, block_after: int) -> void:
+	queue.push(&"block", c.id, 0.16, func():
+		var view := _view(c)
+		view.set_block(block_after)
+		_fx.number(view.head_point() + Vector2(0, 30), "+%d" % amount, UIStyle.BLOCK)
+		_fx.burst(view.hit_point(), UIStyle.BLOCK, 10, 160, 0, 180.0, 0.8))
+
+
+func _on_block_broken(c: Combatant) -> void:
+	queue.push(PresentationQueue.INSTANT, c.id, 0.0, func():
+		_fx.burst(_view(c).hit_point(), UIStyle.BLOCK.lightened(0.3), 20, 420, 700))
+
+
+func _on_block_cleared(c: Combatant) -> void:
+	queue.push(PresentationQueue.INSTANT, c.id, 0.0, func(): _view(c).set_block(0))
+
+
+func _on_healed(c: Combatant, amount: int, hp_after: int) -> void:
+	queue.push(&"heal", c.id, 0.22, func():
+		var view := _view(c)
+		view.set_hp(hp_after, c.max_hp)
+		_fx.number(view.head_point(), "+%d" % amount, UIStyle.HEAL)
+		_fx.burst(view.hit_point(), UIStyle.HEAL, 16, 140, -200)
+		if c == combat.player:
+			_top_bar.set_hp(hp_after, c.max_hp))
+
+
+func _on_status_applied(c: Combatant, status: StatusEffectData, delta: int, stacks: int) -> void:
+	if delta > 0:
+		queue.push(&"status", c.id, 0.14, func():
+			var view := _view(c)
+			view.set_status(status, stacks, true)
+			_fx.burst(view.hit_point(), status.tint, 12, 180, -60, 180.0, 0.9))
+	else:
+		queue.push(PresentationQueue.INSTANT, c.id, 0.0, func(): _view(c).set_status(status, stacks, false))
+
+
+func _on_status_removed(c: Combatant, status: StatusEffectData) -> void:
+	queue.push(PresentationQueue.INSTANT, c.id, 0.0, func(): _view(c).remove_status(status))
+
+
+func _on_status_triggered(c: Combatant, status: StatusEffectData) -> void:
+	queue.push(&"proc", c.id, 0.12, func(): _view(c).pulse_status(status.id))
+
+
+func _on_intent_changed(enemy: Combatant, move: EnemyMoveData, damage: int, hits: int) -> void:
+	queue.push(PresentationQueue.INSTANT, enemy.id, 0.0, func(): _view(enemy).set_intent(move, damage, hits))
+
+
+func _on_combatant_died(c: Combatant) -> void:
+	queue.push(&"death", c.id, 0.55, func():
+		var view := _view(c)
+		view.play_death()
+		_fx.burst(view.hit_point(), Color(0.85, 0.8, 0.75), 40, 260, -120, 180.0, 1.2))
+
+
+func _on_relic_triggered(relic: RelicData) -> void:
+	queue.push(PresentationQueue.INSTANT, 0, 0.0, func(): _top_bar.flash_relic(relic.id))
+
+
+func _on_combat_ended(victory: bool) -> void:
+	queue.push(&"end", 0, 0.5, func():
+		_clear_highlights()
+		_hand.end_keyboard_targeting(false)
+		_hand.create_tween().tween_property(_hand, "modulate:a", 0.0, UIStyle.dur(0.3))
+		if victory:
+			_view(combat.player).play_victory()
+			var view_size := get_viewport_rect().size
+			for k in 5:
+				_fx.burst(Vector2(view_size.x * (0.15 + k * 0.175), -20), Color.from_hsv(randf(), 0.6, 1.0), 30, 300, 500, 60.0, 1.0, Vector2.DOWN))
+	queue.push(&"result", 0, 0.0, func(): _show_result(victory))
+
+
+# =============================================================================
+# Card motion helpers
+# =============================================================================
+
+func _take_from_hand(card: CardInstance) -> CardView:
+	var view := _hand.take_card(card)
+	if view == null:
+		view = CardView.new().setup(card)
+		_fx.add_child(view)
+		view.global_position = get_viewport_rect().size * Vector2(0.5, 0.8)
+	else:
+		view.reparent(_fx, true)
+	return view
+
+
+func _fly_to_pile(view: CardView, pile: PileButton, delay: float, on_arrive: Callable) -> void:
+	var dest := pile.center_global() - view.pivot_offset + Vector2(0, CardView.SIZE.y * 0.1)
+	var t := view.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	t.tween_property(view, "global_position", dest, UIStyle.dur(0.3)).set_delay(UIStyle.dur(delay))
+	t.tween_property(view, "scale", Vector2(0.2, 0.2), UIStyle.dur(0.3)).set_delay(UIStyle.dur(delay))
+	t.tween_property(view, "rotation", 0.6, UIStyle.dur(0.3)).set_delay(UIStyle.dur(delay))
+	t.chain().tween_callback(func():
+		on_arrive.call()
+		view.queue_free())
+
+
+func _fly_card_back(from: Vector2, to: Vector2, delay: float) -> void:
+	var back := CardView.new()
+	back.face_down = true
+	_fx.add_child(back)
+	back.scale = Vector2(0.25, 0.25)
+	var lift := Vector2(0, CardView.SIZE.y * 0.125)
+	back.global_position = from - back.pivot_offset + lift
+	var t := back.create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	var start := back.global_position
+	var end := to - back.pivot_offset + lift
+	var ctrl := (start + end) / 2 + Vector2(0, -260)
+	t.tween_method(func(k: float): back.global_position = start.lerp(ctrl, k).lerp(ctrl.lerp(end, k), k), 0.0, 1.0, UIStyle.dur(0.35)).set_delay(UIStyle.dur(delay))
+	t.tween_property(back, "rotation", TAU, UIStyle.dur(0.35)).set_delay(UIStyle.dur(delay))
+	t.chain().tween_callback(back.queue_free)
+
+
+func _update_piles() -> void:
+	_draw_pile.count = _counts.draw
+	_discard_pile.count = _counts.discard
+	_exhaust_pile.count = _counts.exhaust
+	_exhaust_pile.visible = _counts.exhaust > 0
 
 
 # =============================================================================
 # Input
 # =============================================================================
 
-func _unhandled_input(event: InputEvent) -> void:
-	if combat == null or combat.is_over() or _overlay.visible:
+func _can_act() -> bool:
+	return combat != null and combat.phase == CombatState.Phase.PLAYER_TURN and not queue.is_busy() \
+			and not _pile_viewer.visible and not _result.visible
+
+
+func _on_queue_idle() -> void:
+	if combat == null or combat.is_over():
+		_set_mode(Mode.LOCKED)
 		return
-	if event.is_action_pressed("ui_cancel"):
-		_select_card(null)
-		accept_event()
-		return
-	if not (event is InputEventKey and event.pressed and not event.echo):
-		return
-	var key: Key = event.keycode
-	if key == KEY_E:
-		_end_turn()
-	elif key == KEY_A:
-		_autoplay()
-	elif key >= KEY_0 and key <= KEY_9:
-		var index := 9 if key == KEY_0 else key - KEY_1
-		if _selected_card != null:
-			var living := combat.living_enemies()
-			if index < living.size():
-				_on_enemy_pressed(living[index])
-		elif index < combat.hand.size():
-			_on_card_pressed(combat.hand[index])
+	if _can_act():
+		if _mode == Mode.LOCKED:
+			_set_mode(Mode.HAND)
+		_refresh_hand()
 	else:
+		_set_mode(Mode.LOCKED)
+
+
+func _set_mode(mode: Mode) -> void:
+	_mode = mode
+	_end_turn.disabled = combat == null or combat.phase != CombatState.Phase.PLAYER_TURN
+	if mode != Mode.TARGETING:
+		_targeting_card = null
+
+
+## Re-renders card text with live numbers and dims unaffordable cards. Only
+## while idle, when live state equals what's shown.
+func _refresh_hand(target: Combatant = null, for_card: CardInstance = null) -> void:
+	var any_playable := false
+	for view in _hand.get_views():
+		var t := target if view.card == for_card else null
+		view.set_description(CardText.render(view.card, combat, t, true))
+		view.affordable = combat.is_affordable(view.card)
+		view.display_cost = view.card.get_cost()
+		any_playable = any_playable or view.affordable
+	# Nudge the player toward End Turn when nothing is playable.
+	_end_turn.modulate = Color(1.15, 1.15, 1.15) if not any_playable and _mode != Mode.LOCKED else Color.WHITE
+
+
+func _can_pick_up(card: CardInstance) -> String:
+	if not _can_act():
+		return "Wait..."
+	if not combat.is_affordable(card):
+		return "Not enough energy" if card.data.is_playable_type() else "This card can't be played"
+	return ""
+
+
+func _enemy_at(global_pos: Vector2) -> Combatant:
+	for enemy in combat.living_enemies():
+		var view := _view(enemy)
+		if view and view.get_global_rect().has_point(global_pos):
+			return enemy
+	return null
+
+
+func _on_drag_target_changed(card: CardInstance, target: Combatant, armed: bool) -> void:
+	_clear_highlights()
+	if card.data.target_mode == CardData.TargetMode.SINGLE_ENEMY and target:
+		_view(target).targeted = true
+	elif card.data.target_mode == CardData.TargetMode.ALL_ENEMIES and armed:
+		for enemy in combat.living_enemies():
+			_view(enemy).targeted = true
+	_refresh_hand(target, card)
+
+
+func _clear_highlights() -> void:
+	for view in _views.values():
+		view.targeted = false
+
+
+func _on_play_requested(card: CardInstance, target: Combatant) -> void:
+	_clear_highlights()
+	var reason := combat.can_play(card, target)
+	if reason != "" or queue.is_busy():
+		_hand.return_card(card)
+		_show_message(reason if reason != "" else "Wait...")
 		return
-	accept_event()
+	_set_mode(Mode.LOCKED)
+	EventBus.tooltip_cleared.emit(null)
+	combat.play_card(card, target)
 
 
-func _on_card_pressed(card: CardInstance) -> void:
-	if combat.phase != CombatState.Phase.PLAYER_TURN:
+func _end_player_turn() -> void:
+	if not _can_act() or _hand.is_dragging():
 		return
-	if _selected_card == card:
-		_select_card(null)
-		return
-	if card.data.target_mode == CardData.TargetMode.SINGLE_ENEMY:
-		var reason := combat.can_play(card, combat.living_enemies()[0])
-		if reason != "":
-			_flash_prompt(reason)
-			return
-		_select_card(card)
-		return
-	var reason := combat.can_play(card)
-	if reason != "":
-		_flash_prompt(reason)
-		return
-	combat.play_card(card)
-	_select_card(null)
-
-
-func _on_enemy_pressed(enemy: EnemyCombatant) -> void:
-	if _selected_card == null or enemy.is_dead:
-		return
-	var card := _selected_card
-	_select_card(null)
-	combat.play_card(card, enemy)
-
-
-func _select_card(card: CardInstance) -> void:
-	_selected_card = card
-	_prompt.text = "" if card == null else "Choose a target for %s (click an enemy or press 1-%d). Esc to cancel." % [
-		card.get_display_name(), combat.living_enemies().size()]
-	_queue_refresh()
-
-
-func _end_turn() -> void:
-	if combat.phase == CombatState.Phase.PLAYER_TURN:
-		_select_card(null)
-		combat.end_player_turn()
+	if _mode == Mode.TARGETING:
+		_hand.end_keyboard_targeting(false)
+	_set_mode(Mode.LOCKED)
+	_clear_highlights()
+	combat.end_player_turn()
 
 
 func _autoplay() -> void:
-	if combat.phase == CombatState.Phase.PLAYER_TURN:
-		_select_card(null)
+	if _can_act() and not _hand.is_dragging():
+		_set_mode(Mode.LOCKED)
 		_ai.play_turn(combat)
 
 
-func _flash_prompt(text: String) -> void:
-	_prompt.text = text
-	_prompt.modulate = Color(1, 0.5, 0.5)
-	var tween := create_tween()
-	tween.tween_property(_prompt, "modulate", Color.WHITE, 0.6)
-
-
-# =============================================================================
-# Rendering
-# =============================================================================
-
-func _queue_refresh() -> void:
-	if not _refresh_queued:
-		_refresh_queued = true
-		_refresh.call_deferred()
-
-
-func _refresh() -> void:
-	_refresh_queued = false
-	if combat == null:
+func _unhandled_input(event: InputEvent) -> void:
+	if not _can_act() or _hand.is_dragging():
 		return
-	_refresh_enemies()
-	_refresh_player()
-	_refresh_hand()
-	var player_turn := combat.phase == CombatState.Phase.PLAYER_TURN
-	_end_turn_button.disabled = not player_turn
-	_autoplay_button.disabled = not player_turn
+	var handled := true
+	if event.is_action_pressed("view_draw"):
+		_open_pile(&"draw")
+	elif event.is_action_pressed("view_discard"):
+		_open_pile(&"discard")
+	elif _mode == Mode.HAND:
+		handled = _hand_input(event)
+	elif _mode == Mode.TARGETING:
+		handled = _targeting_input(event)
+	else:
+		handled = false
+	if handled:
+		get_viewport().set_input_as_handled()
 
 
-func _refresh_enemies() -> void:
-	for child in _enemy_row.get_children():
-		child.queue_free()
-	for i in combat.enemies.size():
-		var enemy := combat.enemies[i]
-		var button := Button.new()
-		button.custom_minimum_size = ENEMY_SIZE
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.focus_mode = Control.FOCUS_NONE
-		if enemy.is_dead:
-			button.text = "%s\n\n(defeated)" % enemy.display_name
-			button.disabled = true
+func _hand_input(event: InputEvent) -> bool:
+	if event.is_action_pressed("end_turn"):
+		_end_player_turn()
+	elif event.is_action_pressed("ui_left"):
+		_hand.move_focus(-1)
+	elif event.is_action_pressed("ui_right"):
+		_hand.move_focus(1)
+	elif event.is_action_pressed("ui_accept"):
+		var card := _hand.focused_card()
+		if card:
+			_activate(card)
 		else:
-			var lines: PackedStringArray = [
-				"[%d] %s" % [i + 1, enemy.display_name],
-				"HP %d / %d%s" % [enemy.hp, enemy.max_hp, ("   Block %d" % enemy.block) if enemy.block > 0 else ""],
-				"",
-				"Intent: " + _intent_text(enemy),
-			]
-			var statuses := _status_text(enemy)
-			if statuses != "":
-				lines.append(statuses)
-			button.text = "\n".join(lines)
-			if _selected_card != null:
-				button.modulate = Color(1.0, 0.85, 0.5)
-			button.pressed.connect(_on_enemy_pressed.bind(enemy))
-			button.mouse_entered.connect(func(): _set_hover_target(enemy))
-			button.mouse_exited.connect(func(): _set_hover_target(null))
-		_enemy_row.add_child(button)
+			_hand.move_focus(1)
+	elif event is InputEventKey and event.pressed and not event.echo:
+		var key: int = event.keycode
+		if key == KEY_A:
+			_autoplay()
+		elif key >= KEY_1 and key <= KEY_9:
+			var index := key - KEY_1
+			if index < combat.hand.size():
+				_hand.set_focus(index)
+				_activate(_hand.focused_card())
+		else:
+			return false
+	else:
+		return false
+	return true
 
 
-func _refresh_player() -> void:
-	var p := combat.player
-	var res := p.get_resource_data()
-	var text := "[b]%s[/b]    HP [color=#E05A47]%d / %d[/color]" % [p.display_name, p.hp, p.max_hp]
-	if p.block > 0:
-		text += "    Block [color=#5AB0E0]%d[/color]" % p.block
-	text += "\nEnergy [color=#F6D743]%d / %d[/color]" % [p.energy, combat.get_max_energy()]
-	if res:
-		var heat_color := "#FF5A2A" if p.resource_value >= res.max_value else res.color.to_html(false)
-		text += "    %s [color=#%s]%d / %d[/color]" % [res.display_name, heat_color.trim_prefix("#"), p.resource_value, res.max_value]
-		if p.resource_value >= res.max_value:
-			text += "  [color=#FF5A2A](will Overheat at end of turn)[/color]"
-	var statuses := _status_text(p)
-	if statuses != "":
-		text += "\n" + statuses
-	if not combat.relics.is_empty():
-		text += "\n[color=#999]Relics: %s[/color]" % ", ".join(combat.relics.map(func(r): return r.display_name))
-	_player_label.text = text
-	_piles_label.text = "Round %d    Draw %d    Discard %d    Exhaust %d" % [
-		combat.round_number, combat.draw_pile.size(), combat.discard_pile.size(), combat.exhaust_pile.size()]
+func _activate(card: CardInstance) -> void:
+	var reason := _can_pick_up(card)
+	if reason != "":
+		_hand.return_card(card)
+		_show_message(reason)
+		return
+	if card.data.target_mode == CardData.TargetMode.SINGLE_ENEMY:
+		_set_mode(Mode.TARGETING)
+		_targeting_card = card
+		_target_index = 0
+		_hand.begin_keyboard_targeting(card)
+		_point_keyboard_target()
+	else:
+		_on_play_requested(card, null)
 
 
-func _refresh_hand() -> void:
-	for child in _hand_row.get_children():
-		child.queue_free()
-	for i in combat.hand.size():
-		var card := combat.hand[i]
-		var button := Button.new()
-		button.custom_minimum_size = CARD_SIZE
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.focus_mode = Control.FOCUS_NONE
-		var cost := card.get_cost()
-		var cost_text := "X" if cost == CardData.COST_X else ("-" if cost == CardData.COST_UNPLAYABLE else str(cost))
-		var target := _hover_target if _selected_card == card else null
-		button.text = "(%s)  %s\n%s · %s\n\n%s\n\n[%d]" % [
-			cost_text, card.get_display_name(),
-			CardData.CardType.keys()[card.data.type].capitalize(),
-			CardData.Rarity.keys()[card.data.rarity].capitalize(),
-			CardText.render(card, combat, target),
-			(i + 1) % 10,
-		]
-		var style := StyleBoxFlat.new()
-		style.bg_color = TYPE_COLORS.get(card.data.type, Color("#333333"))
-		style.set_corner_radius_all(8)
-		style.set_border_width_all(3 if _selected_card == card else 1)
-		style.border_color = Color("#F6B43C") if _selected_card == card else Color("#00000080")
-		button.add_theme_stylebox_override("normal", style)
-		button.add_theme_stylebox_override("hover", style)
-		if not combat.is_affordable(card):
-			button.modulate = Color(1, 1, 1, 0.45)  # "Too expensive" dim.
-		button.pressed.connect(_on_card_pressed.bind(card))
-		_hand_row.add_child(button)
+func _targeting_input(event: InputEvent) -> bool:
+	var living := combat.living_enemies()
+	if event.is_action_pressed("ui_left"):
+		_target_index = wrapi(_target_index - 1, 0, living.size())
+		_point_keyboard_target()
+	elif event.is_action_pressed("ui_right"):
+		_target_index = wrapi(_target_index + 1, 0, living.size())
+		_point_keyboard_target()
+	elif event.is_action_pressed("ui_accept"):
+		var card := _targeting_card
+		var target: Combatant = living[_target_index] if _target_index < living.size() else null
+		_hand.end_keyboard_targeting(true)
+		_set_mode(Mode.HAND)
+		_on_play_requested(card, target)
+	elif event.is_action_pressed("ui_cancel"):
+		_hand.end_keyboard_targeting(false)
+		_set_mode(Mode.HAND)
+		_clear_highlights()
+		_refresh_hand()
+	elif event is InputEventKey and event.pressed and event.keycode >= KEY_1 and event.keycode <= KEY_9:
+		var index: int = event.keycode - KEY_1
+		if index < living.size():
+			_target_index = index
+			_point_keyboard_target()
+	else:
+		return false
+	return true
 
 
-func _set_hover_target(enemy: Combatant) -> void:
-	if _hover_target != enemy:
-		_hover_target = enemy
-		if _selected_card != null:
-			_refresh_hand()
+func _point_keyboard_target() -> void:
+	var living := combat.living_enemies()
+	if living.is_empty():
+		return
+	_target_index = clampi(_target_index, 0, living.size() - 1)
+	var target := living[_target_index]
+	_clear_highlights()
+	_view(target).targeted = true
+	_hand.point_keyboard_arrow(_view(target).hit_point())
+	_refresh_hand(target, _targeting_card)
 
 
-func _intent_text(enemy: EnemyCombatant) -> String:
-	if enemy.skips_turn():
-		return "Stunned"
-	var move := enemy.next_move
-	if move == null:
-		return "?"
-	var label := String(EnemyMoveData.Intent.keys()[move.intent]).capitalize()
-	var dmg := combat.get_intent_damage(enemy)
-	if dmg.x > 0:
-		label += " %d" % dmg.x + (("x%d" % dmg.y) if dmg.y > 1 else "")
-	return "%s (%s)" % [label, move.display_name]
+func _open_pile(which: StringName) -> void:
+	if combat == null or (_mode == Mode.TARGETING):
+		return
+	var render := func(card: CardInstance) -> String: return CardText.render(card, combat, null, true)
+	match which:
+		&"draw":
+			_pile_viewer.open("Draw Pile", combat.draw_pile, render, true)
+		&"discard":
+			_pile_viewer.open("Discard Pile", combat.discard_pile, render)
+		&"exhaust":
+			_pile_viewer.open("Exhausted", combat.exhaust_pile, render)
 
 
-func _status_text(c: Combatant) -> String:
-	var parts: PackedStringArray = []
-	for status_id in c.statuses:
-		var data: StatusEffectData = c.status_data[status_id]
-		if data.hidden:
-			continue
-		var stacks: int = c.statuses[status_id]
-		parts.append(data.display_name if data.stack_mode == StatusEffectData.StackMode.FLAG else "%s %d" % [data.display_name, stacks])
-	return ", ".join(parts)
-
-
-# =============================================================================
-# Combat log
-# =============================================================================
-
-func _log_line(text: String) -> void:
-	_log.append_text(text + "\n")
-
-
-func _on_turn_started(c, is_player: bool) -> void:
-	if is_player:
-		_log_line("\n[color=#F6B43C]— Round %d —[/color]" % combat.round_number)
-
-
-func _on_card_played(card: CardInstance, targets: Array) -> void:
-	var on := "" if targets.is_empty() or targets.size() > 1 else " on %s" % targets[0].display_name
-	_log_line("You play [b]%s[/b]%s." % [card.get_display_name(), on])
-
-
-func _on_damage_dealt(info: DamageInfo) -> void:
-	var kind := "" if info.type == DamageInfo.Type.ATTACK else " (%s)" % String(DamageInfo.Type.keys()[info.type]).to_lower()
-	var blocked := "" if info.blocked == 0 else ", %d blocked" % info.blocked
-	_log_line("%s takes [color=#E05A47]%d[/color] damage%s%s." % [info.target.display_name, info.hp_lost, kind, blocked])
-
-
-func _on_block_gained(c, amount: int, _after: int) -> void:
-	_log_line("%s gains [color=#5AB0E0]%d[/color] Block." % [c.display_name, amount])
-
-
-func _on_status_applied(c, status: StatusEffectData, delta: int, stacks: int) -> void:
-	if delta > 0 and not status.hidden:
-		_log_line("%s gains [color=#%s]%s[/color] (%d)." % [c.display_name, status.tint.to_html(false), status.display_name, stacks])
+func _show_message(text: String) -> void:
+	_message.text = text
+	_message.modulate.a = 1.0
+	var t := _message.create_tween()
+	t.tween_interval(0.8)
+	t.tween_property(_message, "modulate:a", 0.0, 0.4)
 
 
 # =============================================================================
@@ -363,136 +682,25 @@ func _on_status_applied(c, status: StatusEffectData, delta: int, stacks: int) ->
 # =============================================================================
 
 func _show_result(victory: bool) -> void:
-	for child in _overlay_buttons.get_children():
-		child.queue_free()
 	if victory:
 		var gold := 0
 		for enemy in combat.enemies:
 			gold += RunState.rng.get_stream(&"rewards").randi_range(enemy.data.gold_min, enemy.data.gold_max)
 		RunState.set_hp(combat.player.hp)
 		RunState.add_gold(gold)
-		_overlay_label.text = "Victory!\n\nHP %d / %d    +%d gold (%d total)" % [RunState.hp, RunState.max_hp, gold, RunState.gold]
-		_add_overlay_button("Next Fight", func(): GameManager.start_combat(_random_encounter()))
+		_result.show_result("Victory", UIStyle.GOLD, "HP %d / %d     +%d gold" % [RunState.hp, RunState.max_hp, gold], [
+			["Next Fight", func(): GameManager.start_combat(_random_encounter())],
+			["Back to Title", _back_to_title],
+		])
 	else:
-		_overlay_label.text = "Defeat.\n\nYou fell in round %d." % combat.round_number
-		_add_overlay_button("New Run", func():
-			RunState.clear()
-			GameManager.start_debug_combat())
-	_add_overlay_button("Back to Title", func():
-		RunState.clear()
-		GameManager.go_to_screen(&"boot"))
-	_overlay.visible = true
-	(_overlay_buttons.get_child(0) as Button).grab_focus()
+		_result.show_result("Defeat", UIStyle.DAMAGE, "You fell in round %d." % combat.round_number, [
+			["New Run", func():
+				RunState.clear()
+				GameManager.start_debug_combat()],
+			["Back to Title", _back_to_title],
+		])
 
 
-func _add_overlay_button(text: String, action: Callable) -> void:
-	var button := Button.new()
-	button.text = text
-	button.custom_minimum_size = Vector2(200, 56)
-	button.pressed.connect(action)
-	_overlay_buttons.add_child(button)
-
-
-# =============================================================================
-# Layout (built in code: this whole screen is replaced in Milestone 2)
-# =============================================================================
-
-func _build_ui() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
-	var bg := ColorRect.new()
-	bg.color = Color("#141218")
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(bg)
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 24)
-	add_child(margin)
-
-	var root := HBoxContainer.new()
-	root.add_theme_constant_override("separation", 24)
-	margin.add_child(root)
-
-	var main := VBoxContainer.new()
-	main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	main.add_theme_constant_override("separation", 14)
-	root.add_child(main)
-
-	var title := Label.new()
-	title.text = "Act 1 · Placeholder combat (Milestone 1)"
-	title.add_theme_font_size_override("font_size", 18)
-	title.modulate = Color(1, 1, 1, 0.5)
-	main.add_child(title)
-
-	_enemy_row = HBoxContainer.new()
-	_enemy_row.alignment = BoxContainer.ALIGNMENT_END
-	_enemy_row.add_theme_constant_override("separation", 16)
-	main.add_child(_enemy_row)
-
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	main.add_child(spacer)
-
-	_player_label = RichTextLabel.new()
-	_player_label.bbcode_enabled = true
-	_player_label.fit_content = true
-	_player_label.add_theme_font_size_override("normal_font_size", 22)
-	_player_label.add_theme_font_size_override("bold_font_size", 22)
-	main.add_child(_player_label)
-
-	var controls := HBoxContainer.new()
-	controls.add_theme_constant_override("separation", 12)
-	main.add_child(controls)
-	_piles_label = Label.new()
-	_piles_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	controls.add_child(_piles_label)
-	_autoplay_button = Button.new()
-	_autoplay_button.text = "Auto-play Turn (A)"
-	_autoplay_button.pressed.connect(_autoplay)
-	controls.add_child(_autoplay_button)
-	_end_turn_button = Button.new()
-	_end_turn_button.text = "End Turn (E)"
-	_end_turn_button.custom_minimum_size = Vector2(180, 48)
-	_end_turn_button.pressed.connect(_end_turn)
-	controls.add_child(_end_turn_button)
-
-	_prompt = Label.new()
-	_prompt.custom_minimum_size = Vector2(0, 28)
-	main.add_child(_prompt)
-
-	_hand_row = HBoxContainer.new()
-	_hand_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_hand_row.add_theme_constant_override("separation", 10)
-	_hand_row.custom_minimum_size = Vector2(0, CARD_SIZE.y)
-	main.add_child(_hand_row)
-
-	var log_panel := PanelContainer.new()
-	log_panel.custom_minimum_size = Vector2(440, 0)
-	root.add_child(log_panel)
-	_log = RichTextLabel.new()
-	_log.bbcode_enabled = true
-	_log.scroll_following = true
-	_log.add_theme_font_size_override("normal_font_size", 16)
-	_log.add_theme_font_size_override("bold_font_size", 16)
-	log_panel.add_child(_log)
-
-	_overlay = ColorRect.new()
-	(_overlay as ColorRect).color = Color(0, 0, 0, 0.7)
-	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_overlay.visible = false
-	add_child(_overlay)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_overlay.add_child(center)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 24)
-	center.add_child(box)
-	_overlay_label = Label.new()
-	_overlay_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_overlay_label.add_theme_font_size_override("font_size", 36)
-	box.add_child(_overlay_label)
-	_overlay_buttons = HBoxContainer.new()
-	_overlay_buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	_overlay_buttons.add_theme_constant_override("separation", 16)
-	box.add_child(_overlay_buttons)
+func _back_to_title() -> void:
+	RunState.clear()
+	GameManager.go_to_screen(&"boot")

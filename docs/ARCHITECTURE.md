@@ -29,7 +29,7 @@ res://
 │   │   ├── effects/               # GameEffect subclasses (DealDamage, GainBlock, ApplyStatus…)
 │   │   ├── behaviors/             # StatusBehavior / RelicBehavior escape-hatch scripts
 │   │   └── ai/                    # EnemyAI subclasses for SCRIPTED bosses
-│   ├── presentation/              # M2: PresentationQueue, VFX director, damage numbers, camera FX
+│   ├── presentation/              # PresentationQueue, CombatFX (numbers, particles, shake, hit-stop)
 │   ├── map/                       # M3: MapGenerator, map screen, node scenes
 │   ├── ui/
 │   │   ├── theme/                 # main_theme.tres + style tokens (the "style guide in code")
@@ -68,6 +68,7 @@ Loaded in this order (later ones may depend on earlier ones):
 | `AudioManager` | `src/autoload/audio_manager.gd` | Crossfading music (2 players), ambience layer, pooled SFX with pitch variance. |
 | `SceneRouter` | `src/autoload/scene_router.gd` | All screen changes with fade transitions and input blocking. Emits `screen_changed`. |
 | `GameManager` | `src/autoload/game_manager.gd` | Flow decisions: new run, continue, start combat, end run → summary. The only place that picks the next screen. |
+| `TooltipLayer` | `src/autoload/tooltip_layer.gd` | One global tooltip for mouse hover and keyboard/gamepad focus (`EventBus.tooltip_requested`). |
 
 Deliberately **not** autoloads: `CombatState` (one per fight, owned by the combat screen, so it's freed afterwards and tests can create it freely) and the `PresentationQueue` (lives in the combat scene).
 
@@ -164,9 +165,10 @@ The animation and audio hook plan (deliverable #5) will map every signal to its 
 - **Continue semantics:** Slay the Spire style. Quitting mid-combat resumes at the start of that node with the same seed. Because RNG streams are restored, the fight replays identically, which prevents save-scumming.
 - Meta and run saves are fully independent. Deleting a corrupt run file never costs the player unlocks.
 
-## 8. UI architecture (detailed in Milestone 2)
+## 8. UI architecture (Milestone 2: implemented; full plan in `docs/UI_PLAN.md`)
 
-- **One `Theme` resource** (`src/ui/theme/main_theme.tres`) defines fonts, sizes, colours, StyleBoxes and spacing. A `UIStyle` script holds the design tokens (rarity colours, damage/heal/block colours, animation durations and easings) so code and theme share one source of truth.
+- **One `Theme` resource** (`src/ui/theme/main_theme.tres`, set as the project theme) defines fonts, sizes, colours, StyleBoxes and spacing. It is generated from `UIStyle` (`src/ui/theme/ui_style.gd`), the single source of design tokens; run `tools/build_theme.gd` (File → Run in the script editor) after changing tokens. Components that draw in code read the same constants.
+- **Presentation:** `src/presentation/presentation_queue.gd` plays beats and `combat_fx.gd` does numbers, particles, shake and hit-stop. The combat director is `src/combat/combat_screen.gd` (one handler per EventBus signal). Components live in `src/ui/components/`.
 - Screens are `Control` trees with proper anchors and containers. Gameplay visuals (characters, VFX) are `Node2D` in a `SubViewport` or `CanvasLayer` underneath the UI.
 - Every interactive control has focus neighbours set. Cards in hand are focusable, and an input map (`end_turn`, `view_deck`, `view_draw`, `view_discard`, `map`, `confirm`, `cancel`) works on keyboard and gamepad.
 

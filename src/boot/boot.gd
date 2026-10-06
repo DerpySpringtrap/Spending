@@ -21,7 +21,7 @@ func _ready() -> void:
 	start.disabled = ContentDB.get_character_class(&"pyre_warden") == null
 	_center.add_child(start)
 	var hint := Label.new()
-	hint.text = "Click a card, then an enemy · 1-9 select · E end turn · A auto-play · Esc cancel"
+	hint.text = "Drag cards to play · ←/→ + Enter (or gamepad) · E end turn · Q/W piles · A auto-play"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.modulate = Color(1, 1, 1, 0.5)
 	_center.add_child(hint)

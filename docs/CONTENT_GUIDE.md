@@ -49,6 +49,12 @@ How to add cards, statuses, relics and enemies without writing code. Every piece
 4. Bosses: add more phases with lower `hp_threshold` values and optional `on_enter_effects`.
 5. Put it in an `EncounterData` (act + pool) so the run can roll it.
 
+## Art hooks
+Until real art exists, bodies, card art and icons are flat vector placeholders drawn in code (`PlaceholderArt`, `VectorIcons`).
+- Give an enemy real art by setting `EnemyData.visual_scene` to a scene with an `AnimationPlayer` named `AnimationPlayer` that has clips `idle`, `attack`, `hurt` (optionally `cast`, `victory`).
+- Do the same for a class with `CharacterClassData.combat_scene`.
+- Set `icon` on statuses and relics to replace their glyphs.
+
 ## Rules that keep data safe
 - **Enums are append-only.** Godot stores enum fields as integers in `.tres`. Inserting a value mid-enum silently changes the meaning of existing content. Always add new values at the end.
 - Reference content by `id` in code and saves, never by path.

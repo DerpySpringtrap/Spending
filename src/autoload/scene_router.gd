@@ -15,6 +15,7 @@ var _overlay: ColorRect
 
 
 func _ready() -> void:
+	UIStyle.install_font_fallbacks()
 	layer = 100
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_overlay = ColorRect.new()
