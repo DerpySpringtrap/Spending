@@ -1,0 +1,49 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Duskbound"
+config/description="A run-based roguelike deckbuilder."
+run/main_scene="res://src/boot/boot.tscn"
+config/features=PackedStringArray("4.4")
+
+[audio]
+
+buses/default_bus_layout="res://default_bus_layout.tres"
+
+[autoload]
+
+EventBus="*res://src/autoload/event_bus.gd"
+ContentDB="*res://src/autoload/content_db.gd"
+Settings="*res://src/autoload/settings.gd"
+MetaProgress="*res://src/autoload/meta_progress.gd"
+RunState="*res://src/autoload/run_state.gd"
+AudioManager="*res://src/autoload/audio_manager.gd"
+SceneRouter="*res://src/autoload/scene_router.gd"
+GameManager="*res://src/autoload/game_manager.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1600
+window/size/window_height_override=900
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[gui]
+
+common/snap_controls_to_pixels=true
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=1
+2d/snap/snap_2d_transforms_to_pixel=false
