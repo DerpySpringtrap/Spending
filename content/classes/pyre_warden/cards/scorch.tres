@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_6fjt7"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_tko2g"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_25hwx"]
+
+[sub_resource type="Resource" id="Resource_ai43f"]
+script = ExtResource("2_tko2g")
+damage_type = 0
+amount = 4
+upgrade_delta = 2
+times = 2
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[resource]
+script = ExtResource("3_25hwx")
+id = &"scorch"
+display_name = "Scorch"
+description = "Deal {dmg} damage twice."
+card_pool = &"pyre_warden"
+type = 0
+rarity = 1
+target_mode = 1
+cost = 1
+effects = Array[ExtResource("1_6fjt7")]([SubResource("Resource_ai43f")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_6fjt7")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_6fjt7")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

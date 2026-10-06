@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_oqxjb"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_k6rpp"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="3_qqtuh"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="4_ol4bd"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="5_jv8uw"]
+
+[sub_resource type="Resource" id="Resource_tqcfd"]
+script = ExtResource("2_k6rpp")
+amount = 4
+upgrade_delta = 2
+times = 1
+target = 1
+value_key = &"block"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_28fec"]
+script = ExtResource("3_qqtuh")
+status = ExtResource("4_ol4bd")
+amount = 1
+upgrade_delta = 1
+times = 1
+target = 2
+value_key = &"weak"
+scale = 0
+
+[resource]
+script = ExtResource("5_jv8uw")
+id = &"soot_cloud"
+display_name = "Soot Cloud"
+description = "Gain {block} Block.
+Apply {weak} Weak to ALL enemies."
+card_pool = &"pyre_warden"
+type = 1
+rarity = 1
+target_mode = 2
+cost = 1
+effects = Array[ExtResource("1_oqxjb")]([SubResource("Resource_tqcfd"), SubResource("Resource_28fec")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_oqxjb")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_oqxjb")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

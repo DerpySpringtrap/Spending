@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_fhdsf"]
+[ext_resource type="Resource" path="res://content/enemies/act1/broodling.tres" id="2_fhdsf"]
+[ext_resource type="Resource" path="res://content/enemies/act1/drowned_matriarch.tres" id="3_4tjgl"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_ha5x3"]
+
+[resource]
+script = ExtResource("4_ha5x3")
+id = &"a1_drowned_matriarch"
+act = 1
+pool = 3
+enemies = Array[ExtResource("1_fhdsf")]([ExtResource("2_fhdsf"), ExtResource("3_4tjgl"), ExtResource("2_fhdsf")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

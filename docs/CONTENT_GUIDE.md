@@ -22,6 +22,8 @@ How to add cards, statuses, relics and enemies without writing code. Every piece
 | `AddCardToPileEffect` | Create cards (status clutter, tokens) | `card`, `pile`, `amount` = copies |
 | `SpreadStatusEffect` | Copy target's stacks to the other enemies | `status` |
 | `OverheatEffect` | Pyre Warden's Overheat (used by the Heat resource) | blast/recoil/reset values |
+| `SummonEnemyEffect` | Adds enemies mid-fight (boss adds) | `enemy`, `amount`, `max_enemies` |
+| `RemoveDebuffsEffect` | Cleanses debuffs (phase changes) | `target` |
 
 4. **Upgrades:** set `upgrade_delta` on each effect (+3 damage, +1 Burn…), and/or `upgraded_cost`, `upgrade_adds_keywords`, `upgraded_description`.
 5. **Description:** write it with tokens. `Deal {dmg} damage. Stoke {heat}.` Each token must match an effect's `value_key`. The card shows live numbers: Strength, Weak and the hovered enemy's Vulnerable are all included. Keywords such as *Exhaust* are appended automatically.
@@ -48,6 +50,14 @@ How to add cards, statuses, relics and enemies without writing code. Every piece
    - Enemy effects target from the enemy's point of view: `CHOSEN` = the player, `SELF` = the enemy, `ALL_ENEMIES` = the player's side.
 4. Bosses: add more phases with lower `hp_threshold` values and optional `on_enter_effects`.
 5. Put it in an `EncounterData` (act + pool) so the run can roll it.
+
+## Adding an event
+`content/events/<id>.tres` → **EventData**: title, description, `glyph` (placeholder art) and a list of `EventChoice`s.
+- Each choice has button `text`, `result_text`, optional `min_gold` / `min_hp` requirements and `outcomes`.
+- `EventOutcome` types cover gold, HP (flat or `percent` of max HP), max HP, a specific card (curses), a random class card of a rarity, card removal or upgrade (the player picks), random upgrades, relics, potions and `FIGHT` (an `EncounterData`; winning grants a bonus relic).
+
+## Adding a potion
+**PotionData**: `effects` (any GameEffects), `target_mode` (`SINGLE_ENEMY` shows the targeting arrow), `liquid_color` for the bottle, and `usable_outside_combat` (only Heal effects apply on the map).
 
 ## Art hooks
 Until real art exists, bodies, card art and icons are flat vector placeholders drawn in code (`PlaceholderArt`, `VectorIcons`).

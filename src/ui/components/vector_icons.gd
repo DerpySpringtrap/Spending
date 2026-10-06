@@ -163,6 +163,30 @@ static func _draw_unit(ci: CanvasItem, glyph: StringName, c: Color, shade: Color
 			ci.draw_circle(Vector2.ZERO, 0.9, shade)
 			ci.draw_circle(Vector2.ZERO, 0.72, c)
 			_poly(ci, _rect(-0.1, -0.45, 0.2, 0.9), shade)
+		&"chest":
+			_poly(ci, _rect(-0.9, -0.15, 1.8, 1.0), shade)
+			_poly(ci, PackedVector2Array([Vector2(-0.9, -0.15), Vector2(-0.75, -0.75), Vector2(0.75, -0.75), Vector2(0.9, -0.15)]), c)
+			_poly(ci, _rect(-0.9, -0.22, 1.8, 0.16), Color(0, 0, 0, 0.5))
+			_poly(ci, _rect(-0.14, -0.3, 0.28, 0.4), Color("#F6D743"))
+		&"campfire":
+			_poly(ci, _rotated(_rect(-0.9, 0.62, 1.8, 0.22), 0.25), Color("#6B4A33"))
+			_poly(ci, _rotated(_rect(-0.9, 0.62, 1.8, 0.22), -0.25), Color("#7A5A40"))
+			_poly(ci, _scaled(_flame_points(), 0.78, Vector2(0, -0.12)), c)
+			_poly(ci, _scaled(_flame_points(), 0.42, Vector2(0, 0.12)), Color("#FFD27A"))
+		&"horns":
+			_poly(ci, PackedVector2Array([Vector2(-0.55, -0.1), Vector2(-1.0, -0.95), Vector2(-0.25, -0.35)]), shade)
+			_poly(ci, PackedVector2Array([Vector2(0.55, -0.1), Vector2(1.0, -0.95), Vector2(0.25, -0.35)]), shade)
+			ci.draw_circle(Vector2(0, 0.15), 0.62, c)
+			ci.draw_circle(Vector2(-0.24, 0.05), 0.14, Color(0, 0, 0, 0.85))
+			ci.draw_circle(Vector2(0.24, 0.05), 0.14, Color(0, 0, 0, 0.85))
+			_poly(ci, _rect(-0.25, 0.42, 0.5, 0.12), Color(0, 0, 0, 0.6))
+		&"cards":
+			_poly(ci, _rotated(_rect(-0.55, -0.8, 1.1, 1.5), -0.25), shade)
+			_poly(ci, _rotated(_rect(-0.5, -0.75, 1.1, 1.5), 0.12), c)
+		&"lock":
+			ci.draw_arc(Vector2(0, -0.25), 0.42, PI, TAU, 16, c, 0.18)
+			_poly(ci, _rect(-0.62, -0.2, 1.24, 1.0), c)
+			ci.draw_circle(Vector2(0, 0.22), 0.14, Color(0, 0, 0, 0.8))
 		&"question":
 			ci.draw_arc(Vector2(0, -0.3), 0.45, PI * 1.05, PI * 2.4, 16, c, 0.26)
 			_poly(ci, _rect(-0.13, 0.05, 0.26, 0.35), c)

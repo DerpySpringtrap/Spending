@@ -69,6 +69,7 @@ Loaded in this order (later ones may depend on earlier ones):
 | `SceneRouter` | `src/autoload/scene_router.gd` | All screen changes with fade transitions and input blocking. Emits `screen_changed`. |
 | `GameManager` | `src/autoload/game_manager.gd` | Flow decisions: new run, continue, start combat, end run → summary. The only place that picks the next screen. |
 | `TooltipLayer` | `src/autoload/tooltip_layer.gd` | One global tooltip for mouse hover and keyboard/gamepad focus (`EventBus.tooltip_requested`). |
+| `DebugTools` | `src/autoload/debug_tools.gd` | Play-testing hotkeys (F1–F9). Disabled in release exports. |
 
 Deliberately **not** autoloads: `CombatState` (one per fight, owned by the combat screen, so it's freed afterwards and tests can create it freely) and the `PresentationQueue` (lives in the combat scene).
 
@@ -140,6 +141,19 @@ Runtime (non-Resource) types:
 - **Code map:** `src/combat/combat_state.gd` (rules and turn loop), `combatant.gd` / `player_combatant.gd` / `enemy_combatant.gd`, `effect_context.gd`, `action_queue.gd`, `damage_calc.gd` (the one pipeline, also used for previews), `card_text.gd` (live descriptions), `effects/` (11 GameEffects), `ai/enemy_ai.gd` (intent selection), `ai/greedy_player_ai.gd` (sim/autoplay AI).
 - **Status timing:** Weak/Vulnerable/Frail decay at round end. If an enemy applies one during its turn, the first decay is skipped, so "1 Weak" always covers the player's next turn. Poison ticks at turn start (ignores Block). Burn ticks at turn end (blocked by Block) and then halves.
 - **Presentation replay:** the queue groups signals into beats (e.g. `attack_started` + `damage_dealt` + `status_applied` = one beat), plays each beat's animation, then the next. Player input is disabled while beats are pending. Fast mode shortens beats; tests skip them entirely.
+
+## 5b. Run flow (Milestone 3)
+
+```
+MainMenu → ClassSelect → GameManager.start_new_run → MapScreen
+MapScreen ── select_map_node ──► combat / rest / shop / event / treasure (reward)
+combat ── on_combat_won ──► RewardScreen ── complete_node ──► MapScreen (saved)
+boss won ──► end_run(victory) ──► RunSummary        death ──► end_run(false)
+```
+
+- `GameManager` is the only router. Screens report what happened (node picked, fight won, shop left).
+- `RunLogic` (`src/run/run_logic.gd`) holds the non-combat rules as pure functions over `RunState`: reward rolls, encounter/event picks, shop stock and prices, rest healing, event outcomes. `MapGenerator` builds the map as JSON-safe data. The headless `run_sim` uses the same functions, so simulated runs follow the real rules.
+- Screens under `src/ui/screens/` and `src/map/` are code-built Control trees assembled from shared components (`UIBuild`, `TopBar`, `CardView`, `PileViewer` in picker mode).
 
 ## 6. Event bus
 

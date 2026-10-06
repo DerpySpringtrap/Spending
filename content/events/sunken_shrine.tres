@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_u4jyg"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_ypa0y"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="3_l45kr"]
+
+[sub_resource type="Resource" id="Resource_u4jyg"]
+script = ExtResource("2_ypa0y")
+type = 3
+amount = 7
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_ypa0y"]
+script = ExtResource("2_ypa0y")
+type = 11
+amount = 0
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_l45kr"]
+script = ExtResource("1_u4jyg")
+text = "[Pray] Lose 7 HP. Gain a relic."
+result_text = "Something answers. You feel lighter, and weaker, as the glow passes into your hands."
+outcomes = Array[ExtResource("2_ypa0y")]([SubResource("Resource_u4jyg"), SubResource("Resource_ypa0y")])
+min_gold = 0
+min_hp = 7
+
+[sub_resource type="Resource" id="Resource_2auex"]
+script = ExtResource("1_u4jyg")
+text = "[Leave]"
+result_text = "You move on."
+outcomes = Array[ExtResource("2_ypa0y")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("3_l45kr")
+id = &"sunken_shrine"
+title = "The Sunken Shrine"
+description = "Half-swallowed by the bog, a shrine to a forgotten saint still glows faintly. The water around it is warm, and red."
+act = 1
+glyph = &"star"
+choices = Array[ExtResource("1_u4jyg")]([SubResource("Resource_l45kr"), SubResource("Resource_2auex")])

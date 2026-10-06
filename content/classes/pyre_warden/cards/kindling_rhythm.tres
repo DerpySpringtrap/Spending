@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_gvxbg"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_qkbyi"]
+[ext_resource type="Resource" path="res://content/statuses/kindling_rhythm.tres" id="3_6d4rp"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_qo1nx"]
+
+[sub_resource type="Resource" id="Resource_8wqh3"]
+script = ExtResource("2_qkbyi")
+status = ExtResource("3_6d4rp")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &"heat"
+scale = 0
+
+[resource]
+script = ExtResource("4_qo1nx")
+id = &"kindling_rhythm"
+display_name = "Kindling Rhythm"
+description = "Whenever you play an Attack, Stoke {heat}."
+card_pool = &"pyre_warden"
+type = 2
+rarity = 2
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_gvxbg")]([SubResource("Resource_8wqh3")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"heat"])
+on_discard_effects = Array[ExtResource("1_gvxbg")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_gvxbg")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([&"innate"])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

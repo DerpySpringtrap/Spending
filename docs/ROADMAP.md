@@ -7,7 +7,7 @@ Each milestone ends with something playable and a review checkpoint before the n
 | **0** | **Architecture** ✅ | Folder layout, autoloads, Resource classes, EventBus, save system, class/enemy design docs | Project boots headless; smoke test passes |
 | **1** | **Core combat loop** ✅ | `CombatState`, `Combatant`, `ActionQueue`, damage pipeline, ~12 `GameEffect`s, data-driven statuses (Block, Strength, Dexterity, Weak, Vulnerable, Frail, Poison, Burn, Thorns, Stun), Pyre Warden (starting deck + ~10 cards + Heat/Overheat + starting relic), 3 Act 1 enemies with intents, placeholder UI (buttons and labels) | Win/lose a full fight against each enemy; combat unit tests pass; headless auto-battler runs 1,000 fights |
 | **2** | **UI & animation pass** ✅ | Theme/style guide, CardView (live numbers, rarity frames, too-expensive dimming), hand fan + hover, drag-to-play with targeting arrow, HP bars with lagging depletion, status trays + tooltips, intent icons, PresentationQueue, draw/play/discard card motion, lunge + hit-stop + screen shake, damage numbers, death dissolve, keyboard/gamepad input | Combat feels good with placeholder art; fully playable with a controller |
-| **3** | **Map & run structure** | Map generator (branching nodes, path rules), map screen (pan/zoom, fog, animated nodes), rewards, shop (buy/remove/upgrade), rest site (heal/upgrade), treasure, 8 events, potions, relic bar, Acts 1–3 with bosses, run summary + death screen, save/continue, main menu + class select | A complete run with one class from menu to victory/death |
+| **3** | **Map & run structure** ✅ *(Act 1, early playable)* | Map generator (branching nodes, path rules), map screen (pan/zoom, fog, animated nodes), rewards, shop (buy/remove/upgrade), rest site (heal/upgrade), treasure, 8 events, potions, relic bar, Acts 1–3 with bosses, run summary + death screen, save/continue, main menu + class select | A complete run with one class from menu to victory/death |
 | **4** | **Content** | Remaining 3 classes with full pools (~34 cards each), all 15 enemies, 8 elites, 4 bosses with phases, ~40 relics, ~15 potions, ~20 events, Act 4, meta-progression unlock tracks, ascension 1–15, content validator tool | Every designed entity exists as data and is reachable in a run |
 | **5** | **Audio & juice** | Adaptive music with crossfades (map/combat/elite/boss layers), per-biome ambience, full SFX hookup via EventBus, class motifs, particles (hits, statuses, rare sparkle), boss intro cinematic, near-death vignette, victory confetti/light rays, menu transitions | Every EventBus signal has its planned audio-visual response |
 | **6** | **Balance & polish** | Auto-battler balance sweeps, win-rate targets per class/ascension, accessibility (text size, colourblind-safe intents, reduced shake), settings menu, mid-combat save, performance pass, bug bash | Release-candidate quality |
@@ -48,3 +48,22 @@ Early read for M6 tuning: Thornback Beetle is heavy for the easy pool (the AI at
 **Verification:** `tests/ui_smoke_test.tscn` plays with real mouse-drag and keyboard input events and checks after every animation burst that HP, block, statuses, intents, hand, pile counts, energy and Heat on screen match the combat state.
 
 **Deferred:** class select and main menu (M3, with the map), settings menu (M6), boss intro cinematic and near-death vignette (M5).
+
+## Milestone 3 notes: early playable
+
+**Delivered:** main menu (with options), class select (Warden playable, the other three shown as coming), seeded map generator (15 floors, Slay the Spire–style room rules) with fog of war, reward / shop / rest / treasure / event screens, card picker (upgrade previews, removal), potions in and out of combat (targeted potions use the arrow), run summary with stats, save on map + continue, debug hotkeys.
+
+**Content added:** 14 Warden cards (30 total), 4 new powers, 11 relics, 8 potions, 2 curses, 5 events, Wisp Lantern, Hollow Woodsman, Gorehorn Bull and Swamp Witch elites, and the Drowned Matriarch boss with Broodlings. Data-only via new `EventData` / `EventChoice` / `EventOutcome` resources plus `SummonEnemyEffect` and `RemoveDebuffsEffect`.
+
+**Scope note:** the run ends in victory after the Act 1 boss. Acts 2–3 need the Milestone 4 enemy content.
+
+**Balance pass (simulators):** the first full-run simulation won 0% of runs. Traces showed the Matriarch's re-summoned Toxic Burst toads poisoning the player to death, so she now summons dedicated Broodlings with a cooldown. The Gorehorn Bull, Thornback Beetle and Mire Toad were also toned down. Current numbers for the deliberately simple AI (no block planning, random paths):
+
+| Measure | Result |
+|---|---|
+| Full Act 1 runs won (`run_sim`, 300 runs) | 14% (avg floor 12.9) |
+| Boss at full HP, starter + 8 random cards | 40% |
+| Gorehorn Bull / Swamp Witch at full HP, starter + 4 cards | 99% / 100% (≈42 / 26 HP lost) |
+| Hallway fights | 100%, 9–25 HP lost on average |
+
+A human player should do considerably better than this AI. Treat these as a baseline to compare against play-testing feedback.

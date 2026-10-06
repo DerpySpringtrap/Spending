@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_rpl7w"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_gkpga"]
+[ext_resource type="Resource" path="res://content/encounters/act1/a1_toad_king.tres" id="3_4fhb2"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="4_xhm70"]
+
+[sub_resource type="Resource" id="Resource_rpl7w"]
+script = ExtResource("2_gkpga")
+type = 13
+amount = 0
+percent = false
+rarity = 1
+relic_rarity = 1
+encounter = ExtResource("3_4fhb2")
+
+[sub_resource type="Resource" id="Resource_gkpga"]
+script = ExtResource("1_rpl7w")
+text = "[Fight] Face the Toad King's court. Win a relic."
+result_text = "\"So be it!\" The court leaps at you."
+outcomes = Array[ExtResource("2_gkpga")]([SubResource("Resource_rpl7w")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_4fhb2"]
+script = ExtResource("2_gkpga")
+type = 1
+amount = 30
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_xhm70"]
+script = ExtResource("1_rpl7w")
+text = "[Pay the toll] Lose 30 gold."
+result_text = "The King pockets your coin with a satisfied croak."
+outcomes = Array[ExtResource("2_gkpga")]([SubResource("Resource_4fhb2")])
+min_gold = 30
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_m5fyj"]
+script = ExtResource("2_gkpga")
+type = 3
+amount = 5
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_2sqae"]
+script = ExtResource("1_rpl7w")
+text = "[Bow] Lose 5 HP."
+result_text = "The guards shove you through the mud as you pass."
+outcomes = Array[ExtResource("2_gkpga")]([SubResource("Resource_m5fyj")])
+min_gold = 0
+min_hp = 5
+
+[resource]
+script = ExtResource("4_xhm70")
+id = &"toad_kings_wager"
+title = "The Toad King's Wager"
+description = "A huge toad in a rusted crown blocks the path, flanked by guards. \"Pass if you can. Or bow, and pay the toll.\""
+act = 1
+glyph = &"skull"
+choices = Array[ExtResource("1_rpl7w")]([SubResource("Resource_gkpga"), SubResource("Resource_xhm70"), SubResource("Resource_2sqae")])

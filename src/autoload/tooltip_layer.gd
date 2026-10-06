@@ -58,8 +58,9 @@ func _on_requested(owner: Control, title: String, body: String) -> void:
 	_panel.visible = false
 	_timer = get_tree().create_timer(SHOW_DELAY, true, false, true)
 	var timer := _timer
+	var owner_id := owner.get_instance_id()
 	timer.timeout.connect(func():
-		if timer == _timer and is_instance_valid(_owner) and _owner == owner:
+		if timer == _timer and is_instance_valid(_owner) and _owner.get_instance_id() == owner_id:
 			_show())
 
 

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_7km1i"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="2_llsn7"]
+
+[resource]
+script = ExtResource("2_llsn7")
+id = &"weight_of_dusk"
+display_name = "Weight of Dusk"
+description = "Unplayable."
+card_pool = &"curse"
+type = 4
+rarity = 4
+target_mode = 0
+cost = -2
+effects = Array[ExtResource("1_7km1i")]([])
+keywords = Array[StringName]([&"ethereal"])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_7km1i")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_7km1i")]([])
+can_upgrade = false
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

@@ -1,0 +1,120 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_6ltag"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_lvlcn"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_nnwic"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_xawax"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_betf4"]
+[ext_resource type="Resource" path="res://content/statuses/vulnerable.tres" id="6_keqq8"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="7_tijis"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_ghg00"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_ydfdf"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_uoiss"]
+
+[sub_resource type="Resource" id="Resource_6ltag"]
+script = ExtResource("4_xawax")
+amount = 5
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_lvlcn"]
+script = ExtResource("2_lvlcn")
+id = &"flicker"
+display_name = "Flicker"
+intent = 4
+intent_tooltip = "All enemies gain 5 Block."
+effects = Array[ExtResource("3_nnwic")]([SubResource("Resource_6ltag")])
+weight = 1.5
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_nnwic"]
+script = ExtResource("5_betf4")
+status = ExtResource("6_keqq8")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_xawax"]
+script = ExtResource("2_lvlcn")
+id = &"hex"
+display_name = "Hex"
+intent = 7
+intent_tooltip = "Applies 1 Vulnerable."
+effects = Array[ExtResource("3_nnwic")]([SubResource("Resource_nnwic")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_betf4"]
+script = ExtResource("7_tijis")
+damage_type = 0
+amount = 4
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_keqq8"]
+script = ExtResource("2_lvlcn")
+id = &"ember"
+display_name = "Ember"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_nnwic")]([SubResource("Resource_betf4")])
+weight = 1.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_tijis"]
+script = ExtResource("1_6ltag")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_lvlcn")]([SubResource("Resource_lvlcn"), SubResource("Resource_xawax"), SubResource("Resource_keqq8")])
+opening_moves = Array[ExtResource("2_lvlcn")]([])
+on_enter_effects = Array[ExtResource("3_nnwic")]([])
+passive_triggers = Array[ExtResource("8_ghg00")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("9_ydfdf")
+id = &"wisp_lantern"
+display_name = "Wisp Lantern"
+tier = 0
+act = 1
+hp_min = 12
+hp_max = 15
+gimmick_text = "Shields its allies. Fragile: kill it first."
+starting_statuses = Array[ExtResource("10_uoiss")]([])
+phases = Array[ExtResource("1_6ltag")]([SubResource("Resource_tijis")])
+gold_min = 10
+gold_max = 20
+has_intro_cinematic = false
+intro_title = ""

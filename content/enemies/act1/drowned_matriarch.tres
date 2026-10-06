@@ -1,0 +1,285 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=39 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_5i2co"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_1xb4b"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_h2p88"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_7dt20"]
+[ext_resource type="Resource" path="res://content/cards/status/muck.tres" id="5_1dbr5"]
+[ext_resource type="Script" path="res://src/combat/effects/add_card_to_pile_effect.gd" id="6_8datp"]
+[ext_resource type="Resource" path="res://content/enemies/act1/broodling.tres" id="7_5i2co"]
+[ext_resource type="Script" path="res://src/combat/effects/summon_enemy_effect.gd" id="8_nn5nj"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="9_yhe5i"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="10_5x4gc"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="11_5rxfs"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="12_egptu"]
+[ext_resource type="Resource" path="res://content/statuses/vulnerable.tres" id="13_m1tgx"]
+[ext_resource type="Script" path="res://src/combat/effects/remove_debuffs_effect.gd" id="14_46055"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="15_b5wdl"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="16_bqogo"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="17_24yod"]
+[ext_resource type="Resource" path="res://content/statuses/brood_mother.tres" id="18_ap3v7"]
+
+[sub_resource type="Resource" id="Resource_5i2co"]
+script = ExtResource("4_7dt20")
+damage_type = 0
+amount = 12
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_1xb4b"]
+script = ExtResource("2_1xb4b")
+id = &"tidal_slam"
+display_name = "Tidal Slam"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_h2p88")]([SubResource("Resource_5i2co")])
+weight = 1.5
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_h2p88"]
+script = ExtResource("6_8datp")
+card = ExtResource("5_1dbr5")
+pile = 0
+upgraded = false
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_7dt20"]
+script = ExtResource("2_1xb4b")
+id = &"murk"
+display_name = "Murk"
+intent = 7
+intent_tooltip = "Shuffles 2 Muck into your draw pile."
+effects = Array[ExtResource("3_h2p88")]([SubResource("Resource_h2p88")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 2
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_1dbr5"]
+script = ExtResource("8_nn5nj")
+enemy = ExtResource("7_5i2co")
+max_enemies = 3
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_8datp"]
+script = ExtResource("2_1xb4b")
+id = &"call_the_brood"
+display_name = "Call the Brood"
+intent = 9
+intent_tooltip = "Summons 2 Broodlings."
+effects = Array[ExtResource("3_h2p88")]([SubResource("Resource_1dbr5")])
+weight = 2.0
+max_consecutive = 1
+cooldown = 3
+min_turn = 0
+max_living_allies = 0
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_e6yxp"]
+script = ExtResource("1_5i2co")
+display_name = "Bog Court"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_1xb4b")]([SubResource("Resource_1xb4b"), SubResource("Resource_7dt20"), SubResource("Resource_8datp")])
+opening_moves = Array[ExtResource("2_1xb4b")]([])
+on_enter_effects = Array[ExtResource("3_h2p88")]([])
+passive_triggers = Array[ExtResource("9_yhe5i")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_nn5nj"]
+script = ExtResource("4_7dt20")
+damage_type = 0
+amount = 5
+upgrade_delta = 0
+times = 3
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_yhe5i"]
+script = ExtResource("2_1xb4b")
+id = &"whirlpool"
+display_name = "Whirlpool"
+intent = 0
+intent_tooltip = "Attacks for {dmg} x{times}."
+effects = Array[ExtResource("3_h2p88")]([SubResource("Resource_nn5nj")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_5x4gc"]
+script = ExtResource("10_5x4gc")
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_5rxfs"]
+script = ExtResource("2_1xb4b")
+id = &"inhale"
+display_name = "Inhale"
+intent = 10
+intent_tooltip = "Draws in the swamp. Devour comes next!"
+effects = Array[ExtResource("3_h2p88")]([SubResource("Resource_5x4gc")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_egptu"]
+script = ExtResource("4_7dt20")
+damage_type = 0
+amount = 24
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_m1tgx"]
+script = ExtResource("2_1xb4b")
+id = &"devour"
+display_name = "Devour"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_h2p88")]([SubResource("Resource_egptu")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_46055"]
+script = ExtResource("11_5rxfs")
+status = ExtResource("12_egptu")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_b5wdl"]
+script = ExtResource("11_5rxfs")
+status = ExtResource("13_m1tgx")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_bqogo"]
+script = ExtResource("2_1xb4b")
+id = &"undertow"
+display_name = "Undertow"
+intent = 8
+intent_tooltip = "Applies 2 Weak and 1 Vulnerable."
+effects = Array[ExtResource("3_h2p88")]([SubResource("Resource_46055"), SubResource("Resource_b5wdl")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_24yod"]
+script = ExtResource("14_46055")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ap3v7"]
+script = ExtResource("11_5rxfs")
+status = ExtResource("15_b5wdl")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_uo05h"]
+script = ExtResource("1_5i2co")
+display_name = "The Deep"
+hp_threshold = 0.5
+selection = 0
+moves = Array[ExtResource("2_1xb4b")]([SubResource("Resource_yhe5i"), SubResource("Resource_5rxfs"), SubResource("Resource_m1tgx"), SubResource("Resource_bqogo")])
+opening_moves = Array[ExtResource("2_1xb4b")]([])
+on_enter_effects = Array[ExtResource("3_h2p88")]([SubResource("Resource_24yod"), SubResource("Resource_ap3v7")])
+passive_triggers = Array[ExtResource("9_yhe5i")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_m2tht"]
+script = ExtResource("17_24yod")
+status = ExtResource("18_ap3v7")
+stacks = 5
+
+[resource]
+script = ExtResource("16_bqogo")
+id = &"drowned_matriarch"
+display_name = "The Drowned Matriarch"
+tier = 2
+act = 1
+hp_min = 160
+hp_max = 160
+gimmick_text = "Phase 1: shelters behind her brood (+5 Block per Broodling each turn) and calls more when they fall. Phase 2 at half HP: cleanses, grows stronger and telegraphs Devour."
+starting_statuses = Array[ExtResource("17_24yod")]([SubResource("Resource_m2tht")])
+phases = Array[ExtResource("1_5i2co")]([SubResource("Resource_e6yxp"), SubResource("Resource_uo05h")])
+gold_min = 95
+gold_max = 105
+has_intro_cinematic = true
+intro_title = "Queen of the Sunken Brood"

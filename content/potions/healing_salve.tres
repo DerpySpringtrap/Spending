@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_m4uyu"]
+[ext_resource type="Script" path="res://src/combat/effects/heal_effect.gd" id="2_nje2h"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="3_x7w38"]
+
+[sub_resource type="Resource" id="Resource_eqj34"]
+script = ExtResource("2_nje2h")
+amount = 15
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("3_x7w38")
+id = &"healing_salve"
+display_name = "Healing Salve"
+description = "Heal 15 HP. Can be used on the map."
+liquid_color = Color(0.356863, 0.878431, 0.541176, 1)
+rarity = 1
+class_restriction = &""
+target_mode = 0
+effects = Array[ExtResource("1_m4uyu")]([SubResource("Resource_eqj34")])
+usable_outside_combat = true

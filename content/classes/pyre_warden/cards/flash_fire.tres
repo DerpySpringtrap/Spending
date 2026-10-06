@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_0s8oc"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_0a2r2"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="3_1v5qj"]
+[ext_resource type="Resource" path="res://content/statuses/burn.tres" id="4_e3umi"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="5_b3rkl"]
+
+[sub_resource type="Resource" id="Resource_mfsoy"]
+script = ExtResource("2_0a2r2")
+damage_type = 0
+amount = 4
+upgrade_delta = 2
+times = 1
+target = 2
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_kvbui"]
+script = ExtResource("3_1v5qj")
+status = ExtResource("4_e3umi")
+amount = 1
+upgrade_delta = 1
+times = 1
+target = 2
+value_key = &"burn"
+scale = 0
+
+[resource]
+script = ExtResource("5_b3rkl")
+id = &"flash_fire"
+display_name = "Flash Fire"
+description = "Deal {dmg} damage to ALL enemies.
+Apply {burn} Burn to ALL enemies."
+card_pool = &"pyre_warden"
+type = 0
+rarity = 1
+target_mode = 2
+cost = 1
+effects = Array[ExtResource("1_0s8oc")]([SubResource("Resource_mfsoy"), SubResource("Resource_kvbui")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"burn"])
+on_discard_effects = Array[ExtResource("1_0s8oc")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_0s8oc")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

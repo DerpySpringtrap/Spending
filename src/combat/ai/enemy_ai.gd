@@ -10,10 +10,10 @@ extends RefCounted
 
 
 func choose_move(enemy: EnemyCombatant, combat: CombatState) -> EnemyMoveData:
-	return EnemyAI.choose_by_rules(enemy, combat.rng.get_stream(&"combat"))
+	return EnemyAI.choose_by_rules(enemy, combat.rng.get_stream(&"combat"), combat.living_enemies().size() - 1)
 
 
-static func choose_by_rules(enemy: EnemyCombatant, rng: RandomNumberGenerator) -> EnemyMoveData:
+static func choose_by_rules(enemy: EnemyCombatant, rng: RandomNumberGenerator, ally_count: int = 0) -> EnemyMoveData:
 	var phase := enemy.current_phase()
 	if phase == null:
 		return null
@@ -30,7 +30,7 @@ static func choose_by_rules(enemy: EnemyCombatant, rng: RandomNumberGenerator) -
 
 	var legal: Array[EnemyMoveData] = []
 	for move in phase.moves:
-		if is_legal(enemy, move):
+		if is_legal(enemy, move, ally_count):
 			legal.append(move)
 	if legal.is_empty():
 		# Over-constrained data: fall back to anything with weight rather than stall.
@@ -48,8 +48,10 @@ static func choose_by_rules(enemy: EnemyCombatant, rng: RandomNumberGenerator) -
 	return legal.back()
 
 
-static func is_legal(enemy: EnemyCombatant, move: EnemyMoveData) -> bool:
+static func is_legal(enemy: EnemyCombatant, move: EnemyMoveData, ally_count: int = 0) -> bool:
 	if move.weight <= 0.0:
+		return false
+	if move.max_living_allies >= 0 and ally_count > move.max_living_allies:
 		return false
 	if move.min_turn > 0 and enemy.turns_taken + 1 < move.min_turn:
 		return false

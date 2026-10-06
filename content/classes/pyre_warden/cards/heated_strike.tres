@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_wk3oo"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_f3rn7"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_31qfk"]
+
+[sub_resource type="Resource" id="Resource_u8cy6"]
+script = ExtResource("2_f3rn7")
+damage_type = 0
+amount = 6
+upgrade_delta = 2
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_55sp4"]
+script = ExtResource("2_f3rn7")
+damage_type = 0
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"extra"
+scale = 2
+
+[resource]
+script = ExtResource("3_31qfk")
+id = &"heated_strike"
+display_name = "Heated Strike"
+description = "Deal {dmg} damage.
+Deal {extra} more (1 per Heat)."
+card_pool = &"pyre_warden"
+type = 0
+rarity = 1
+target_mode = 1
+cost = 1
+effects = Array[ExtResource("1_wk3oo")]([SubResource("Resource_u8cy6"), SubResource("Resource_55sp4")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"heat", &"strike"])
+on_discard_effects = Array[ExtResource("1_wk3oo")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_wk3oo")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

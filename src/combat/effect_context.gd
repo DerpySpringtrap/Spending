@@ -52,6 +52,8 @@ func amount_for(effect: GameEffect) -> int:
 			return base * combat.exhaust_pile.size()
 		GameEffect.Scale.HAND_SIZE:
 			return base * combat.hand.size()
+		GameEffect.Scale.LIVING_ALLIES:
+			return base * maxi(combat.living_allies_of(source).size() - 1, 0)
 	return base
 
 

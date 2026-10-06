@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_kskrp"]
+[ext_resource type="Resource" path="res://content/enemies/act1/gorehorn_bull.tres" id="2_wwsnc"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="3_ftt7m"]
+
+[resource]
+script = ExtResource("3_ftt7m")
+id = &"a1_gorehorn_bull"
+act = 1
+pool = 2
+enemies = Array[ExtResource("1_kskrp")]([ExtResource("2_wwsnc")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

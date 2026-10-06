@@ -14,7 +14,7 @@
 [sub_resource type="Resource" id="Resource_swc87"]
 script = ExtResource("4_5amwy")
 damage_type = 0
-amount = 9
+amount = 8
 upgrade_delta = 0
 times = 1
 target = 0
@@ -87,7 +87,7 @@ music_layer = &""
 [sub_resource type="Resource" id="Resource_55c2p"]
 script = ExtResource("10_kaxv7")
 status = ExtResource("7_os1m5")
-stacks = 3
+stacks = 2
 
 [resource]
 script = ExtResource("9_kn5ul")

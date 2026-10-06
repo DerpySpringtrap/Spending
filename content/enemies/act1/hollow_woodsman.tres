@@ -1,0 +1,120 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_j1rd0"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_i58b5"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_2n1oa"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="4_wb6d7"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="5_l46nv"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="6_0y0fq"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="7_scskv"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="8_4wg2y"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="9_dwbko"]
+
+[sub_resource type="Resource" id="Resource_j1rd0"]
+script = ExtResource("4_wb6d7")
+status = ExtResource("5_l46nv")
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_i58b5"]
+script = ExtResource("2_i58b5")
+id = &"sharpen"
+display_name = "Sharpen"
+intent = 6
+intent_tooltip = "Gains 3 Strength."
+effects = Array[ExtResource("3_2n1oa")]([SubResource("Resource_j1rd0")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_2n1oa"]
+script = ExtResource("6_0y0fq")
+damage_type = 0
+amount = 12
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_wb6d7"]
+script = ExtResource("2_i58b5")
+id = &"chop"
+display_name = "Chop"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_2n1oa")]([SubResource("Resource_2n1oa")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_l46nv"]
+script = ExtResource("6_0y0fq")
+damage_type = 0
+amount = 12
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_0y0fq"]
+script = ExtResource("2_i58b5")
+id = &"chop2"
+display_name = "Chop"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_2n1oa")]([SubResource("Resource_l46nv")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_scskv"]
+script = ExtResource("1_j1rd0")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 0
+moves = Array[ExtResource("2_i58b5")]([SubResource("Resource_i58b5"), SubResource("Resource_wb6d7"), SubResource("Resource_0y0fq")])
+opening_moves = Array[ExtResource("2_i58b5")]([])
+on_enter_effects = Array[ExtResource("3_2n1oa")]([])
+passive_triggers = Array[ExtResource("7_scskv")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("8_4wg2y")
+id = &"hollow_woodsman"
+display_name = "Hollow Woodsman"
+tier = 0
+act = 1
+hp_min = 46
+hp_max = 50
+gimmick_text = "Sharpens, then chops twice. Plan your Block around it."
+starting_statuses = Array[ExtResource("9_dwbko")]([])
+phases = Array[ExtResource("1_j1rd0")]([SubResource("Resource_scskv")])
+gold_min = 14
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

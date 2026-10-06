@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_t1osi"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_vktbg"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="3_knaif"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="4_vyfo6"]
+
+[sub_resource type="Resource" id="Resource_smek4"]
+script = ExtResource("2_vktbg")
+status = ExtResource("3_knaif")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_vyfo6")
+id = &"strength_potion"
+display_name = "Strength Potion"
+description = "Gain 2 Strength."
+liquid_color = Color(0.878431, 0.270588, 0.227451, 1)
+rarity = 0
+class_restriction = &""
+target_mode = 0
+effects = Array[ExtResource("1_t1osi")]([SubResource("Resource_smek4")])
+usable_outside_combat = false

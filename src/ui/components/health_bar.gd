@@ -112,7 +112,7 @@ func _draw() -> void:
 		var s := 38.0 * _badge_scale
 		VectorIcons.draw(self, &"shield", c, s, UIStyle.BLOCK, UIStyle.OUTLINE)
 		var btxt := str(_block)
-		var bsize := font.get_string_size(btxt, HORIZONTAL_ALIGNMENT_CENTER, -1, int(18 * _badge_scale))
+		var bsize := font.get_string_size(btxt, HORIZONTAL_ALIGNMENT_CENTER, -1, maxi(1, int(18 * _badge_scale)))
 		var bpos := c + Vector2(-bsize.x / 2, 6 * _badge_scale)
-		draw_string_outline(font, bpos, btxt, HORIZONTAL_ALIGNMENT_LEFT, -1, int(18 * _badge_scale), 4, UIStyle.OUTLINE)
-		draw_string(font, bpos, btxt, HORIZONTAL_ALIGNMENT_LEFT, -1, int(18 * _badge_scale), Color.WHITE)
+		draw_string_outline(font, bpos, btxt, HORIZONTAL_ALIGNMENT_LEFT, -1, maxi(1, int(18 * _badge_scale)), 4, UIStyle.OUTLINE)
+		draw_string(font, bpos, btxt, HORIZONTAL_ALIGNMENT_LEFT, -1, maxi(1, int(18 * _badge_scale)), Color.WHITE)

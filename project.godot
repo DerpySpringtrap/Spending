@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Duskbound"
 config/description="A run-based roguelike deckbuilder."
-run/main_scene="res://src/boot/boot.tscn"
+run/main_scene="res://src/ui/screens/main_menu/main_menu.tscn"
 config/features=PackedStringArray("4.4")
 
 [autoload]
@@ -26,6 +26,7 @@ AudioManager="*res://src/autoload/audio_manager.gd"
 SceneRouter="*res://src/autoload/scene_router.gd"
 GameManager="*res://src/autoload/game_manager.gd"
 TooltipLayer="*res://src/autoload/tooltip_layer.gd"
+DebugTools="*res://src/autoload/debug_tools.gd"
 
 [display]
 

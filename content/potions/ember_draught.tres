@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_r8jhi"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="2_ie7mo"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="3_pnkvf"]
+
+[sub_resource type="Resource" id="Resource_yi53t"]
+script = ExtResource("2_ie7mo")
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("3_pnkvf")
+id = &"ember_draught"
+display_name = "Ember Draught"
+description = "Stoke 10."
+liquid_color = Color(1, 0.701961, 0.278431, 1)
+rarity = 2
+class_restriction = &""
+target_mode = 0
+effects = Array[ExtResource("1_r8jhi")]([SubResource("Resource_yi53t")])
+usable_outside_combat = false

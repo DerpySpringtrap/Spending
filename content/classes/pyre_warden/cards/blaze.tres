@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_iiq62"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_r8owi"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="3_8jx0x"]
+[ext_resource type="Resource" path="res://content/statuses/burn.tres" id="4_3eks8"]
+[ext_resource type="Script" path="res://src/combat/effects/spend_class_resource_effect.gd" id="5_7ulbm"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="6_hyx8b"]
+
+[sub_resource type="Resource" id="Resource_dtgwh"]
+script = ExtResource("2_r8owi")
+damage_type = 0
+amount = 11
+upgrade_delta = 3
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ostov"]
+script = ExtResource("3_8jx0x")
+status = ExtResource("4_3eks8")
+amount = 6
+upgrade_delta = 2
+times = 1
+target = 0
+value_key = &"burn"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_v0leh"]
+script = ExtResource("5_7ulbm")
+spend_all = false
+bonus_effects = Array[ExtResource("1_iiq62")]([SubResource("Resource_ostov")])
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"vent"
+scale = 0
+
+[resource]
+script = ExtResource("6_hyx8b")
+id = &"blaze"
+display_name = "Blaze"
+description = "Deal {dmg} damage.
+Vent {vent}: Apply {burn} Burn."
+card_pool = &"pyre_warden"
+type = 0
+rarity = 2
+target_mode = 1
+cost = 2
+effects = Array[ExtResource("1_iiq62")]([SubResource("Resource_dtgwh"), SubResource("Resource_v0leh")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"burn", &"heat"])
+on_discard_effects = Array[ExtResource("1_iiq62")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_iiq62")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

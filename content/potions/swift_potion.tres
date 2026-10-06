@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_iobxu"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="2_sv6pd"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="3_2e5fs"]
+
+[sub_resource type="Resource" id="Resource_tyv8m"]
+script = ExtResource("2_sv6pd")
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("3_2e5fs")
+id = &"swift_potion"
+display_name = "Swift Potion"
+description = "Draw 3 cards."
+liquid_color = Color(0.482353, 0.878431, 0.784314, 1)
+rarity = 0
+class_restriction = &""
+target_mode = 0
+effects = Array[ExtResource("1_iobxu")]([SubResource("Resource_tyv8m")])
+usable_outside_combat = false

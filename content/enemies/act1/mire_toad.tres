@@ -16,7 +16,7 @@
 [sub_resource type="Resource" id="Resource_jerhh"]
 script = ExtResource("4_ax7hf")
 damage_type = 0
-amount = 6
+amount = 5
 upgrade_delta = 0
 times = 1
 target = 0
@@ -118,7 +118,7 @@ tier = 0
 act = 1
 hp_min = 18
 hp_max = 22
-gimmick_text = "Toxic Burst: when it dies, it applies 3 Poison to you."
+gimmick_text = "Toxic Burst: when it dies, it applies 2 Poison to you."
 starting_statuses = Array[ExtResource("11_5tf1a")]([SubResource("Resource_ufdhk")])
 phases = Array[ExtResource("1_gjxnq")]([SubResource("Resource_wpc5b")])
 gold_min = 10

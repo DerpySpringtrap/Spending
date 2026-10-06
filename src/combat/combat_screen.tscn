@@ -93,9 +93,9 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 40.0
-offset_top = -350.0
+offset_top = -382.0
 offset_right = 150.0
-offset_bottom = -240.0
+offset_bottom = -272.0
 script = ExtResource("4_os0ag")
 
 [node name="ResourceGauge" type="Control" parent="HUD"]
@@ -105,10 +105,10 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 160.0
-offset_top = -330.0
-offset_right = 420.0
-offset_bottom = -266.0
+offset_left = 40.0
+offset_top = -262.0
+offset_right = 300.0
+offset_bottom = -198.0
 script = ExtResource("5_3kh43")
 
 [node name="DrawPile" type="Button" parent="HUD"]

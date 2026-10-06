@@ -112,8 +112,9 @@ func burst(global_pos: Vector2, color: Color, amount: int = 16, speed: float = 2
 	p.global_position = global_pos
 	p.emitting = true
 	p.finished.connect(p.queue_free)
-	# Safety net in case "finished" never fires (headless renderer).
-	get_tree().create_timer(2.0).timeout.connect(func(): if is_instance_valid(p): p.queue_free())
+	# Safety net in case "finished" never fires (headless renderer). Bound to
+	# the node's own method so it's dropped automatically if p is freed first.
+	get_tree().create_timer(2.0).timeout.connect(p.queue_free)
 
 
 static func _dot() -> Texture2D:

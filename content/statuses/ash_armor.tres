@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_5myii"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_8aq4b"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_8jwn5"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_45s4y"]
+
+[sub_resource type="Resource" id="Resource_jgww1"]
+script = ExtResource("4_45s4y")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_m3y5u"]
+script = ExtResource("2_8aq4b")
+timing = 4
+condition = 0
+effects = Array[ExtResource("3_8jwn5")]([SubResource("Resource_jgww1")])
+amount_from_stacks = true
+every_nth = 1
+required_card_tag = &""
+
+[resource]
+script = ExtResource("1_5myii")
+id = &"ash_armor"
+display_name = "Ash Armor"
+description = "At the end of your turn, gain {stacks} Block."
+kind = 0
+stack_mode = 0
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_8aq4b")]([SubResource("Resource_m3y5u")])
+tint = Color(0.603922, 0.560784, 0.52549, 1)

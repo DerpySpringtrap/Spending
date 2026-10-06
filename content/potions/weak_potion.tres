@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_jpjkp"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_y0b5k"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="3_cfsrr"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="4_nibv6"]
+
+[sub_resource type="Resource" id="Resource_8c0i1"]
+script = ExtResource("2_y0b5k")
+status = ExtResource("3_cfsrr")
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_nibv6")
+id = &"weak_potion"
+display_name = "Weak Potion"
+description = "Apply 3 Weak to an enemy."
+liquid_color = Color(0.603922, 0.560784, 0.709804, 1)
+rarity = 0
+class_restriction = &""
+target_mode = 1
+effects = Array[ExtResource("1_jpjkp")]([SubResource("Resource_8c0i1")])
+usable_outside_combat = false

@@ -37,6 +37,9 @@ enum Intent {
 @export var cooldown: int = 0
 ## If > 0, the move is only legal from this turn number onward.
 @export var min_turn: int = 0
+## If >= 0, the move is only legal while the enemy has at most this many
+## living allies (e.g. "Call the Brood" only when fewer than 2 toads remain).
+@export var max_living_allies: int = -1
 
 @export_group("Ascension")
 ## Ascension level at which [member ascension_amount_bonus] kicks in (0 = never).

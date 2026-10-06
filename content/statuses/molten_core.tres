@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_80cdi"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_ipod6"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_s4ycq"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="4_0tjcj"]
+
+[sub_resource type="Resource" id="Resource_tylfd"]
+script = ExtResource("4_0tjcj")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_8hio3"]
+script = ExtResource("2_ipod6")
+timing = 2
+condition = 0
+effects = Array[ExtResource("3_s4ycq")]([SubResource("Resource_tylfd")])
+amount_from_stacks = true
+every_nth = 1
+required_card_tag = &""
+
+[resource]
+script = ExtResource("1_80cdi")
+id = &"molten_core"
+display_name = "Molten Core"
+description = "At the start of your turn, Stoke {stacks}."
+kind = 0
+stack_mode = 0
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_ipod6")]([SubResource("Resource_8hio3")])
+tint = Color(1, 0.701961, 0.278431, 1)

@@ -16,6 +16,20 @@ static func build(id: StringName, accent: Color = Color("#E8692C")) -> Node2D:
 			_lurker(root)
 		&"thornback_beetle":
 			_beetle(root)
+		&"drowned_matriarch":
+			_matriarch(root)
+		&"broodling":
+			_broodling(root)
+		&"wisp_lantern":
+			_wisp(root)
+		&"hollow_woodsman":
+			_woodsman(root)
+		&"gorehorn_bull":
+			_bull(root)
+		&"swamp_witch":
+			_witch(root)
+		&"toad_familiar":
+			_familiar(root)
 		_:
 			_blob(root, id)
 	return root
@@ -154,3 +168,104 @@ static func _blob(root: Node2D, id: StringName) -> void:
 	_poly(root, ellipse(Vector2(18, -84), 12, 14), Color.WHITE)
 	_poly(root, ellipse(Vector2(14, -84), 5, 7), Color.BLACK)
 	_meta(root, 140, 140)
+
+
+static func _matriarch(root: Node2D) -> void:
+	var skin := Color("#4E6B3A")
+	var belly := Color("#8FA66A")
+	var water := Color("#2E5560")
+	# Swamp pool she rises from
+	_poly(root, ellipse(Vector2(0, -8), 170, 26), water)
+	_poly(root, ellipse(Vector2(0, -12), 140, 16), water.lightened(0.15))
+	# Huge body
+	_poly(root, ellipse(Vector2(0, -120), 140, 118), skin)
+	_poly(root, ellipse(Vector2(-10, -88), 96, 74), belly)
+	for spot in [Vector2(80, -170), Vector2(110, -110), Vector2(60, -205), Vector2(-90, -180)]:
+		_poly(root, ellipse(spot, 16, 11), skin.darkened(0.25))
+	# Crown of reeds and bone
+	for i in 5:
+		var x := -60 + i * 30
+		_poly(root, PackedVector2Array([Vector2(x - 10, -224), Vector2(x, -290 + absf(i - 2) * 14), Vector2(x + 10, -224)]), Color("#C9B98A"))
+	_poly(root, rounded_rect(-72, -236, 144, 20, 8), Color("#8A6A45"))
+	_poly(root, ellipse(Vector2(0, -226), 10, 10), Color("#7BE0C8"))
+	# Eyes and maw
+	for eye in [Vector2(-52, -186), Vector2(30, -190)]:
+		_poly(root, ellipse(eye, 26, 24), skin.darkened(0.1))
+		_poly(root, ellipse(eye + Vector2(0, -2), 19, 17), Color("#E8E0A0"))
+		_poly(root, ellipse(eye + Vector2(-6, 0), 7, 13), Color("#141010"))
+	_poly(root, PackedVector2Array([Vector2(-110, -120), Vector2(-20, -100), Vector2(70, -112), Vector2(70, -104), Vector2(-20, -90), Vector2(-110, -112)]), Color("#1E2A14"))
+	# Dripping weeds
+	for drip in [Vector2(-120, -60), Vector2(118, -70), Vector2(-60, -30)]:
+		_poly(root, ellipse(drip, 8, 22), Color("#3F5A2E"))
+	_meta(root, 300, 290)
+
+
+static func _broodling(root: Node2D) -> void:
+	var skin := Color("#5E7F3A")
+	_poly(root, ellipse(Vector2(0, -30), 40, 28), skin)
+	_poly(root, ellipse(Vector2(-4, -22), 26, 15), Color("#A8B96A"))
+	for eye in [Vector2(-16, -54), Vector2(10, -56)]:
+		_poly(root, ellipse(eye, 11, 10), skin.darkened(0.1))
+		_poly(root, ellipse(eye, 7, 7), Color("#E8E0A0"))
+		_poly(root, ellipse(eye + Vector2(-2, 0), 3, 5), Color("#141010"))
+	_meta(root, 90, 70)
+
+
+static func _wisp(root: Node2D) -> void:
+	var glow := Color("#7BE0C8")
+	_poly(root, ellipse(Vector2(0, -110), 60, 60), Color(glow, 0.12))
+	_poly(root, ellipse(Vector2(0, -110), 40, 40), Color(glow, 0.25))
+	_poly(root, rounded_rect(-24, -150, 48, 70, 12), Color("#3A3A30"))
+	_poly(root, rounded_rect(-17, -140, 34, 50, 8), glow)
+	_poly(root, VectorIcons._scaled(VectorIcons._flame_points(), 14, Vector2(0, -118)), Color("#E8FFF8"))
+	_poly(root, rounded_rect(-10, -168, 20, 20, 6), Color("#3A3A30"))
+	_meta(root, 110, 170)
+
+
+static func _woodsman(root: Node2D) -> void:
+	var bark := Color("#5B4030")
+	var dark := Color("#2E221A")
+	_poly(root, rounded_rect(-38, -70, 24, 70, 6), dark)
+	_poly(root, rounded_rect(14, -70, 24, 70, 6), dark)
+	_poly(root, PackedVector2Array([Vector2(-46, -64), Vector2(46, -64), Vector2(54, -170), Vector2(-54, -170)]), bark)
+	_poly(root, ellipse(Vector2(0, -116), 18, 26), Color("#140E0A"))
+	_poly(root, ellipse(Vector2(0, -204), 34, 38), bark.darkened(0.1))
+	_poly(root, ellipse(Vector2(-12, -208), 6, 6), Color("#F6D743"))
+	_poly(root, ellipse(Vector2(12, -208), 6, 6), Color("#F6D743"))
+	# Axe
+	_poly(root, PackedVector2Array([Vector2(-60, -150), Vector2(-52, -152), Vector2(-90, -40), Vector2(-98, -42)]), Color("#6B4A33"))
+	_poly(root, PackedVector2Array([Vector2(-58, -160), Vector2(-104, -186), Vector2(-112, -140), Vector2(-66, -138)]), Color("#9AA0A6"))
+	_meta(root, 170, 240)
+
+
+static func _bull(root: Node2D) -> void:
+	var hide := Color("#5A2E26")
+	_poly(root, rounded_rect(-100, -60, 26, 60, 6), hide.darkened(0.3))
+	_poly(root, rounded_rect(60, -60, 26, 60, 6), hide.darkened(0.3))
+	_poly(root, ellipse(Vector2(10, -100), 110, 62), hide)
+	_poly(root, ellipse(Vector2(40, -120), 70, 48), hide.lightened(0.08))
+	_poly(root, ellipse(Vector2(-92, -118), 44, 40), hide.darkened(0.1))
+	_poly(root, PackedVector2Array([Vector2(-112, -148), Vector2(-160, -196), Vector2(-104, -160)]), Color("#E9E2D8"))
+	_poly(root, PackedVector2Array([Vector2(-80, -150), Vector2(-60, -206), Vector2(-70, -150)]), Color("#E9E2D8"))
+	_poly(root, ellipse(Vector2(-108, -122), 7, 7), Color("#FF5A4A"))
+	_poly(root, ellipse(Vector2(-118, -96), 14, 8), Color("#2A1410"))
+	_meta(root, 260, 200)
+
+
+static func _witch(root: Node2D) -> void:
+	var robe := Color("#3E3A5A")
+	_poly(root, PackedVector2Array([Vector2(-58, 0), Vector2(58, 0), Vector2(24, -150), Vector2(-24, -150)]), robe)
+	_poly(root, ellipse(Vector2(0, -170), 28, 30), Color("#9FB88A"))
+	_poly(root, PackedVector2Array([Vector2(-48, -186), Vector2(48, -186), Vector2(6, -276), Vector2(-4, -276)]), robe.darkened(0.25))
+	_poly(root, rounded_rect(-56, -192, 112, 12, 5), robe.darkened(0.35))
+	_poly(root, ellipse(Vector2(-10, -172), 5, 5), Color("#E0453A"))
+	_poly(root, ellipse(Vector2(10, -172), 5, 5), Color("#E0453A"))
+	_poly(root, PackedVector2Array([Vector2(-70, -110), Vector2(-62, -112), Vector2(-74, 0), Vector2(-82, 0)]), Color("#6B4A33"))
+	_poly(root, ellipse(Vector2(-68, -120), 14, 14), Color("#B07CE0"))
+	_meta(root, 150, 270)
+
+
+static func _familiar(root: Node2D) -> void:
+	_toad(root)
+	root.scale = Vector2(0.7, 0.7)
+	_meta(root, 120, 90)

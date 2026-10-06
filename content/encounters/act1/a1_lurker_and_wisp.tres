@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_57exm"]
+[ext_resource type="Resource" path="res://content/enemies/act1/bog_lurker.tres" id="2_4vu3v"]
+[ext_resource type="Resource" path="res://content/enemies/act1/wisp_lantern.tres" id="3_ouh70"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_40mbl"]
+
+[resource]
+script = ExtResource("4_40mbl")
+id = &"a1_lurker_and_wisp"
+act = 1
+pool = 1
+enemies = Array[ExtResource("1_57exm")]([ExtResource("2_4vu3v"), ExtResource("3_ouh70")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

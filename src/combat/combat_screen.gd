@@ -33,8 +33,15 @@ const PLAY_SPOT := Vector2(0.5, 0.42)  # Fraction of the screen where played car
 @onready var _result: ResultOverlay = %ResultOverlay
 @onready var _message: Label = %Message
 
+## Emitted when the fight's presentation finishes. With [member auto_route]
+## (default) the screen also hands the result to GameManager.
+signal finished(victory: bool)
+
+var auto_route := true
 var combat: CombatState
 var queue: PresentationQueue
+var _encounter: EncounterData
+var _potion_slot := -1  ## Potion awaiting a target (-1 = none).
 var _views: Dictionary = {}             # combatant id -> CombatantView
 var _in_flight: Dictionary = {}         # card uid -> CardView (played, awaiting its pile)
 var _counts := {"draw": 0, "discard": 0, "exhaust": 0}
@@ -69,6 +76,11 @@ func _ready() -> void:
 	_discard_pile.pressed.connect(_open_pile.bind(&"discard"))
 	_exhaust_pile.pressed.connect(_open_pile.bind(&"exhaust"))
 	_pile_viewer.closed.connect(_on_queue_idle)
+	_top_bar.potion_activated.connect(_on_potion)
+	_top_bar.potion_discard_requested.connect(_on_potion_discard)
+	_top_bar.deck_pressed.connect(func():
+		if _can_act():
+			_pile_viewer.open("Your Deck", RunState.deck, Callable(), true))
 	_connect_bus()
 	_start_fight()
 
@@ -92,6 +104,7 @@ func _start_fight() -> void:
 	GameManager.pending_encounter = null
 	if enc == null:
 		enc = _random_encounter()
+	_encounter = enc
 	combat = CombatState.create(RunState.get_class_data(), RunState.deck, RunState.hp, RunState.max_hp,
 			RunState.relics, enc, RunState.ascension, RunState.rng)
 	_top_bar.refresh()
@@ -103,6 +116,13 @@ func _start_fight() -> void:
 	_spawn_view(combat.player, _player_anchor)
 	for enemy in combat.enemies:
 		_spawn_view(enemy, _enemy_row)
+	for enemy in combat.enemies:
+		if enemy.data.has_intro_cinematic:
+			var boss := enemy
+			queue.push(&"intro", 0, 1.7, func():
+				_banner.show_banner(boss.display_name.to_upper(), UIStyle.GOLD, 1.0)
+				_fx.shake(6)
+				_view(boss).play_cast())
 	combat.start()
 
 
@@ -110,6 +130,9 @@ func _spawn_view(c: Combatant, parent: Control) -> void:
 	var view := CombatantView.new().setup(c)
 	parent.add_child(view)
 	_views[c.id] = view
+	view.gui_input.connect(func(event):
+		if _potion_slot >= 0 and event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not c.is_dead:
+			_use_potion(_potion_slot, c))
 	if parent == _enemy_row:
 		view.modulate.a = 0.0
 		var t := view.create_tween()
@@ -153,6 +176,14 @@ func _connect_bus() -> void:
 	_listen(EventBus.combatant_died, _on_combatant_died)
 	_listen(EventBus.relic_triggered, _on_relic_triggered)
 	_listen(EventBus.combat_ended, _on_combat_ended)
+	_listen(EventBus.combatant_spawned, _on_combatant_spawned)
+
+
+func _on_combatant_spawned(c: Combatant) -> void:
+	if c is EnemyCombatant:
+		queue.push(&"spawn", c.id, 0.35, func():
+			_spawn_view(c, _enemy_row)
+			_fx.burst(_view(c).hit_point(), Color("#6E8A4A"), 20, 220, 300))
 
 
 # =============================================================================
@@ -457,7 +488,7 @@ func _update_piles() -> void:
 
 func _can_act() -> bool:
 	return combat != null and combat.phase == CombatState.Phase.PLAYER_TURN and not queue.is_busy() \
-			and not _pile_viewer.visible and not _result.visible
+			and not _pile_viewer.visible and not _result.visible and _potion_slot < 0
 
 
 func _on_queue_idle() -> void:
@@ -683,24 +714,102 @@ func _show_message(text: String) -> void:
 
 func _show_result(victory: bool) -> void:
 	if victory:
-		var gold := 0
-		for enemy in combat.enemies:
-			gold += RunState.rng.get_stream(&"rewards").randi_range(enemy.data.gold_min, enemy.data.gold_max)
-		RunState.set_hp(combat.player.hp)
-		RunState.add_gold(gold)
-		_result.show_result("Victory", UIStyle.GOLD, "HP %d / %d     +%d gold" % [RunState.hp, RunState.max_hp, gold], [
-			["Next Fight", func(): GameManager.start_combat(_random_encounter())],
-			["Back to Title", _back_to_title],
-		])
+		_banner.show_banner("Victory", UIStyle.GOLD, 0.6)
+		get_tree().create_timer(UIStyle.dur(1.2)).timeout.connect(func(): _finish(true))
 	else:
-		_result.show_result("Defeat", UIStyle.DAMAGE, "You fell in round %d." % combat.round_number, [
-			["New Run", func():
-				RunState.clear()
-				GameManager.start_debug_combat()],
-			["Back to Title", _back_to_title],
+		_result.show_result("Defeat", UIStyle.DAMAGE, "You fell in round %d against %s." % [combat.round_number, _encounter_name()], [
+			["Continue", func(): _finish(false)],
 		])
 
 
-func _back_to_title() -> void:
-	RunState.clear()
-	GameManager.go_to_screen(&"boot")
+func _finish(victory: bool) -> void:
+	finished.emit(victory)
+	if not auto_route:
+		return
+	if victory:
+		GameManager.on_combat_won(combat.player.hp)
+	else:
+		RunState.run_stats["killed_by"] = _encounter_name()
+		GameManager.on_combat_lost()
+
+
+func _encounter_name() -> String:
+	for enemy in combat.enemies:
+		if enemy.data.tier == EnemyData.Tier.BOSS or enemy.data.tier == EnemyData.Tier.ELITE:
+			return enemy.display_name
+	return combat.enemies[0].display_name if not combat.enemies.is_empty() else "the swamp"
+
+
+# =============================================================================
+# Potions
+# =============================================================================
+
+func _on_potion(slot: int) -> void:
+	var potion: PotionData = RunState.potions[slot]
+	if potion == null:
+		return
+	if _potion_slot >= 0:
+		_cancel_potion()
+		return
+	if not _can_act() or _hand.is_dragging():
+		_show_message("Wait...")
+		return
+	if potion.target_mode == CardData.TargetMode.SINGLE_ENEMY:
+		_potion_slot = slot
+		_show_message("Choose a target for %s" % potion.display_name)
+		for enemy in combat.living_enemies():
+			_view(enemy).targeted = true
+		set_process(true)
+	else:
+		_use_potion(slot, null)
+
+
+func _use_potion(slot: int, target: Combatant) -> void:
+	var potion: PotionData = RunState.potions[slot]
+	_potion_slot = -1
+	_arrow.hide_arrow()
+	_clear_highlights()
+	if potion == null or combat.can_use_potion(potion, target) != "":
+		return
+	RunState.remove_potion(slot)
+	EventBus.potion_used.emit(potion, slot)
+	_top_bar.refresh()
+	_set_mode(Mode.LOCKED)
+	var icon := _top_bar.potion_icon(slot)
+	var from := icon.center_global() if icon else Vector2(400, 40)
+	queue.push(&"potion", 0, 0.3, func():
+		_fx.burst(from, potion.liquid_color, 24, 260, 300)
+		_view(combat.player).play_cast())
+	combat.use_potion(potion, target)
+	if not queue.is_busy():
+		_on_queue_idle()
+
+
+func _cancel_potion() -> void:
+	_potion_slot = -1
+	_arrow.hide_arrow()
+	_clear_highlights()
+
+
+func _on_potion_discard(slot: int) -> void:
+	if _potion_slot >= 0:
+		_cancel_potion()
+	var potion: PotionData = RunState.remove_potion(slot)
+	EventBus.potion_discarded.emit(potion, slot)
+	_top_bar.refresh()
+
+
+func _process(_delta: float) -> void:
+	if _potion_slot >= 0:
+		var icon := _top_bar.potion_icon(_potion_slot)
+		if icon:
+			var mouse := get_global_mouse_position()
+			_arrow.show_between(icon.center_global() + Vector2(0, 20), mouse, _enemy_at(mouse) != null)
+
+
+func _input(event: InputEvent) -> void:
+	if _potion_slot < 0:
+		return
+	if event.is_action_pressed("ui_cancel") or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT):
+		_cancel_potion()
+		get_viewport().set_input_as_handled()

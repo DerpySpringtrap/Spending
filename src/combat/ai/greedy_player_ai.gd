@@ -67,7 +67,27 @@ func score(combat: CombatState, card: CardInstance, target: Combatant) -> float:
 	var value: float = totals.damage + minf(totals.block, block_needed) * 1.3 + totals.other
 	if target != null and totals.damage >= target.hp + target.block:
 		value += 15.0
+	# Don't feed enemies that punish Skills (Gorehorn Bull's Enrage).
+	if card.data.type == CardData.CardType.SKILL:
+		for enemy in combat.living_enemies():
+			value -= enemy.get_stacks(&"enrage") * 6.0
 	return value
+
+
+## Drinks every potion (used by simulations for elite and boss fights).
+func use_all_potions(combat: CombatState, potions: Array) -> void:
+	for i in potions.size():
+		var potion: PotionData = potions[i]
+		if potion == null or combat.is_over():
+			continue
+		var target: Combatant = null
+		if potion.target_mode == CardData.TargetMode.SINGLE_ENEMY:
+			var living := combat.living_enemies()
+			if living.is_empty():
+				return
+			target = living[0]
+		if combat.use_potion(potion, target):
+			potions[i] = null
 
 
 func _evaluate(effects: Array[GameEffect], ctx: EffectContext, totals: Dictionary) -> void:

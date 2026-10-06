@@ -365,6 +365,24 @@ func play_card(card: CardInstance, target: Combatant = null) -> bool:
 	return true
 
 
+## Uses a potion in combat. The caller removes it from the potion belt.
+func can_use_potion(potion: PotionData, target: Combatant = null) -> String:
+	if phase != Phase.PLAYER_TURN:
+		return "Not your turn"
+	if potion.target_mode == CardData.TargetMode.SINGLE_ENEMY and (target == null or target.is_dead or not enemies.has(target)):
+		return "Choose a target"
+	return ""
+
+
+func use_potion(potion: PotionData, target: Combatant = null) -> bool:
+	if can_use_potion(potion, target) != "":
+		return false
+	_run_effects(potion.effects, EffectContext.new(self, player, target))
+	_flush()
+	_check_end()
+	return true
+
+
 func draw_cards(count: int) -> void:
 	for i in count:
 		if draw_pile.is_empty():
@@ -790,7 +808,7 @@ func _roll_intent(enemy: EnemyCombatant) -> void:
 		var ai: EnemyAI = enemy_phase.ai_script.new()
 		enemy.next_move = ai.choose_move(enemy, self)
 	else:
-		enemy.next_move = EnemyAI.choose_by_rules(enemy, rng.get_stream(&"combat"))
+		enemy.next_move = EnemyAI.choose_by_rules(enemy, rng.get_stream(&"combat"), living_enemies().size() - 1)
 	_emit_intent(enemy)
 
 

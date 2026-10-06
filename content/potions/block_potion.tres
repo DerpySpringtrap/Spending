@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_oexl7"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_6le1i"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="3_vyhkb"]
+
+[sub_resource type="Resource" id="Resource_t81ss"]
+script = ExtResource("2_6le1i")
+amount = 12
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("3_vyhkb")
+id = &"block_potion"
+display_name = "Block Potion"
+description = "Gain 12 Block."
+liquid_color = Color(0.423529, 0.721569, 0.941176, 1)
+rarity = 0
+class_restriction = &""
+target_mode = 0
+effects = Array[ExtResource("1_oexl7")]([SubResource("Resource_t81ss")])
+usable_outside_combat = false

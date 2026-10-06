@@ -13,6 +13,7 @@ var _screen: Control
 var _combat: CombatState
 var _failures: PackedStringArray = []
 var _checks := 0
+var _finished_result = null
 
 
 func _ready() -> void:
@@ -24,6 +25,8 @@ func _ready() -> void:
 	RunState.start(ContentDB.get_character_class(&"pyre_warden"), 0, 4242)
 	GameManager.pending_encounter = ContentDB.get_encounter(&"a1_toad_and_beetle")
 	_screen = load("res://src/combat/combat_screen.tscn").instantiate()
+	_screen.auto_route = false
+	_screen.finished.connect(func(victory): _finished_result = victory)
 	add_child(_screen)
 	_combat = _screen.combat
 	await _idle()
@@ -47,10 +50,18 @@ func _ready() -> void:
 		await _idle()
 		_verify("round %d" % _combat.round_number)
 	await _idle()
-	await _wait_seconds(0.6 if visual else 0.1)
+	var waited := 0
+	while _finished_result == null and waited < 600:
+		await get_tree().process_frame
+		waited += 1
 	await _shot("05_result")
-	if not _screen._result.visible:
-		_failures.append("result overlay not shown")
+	if _combat.result == CombatState.Result.VICTORY and _finished_result != true:
+		_failures.append("victory not reported by the combat screen")
+	if _combat.result == CombatState.Result.DEFEAT:
+		if not _screen._result.visible:
+			_failures.append("defeat overlay not shown")
+		else:
+			_screen._finish(false)
 	var ok := _failures.is_empty() and _combat.is_over()
 	for f in _failures:
 		print("  FAIL: ", f)

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_ia7qw"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_3ljuy"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_wvejj"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_438co"]
+
+[sub_resource type="Resource" id="Resource_w4egk"]
+script = ExtResource("4_438co")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 5
+
+[sub_resource type="Resource" id="Resource_2omss"]
+script = ExtResource("2_3ljuy")
+timing = 4
+condition = 0
+effects = Array[ExtResource("3_wvejj")]([SubResource("Resource_w4egk")])
+amount_from_stacks = true
+every_nth = 1
+required_card_tag = &""
+
+[resource]
+script = ExtResource("1_ia7qw")
+id = &"brood_mother"
+display_name = "Brood Mother"
+description = "At the end of her turn, gains {stacks} Block for each living Broodling."
+kind = 0
+stack_mode = 0
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_3ljuy")]([SubResource("Resource_2omss")])
+tint = Color(0.435294, 0.541176, 0.227451, 1)

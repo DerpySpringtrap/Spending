@@ -1,0 +1,131 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_vww3v"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_dxtxl"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_sngem"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_tewh0"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_bpb3l"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="6_rc1bc"]
+[ext_resource type="Resource" path="res://content/statuses/frail.tres" id="7_7rd6u"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="8_grj5v"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="9_rkl2n"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="10_ofybh"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="11_xhxgr"]
+
+[sub_resource type="Resource" id="Resource_vww3v"]
+script = ExtResource("4_tewh0")
+damage_type = 0
+amount = 12
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_dxtxl"]
+script = ExtResource("2_dxtxl")
+id = &"bog_bolt"
+display_name = "Bog Bolt"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_sngem")]([SubResource("Resource_vww3v")])
+weight = 1.5
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_sngem"]
+script = ExtResource("5_bpb3l")
+status = ExtResource("6_rc1bc")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_tewh0"]
+script = ExtResource("5_bpb3l")
+status = ExtResource("7_7rd6u")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_bpb3l"]
+script = ExtResource("2_dxtxl")
+id = &"hex_curse"
+display_name = "Hex"
+intent = 8
+intent_tooltip = "Applies 2 Weak and 2 Frail."
+effects = Array[ExtResource("3_sngem")]([SubResource("Resource_sngem"), SubResource("Resource_tewh0")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 2
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_rc1bc"]
+script = ExtResource("8_grj5v")
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_7rd6u"]
+script = ExtResource("2_dxtxl")
+id = &"bond"
+display_name = "Bond"
+intent = 4
+intent_tooltip = "All enemies gain 10 Block."
+effects = Array[ExtResource("3_sngem")]([SubResource("Resource_rc1bc")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_grj5v"]
+script = ExtResource("1_vww3v")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_dxtxl")]([SubResource("Resource_dxtxl"), SubResource("Resource_bpb3l"), SubResource("Resource_7rd6u")])
+opening_moves = Array[ExtResource("2_dxtxl")]([])
+on_enter_effects = Array[ExtResource("3_sngem")]([])
+passive_triggers = Array[ExtResource("9_rkl2n")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("10_ofybh")
+id = &"swamp_witch"
+display_name = "Swamp Witch"
+tier = 1
+act = 1
+hp_min = 58
+hp_max = 62
+gimmick_text = "Hexes you while her Familiar keeps her healthy."
+starting_statuses = Array[ExtResource("11_xhxgr")]([])
+phases = Array[ExtResource("1_vww3v")]([SubResource("Resource_grj5v")])
+gold_min = 25
+gold_max = 35
+has_intro_cinematic = false
+intro_title = ""

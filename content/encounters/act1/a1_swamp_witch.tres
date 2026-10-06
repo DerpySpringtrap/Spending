@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_nb0oi"]
+[ext_resource type="Resource" path="res://content/enemies/act1/toad_familiar.tres" id="2_kor3i"]
+[ext_resource type="Resource" path="res://content/enemies/act1/swamp_witch.tres" id="3_jbts3"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_qwee2"]
+
+[resource]
+script = ExtResource("4_qwee2")
+id = &"a1_swamp_witch"
+act = 1
+pool = 2
+enemies = Array[ExtResource("1_nb0oi")]([ExtResource("2_kor3i"), ExtResource("3_jbts3")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

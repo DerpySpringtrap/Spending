@@ -1,0 +1,137 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_7eefd"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_2ggxy"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_yiehh"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_mlk3a"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_sv5wj"]
+[ext_resource type="Resource" path="res://content/statuses/vulnerable.tres" id="6_khw5m"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="7_mbnlf"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_6qhnu"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_u8wlw"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_1eych"]
+[ext_resource type="Resource" path="res://content/statuses/enrage.tres" id="11_85hfd"]
+
+[sub_resource type="Resource" id="Resource_7eefd"]
+script = ExtResource("4_mlk3a")
+damage_type = 0
+amount = 12
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_2ggxy"]
+script = ExtResource("2_2ggxy")
+id = &"gore"
+display_name = "Gore"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_yiehh")]([SubResource("Resource_7eefd")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_yiehh"]
+script = ExtResource("4_mlk3a")
+damage_type = 0
+amount = 5
+upgrade_delta = 0
+times = 2
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_mlk3a"]
+script = ExtResource("5_sv5wj")
+status = ExtResource("6_khw5m")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_sv5wj"]
+script = ExtResource("2_2ggxy")
+id = &"trample"
+display_name = "Trample"
+intent = 3
+intent_tooltip = "Attacks for {dmg} x{times} and applies 1 Vulnerable."
+effects = Array[ExtResource("3_yiehh")]([SubResource("Resource_yiehh"), SubResource("Resource_mlk3a")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_khw5m"]
+script = ExtResource("5_sv5wj")
+status = ExtResource("7_mbnlf")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_mbnlf"]
+script = ExtResource("2_2ggxy")
+id = &"bellow"
+display_name = "Bellow"
+intent = 6
+intent_tooltip = "Gains 1 Strength."
+effects = Array[ExtResource("3_yiehh")]([SubResource("Resource_khw5m")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_6qhnu"]
+script = ExtResource("1_7eefd")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_2ggxy")]([SubResource("Resource_2ggxy"), SubResource("Resource_sv5wj")])
+opening_moves = Array[ExtResource("2_2ggxy")]([SubResource("Resource_mbnlf")])
+on_enter_effects = Array[ExtResource("3_yiehh")]([])
+passive_triggers = Array[ExtResource("8_6qhnu")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_u8wlw"]
+script = ExtResource("10_1eych")
+status = ExtResource("11_85hfd")
+stacks = 2
+
+[resource]
+script = ExtResource("9_u8wlw")
+id = &"gorehorn_bull"
+display_name = "Gorehorn Bull"
+tier = 1
+act = 1
+hp_min = 72
+hp_max = 76
+gimmick_text = "Enrage: gains 2 Strength whenever you play a Skill. Win with Attacks."
+starting_statuses = Array[ExtResource("10_1eych")]([SubResource("Resource_u8wlw")])
+phases = Array[ExtResource("1_7eefd")]([SubResource("Resource_6qhnu")])
+gold_min = 25
+gold_max = 35
+has_intro_cinematic = false
+intro_title = ""

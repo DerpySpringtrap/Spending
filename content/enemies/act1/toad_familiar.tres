@@ -1,0 +1,91 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_ixu2r"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_nolnh"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_nkm6e"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_3gc3y"]
+[ext_resource type="Script" path="res://src/combat/effects/heal_effect.gd" id="5_47yb6"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="6_3woib"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="7_naxsl"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="8_x7ev4"]
+
+[sub_resource type="Resource" id="Resource_ixu2r"]
+script = ExtResource("4_3gc3y")
+damage_type = 0
+amount = 5
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_nolnh"]
+script = ExtResource("2_nolnh")
+id = &"nip"
+display_name = "Nip"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_nkm6e")]([SubResource("Resource_ixu2r")])
+weight = 1.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_nkm6e"]
+script = ExtResource("5_47yb6")
+amount = 8
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_3gc3y"]
+script = ExtResource("2_nolnh")
+id = &"lick_wounds"
+display_name = "Lick Wounds"
+intent = 6
+intent_tooltip = "Heals all enemies 8 HP."
+effects = Array[ExtResource("3_nkm6e")]([SubResource("Resource_nkm6e")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_47yb6"]
+script = ExtResource("1_ixu2r")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_nolnh")]([SubResource("Resource_nolnh"), SubResource("Resource_3gc3y")])
+opening_moves = Array[ExtResource("2_nolnh")]([])
+on_enter_effects = Array[ExtResource("3_nkm6e")]([])
+passive_triggers = Array[ExtResource("6_3woib")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("7_naxsl")
+id = &"toad_familiar"
+display_name = "Toad Familiar"
+tier = 3
+act = 1
+hp_min = 24
+hp_max = 26
+gimmick_text = "Heals the Witch. Kill it to stop the healing."
+starting_statuses = Array[ExtResource("8_x7ev4")]([])
+phases = Array[ExtResource("1_ixu2r")]([SubResource("Resource_47yb6")])
+gold_min = 5
+gold_max = 10
+has_intro_cinematic = false
+intro_title = ""

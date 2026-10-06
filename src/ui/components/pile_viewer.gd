@@ -7,6 +7,11 @@ signal closed
 
 const COLUMNS := 6
 
+## Picker mode: "" (view only), "upgrade", "remove" or "choose".
+var _mode := ""
+var _on_pick: Callable
+var _picked := false
+
 var _title: Label
 var _grid: GridContainer
 var _scroll: ScrollContainer
@@ -57,8 +62,64 @@ func _ready() -> void:
 	margin.add_child(_grid)
 
 
+## Opens as a picker. [param mode]: "upgrade" (hover previews the upgrade),
+## "remove" or "choose". [param on_pick] = Callable(card: CardInstance).
+func open_picker(title: String, cards: Array, mode: String, on_pick: Callable, cancellable: bool = true) -> void:
+	open(title, cards, Callable(), true)
+	_mode = mode
+	_on_pick = on_pick
+	_picked = false
+	_close.text = "Cancel (Esc)" if cancellable else ""
+	_close.visible = cancellable
+	for view in _grid.get_children():
+		if view is CardView:
+			view.pressed.connect(_on_view_pressed)
+			if mode == "upgrade":
+				view.hovered.connect(func(v: CardView): _preview_upgrade(v, true))
+				view.unhovered.connect(func(v: CardView): _preview_upgrade(v, false))
+
+
+func _preview_upgrade(view: CardView, on: bool) -> void:
+	if _picked:
+		return
+	var original: CardInstance = view.get_meta("original", view.card)
+	view.set_meta("original", original)
+	view.setup(CardInstance.new(original.data, true) if on else original)
+	view.glowing = on
+
+
+func _on_view_pressed(view: CardView, event: InputEventMouseButton) -> void:
+	if _picked or event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	_picked = true
+	var card: CardInstance = view.get_meta("original", view.card)
+	EventBus.tooltip_cleared.emit(view)
+	var t := view.create_tween()
+	match _mode:
+		"upgrade":
+			view.setup(CardInstance.new(card.data, true))
+			view.play_upgrade_glow()
+			t.tween_interval(UIStyle.dur(0.6))
+		"remove":
+			view.pivot_offset = view.size / 2
+			t.set_parallel(true)
+			t.tween_property(view, "scale", Vector2(0.6, 0.6), UIStyle.dur(0.35))
+			t.tween_property(view, "modulate", Color(1.5, 0.6, 0.6, 0.0), UIStyle.dur(0.35))
+			t.chain().tween_interval(UIStyle.dur(0.1))
+		_:
+			t.tween_interval(UIStyle.dur(0.15))
+	t.chain().tween_callback(func():
+		_mode = ""
+		var cb := _on_pick
+		close()
+		cb.call(card))
+
+
 ## [param render] = Callable(card: CardInstance) -> String for live text.
 func open(title: String, cards: Array, render: Callable = Callable(), sorted: bool = false) -> void:
+	_mode = ""
+	_close.text = "Close (Esc)"
+	_close.visible = true
 	for child in _grid.get_children():
 		child.queue_free()
 	var list := cards.duplicate()
@@ -105,8 +166,9 @@ func close() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
-	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("view_draw") or event.is_action_pressed("view_discard"):
-		close()
+	if event.is_action_pressed("ui_cancel") or (_mode == "" and (event.is_action_pressed("view_draw") or event.is_action_pressed("view_discard") or event.is_action_pressed("view_deck"))):
+		if _close.visible:
+			close()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_down"):
 		_scroll.scroll_vertical += 320

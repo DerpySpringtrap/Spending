@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_8613x"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_sndxp"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="3_ic4hc"]
+
+[sub_resource type="Resource" id="Resource_8613x"]
+script = ExtResource("2_sndxp")
+type = 5
+amount = 6
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_sndxp"]
+script = ExtResource("2_sndxp")
+type = 7
+amount = 0
+percent = false
+rarity = 3
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_ic4hc"]
+script = ExtResource("1_8613x")
+text = "[Take it] Lose 6 max HP. Gain a rare card."
+result_text = "It burns as you lift it, and keeps burning, inside."
+outcomes = Array[ExtResource("2_sndxp")]([SubResource("Resource_8613x"), SubResource("Resource_sndxp")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_xpw3s"]
+script = ExtResource("2_sndxp")
+type = 10
+amount = 2
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_nh7rb"]
+script = ExtResource("1_8613x")
+text = "[Tend it] Upgrade 2 random cards."
+result_text = "You feed it a little. It feeds you back."
+outcomes = Array[ExtResource("2_sndxp")]([SubResource("Resource_xpw3s")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_2auex"]
+script = ExtResource("1_8613x")
+text = "[Leave]"
+result_text = "You move on."
+outcomes = Array[ExtResource("2_sndxp")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("3_ic4hc")
+id = &"ember_in_the_mud"
+title = "Ember in the Mud"
+description = "Something burns beneath the water, a coal that refuses to die. Your Cinder Heart pulls toward it."
+act = 1
+glyph = &"flame"
+choices = Array[ExtResource("1_8613x")]([SubResource("Resource_ic4hc"), SubResource("Resource_nh7rb"), SubResource("Resource_2auex")])

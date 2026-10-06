@@ -9,7 +9,7 @@
 [sub_resource type="Resource" id="Resource_tqntl"]
 script = ExtResource("4_dx18y")
 status = ExtResource("5_4500s")
-amount = 3
+amount = 2
 upgrade_delta = 0
 times = 1
 target = 2
@@ -29,7 +29,7 @@ required_card_tag = &""
 script = ExtResource("1_oj7p0")
 id = &"toxic_burst"
 display_name = "Toxic Burst"
-description = "On death, applies 3 Poison to you."
+description = "On death, applies 2 Poison to you."
 kind = 2
 stack_mode = 3
 decay = 0

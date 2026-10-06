@@ -40,7 +40,7 @@ HP figures below are for Ascension 0. Damage numbers are base values before Stre
 | Enemy | HP | Moveset (intent) | Gimmick |
 |---|---|---|---|
 | **Bog Lurker** | 40–44 | *Lunge*: Attack 11 · *Submerge*: Defend 8 + Buff 1 Strength · *Mud Spit*: Attack 5 + 1 Weak | Tutorial bruiser. Weighted random, never the same move 3× in a row. |
-| **Mire Toad** | 18–22 | *Tongue Lash*: Attack 6 · *Bloat*: Buff +2 Strength · *Croak*: Debuff (shuffles 1 Muck status into your discard) | **Toxic Burst:** on death, applies 3 Poison to the player. Teaches kill order. Appears in packs of 2–3. |
+| **Mire Toad** | 18–22 | *Tongue Lash*: Attack 6 · *Bloat*: Buff +2 Strength · *Croak*: Debuff (shuffles 1 Muck status into your discard) | **Toxic Burst:** on death, applies 2 Poison to the player. Teaches kill order. Appears in packs of 2–3. |
 | **Thornback Beetle** | 28–32 | *Ram*: Attack 9 · *Harden*: Defend 10 + Thorns +1 | Starts with **3 Thorns**. Punishes multi-hit attacks. |
 | **Wisp Lantern** | 12–15 | *Flicker*: gives an ally 6 Block · *Hex*: 1 Vulnerable · *Ember*: Attack 4 | Support: shields its allies. Fragile priority target, always paired. |
 | **Hollow Woodsman** | 46–50 | Fixed loop: *Sharpen* (Buff +3 Strength) → *Chop* (Attack 14) → *Chop* | Predictable escalation you can plan around. Hard pool. |

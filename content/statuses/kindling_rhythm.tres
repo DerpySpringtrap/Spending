@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_sa3gj"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_ne286"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_6e32w"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="4_ogny4"]
+
+[sub_resource type="Resource" id="Resource_or6us"]
+script = ExtResource("4_ogny4")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_0pnxa"]
+script = ExtResource("2_ne286")
+timing = 7
+condition = 0
+effects = Array[ExtResource("3_6e32w")]([SubResource("Resource_or6us")])
+amount_from_stacks = true
+every_nth = 1
+required_card_tag = &""
+
+[resource]
+script = ExtResource("1_sa3gj")
+id = &"kindling_rhythm"
+display_name = "Kindling Rhythm"
+description = "Whenever you play an Attack, Stoke {stacks}."
+kind = 0
+stack_mode = 0
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_ne286")]([SubResource("Resource_0pnxa")])
+tint = Color(0.941176, 0.533333, 0.290196, 1)

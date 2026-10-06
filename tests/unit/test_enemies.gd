@@ -40,13 +40,13 @@ func test_mire_toad_toxic_burst() -> void:
 	combat.enemies[0].hp = 1
 	combat.play_card(Fixtures.give(combat, &"warden_strike"), combat.enemies[0])
 	check(combat.enemies[0].is_dead, "toad died")
-	check_eq(combat.player.get_stacks(&"poison"), 3, "death applied 3 Poison to the player")
+	check_eq(combat.player.get_stacks(&"poison"), 2, "death applied 2 Poison to the player")
 
 
 func test_thornback_starts_with_thorns() -> void:
 	var combat := Fixtures.combat([ContentDB.get_enemy(&"thornback_beetle")])
 	combat.start()
-	check_eq(combat.enemies[0].get_stacks(&"thorns"), 3, "3 Thorns")
+	check_eq(combat.enemies[0].get_stacks(&"thorns"), 2, "2 Thorns")
 
 
 func test_croak_adds_muck() -> void:

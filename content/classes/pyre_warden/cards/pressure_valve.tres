@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_tyado"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_energy_effect.gd" id="2_y60n8"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="3_l8d30"]
+[ext_resource type="Script" path="res://src/combat/effects/spend_class_resource_effect.gd" id="4_ubd7j"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="5_1jwbi"]
+
+[sub_resource type="Resource" id="Resource_bqn5a"]
+script = ExtResource("2_y60n8")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"energy"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_g6k3c"]
+script = ExtResource("3_l8d30")
+amount = 2
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"draw"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_gajoc"]
+script = ExtResource("4_ubd7j")
+spend_all = false
+bonus_effects = Array[ExtResource("1_tyado")]([SubResource("Resource_bqn5a"), SubResource("Resource_g6k3c")])
+amount = 5
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"vent"
+scale = 0
+
+[resource]
+script = ExtResource("5_1jwbi")
+id = &"pressure_valve"
+display_name = "Pressure Valve"
+description = "Vent {vent}: Gain {energy} Energy and draw {draw} cards."
+card_pool = &"pyre_warden"
+type = 1
+rarity = 2
+target_mode = 0
+cost = 0
+effects = Array[ExtResource("1_tyado")]([SubResource("Resource_gajoc")])
+keywords = Array[StringName]([&"exhaust"])
+tags = Array[StringName]([&"heat"])
+on_discard_effects = Array[ExtResource("1_tyado")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_tyado")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([&"exhaust"])
+plays_class_motif = false

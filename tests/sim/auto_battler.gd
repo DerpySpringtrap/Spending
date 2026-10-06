@@ -8,14 +8,19 @@ extends Node
 var _fights := 1000
 var _ascension := 0
 var _seed := 1
+var _pools := "easy,hard,elite,boss"
+## Random reward cards added to the starter deck (simulates a mid-act deck).
+var _extra_cards := 0
 
 
 func _ready() -> void:
 	_parse_args()
 	var cls := ContentDB.get_character_class(&"pyre_warden")
 	var encounters: Array[EncounterData] = []
-	encounters.append_array(ContentDB.get_encounters(1, EncounterData.Pool.EASY))
-	encounters.append_array(ContentDB.get_encounters(1, EncounterData.Pool.HARD))
+	for pool_name in _pools.split(","):
+		var pool: int = EncounterData.Pool.keys().find(pool_name.to_upper())
+		if pool >= 0:
+			encounters.append_array(ContentDB.get_encounters(1, pool))
 	encounters.sort_custom(func(a, b): return String(a.id) < String(b.id))
 	var per_encounter := maxi(1, _fights / encounters.size())
 	var ai := GreedyPlayerAI.new()
@@ -24,7 +29,7 @@ func _ready() -> void:
 	var total_fights := 0
 	var total_wins := 0
 
-	print("\nAuto-battler: Pyre Warden starter deck + Cinder Heart, A%d, %d fights per encounter\n" % [_ascension, per_encounter])
+	print("\nAuto-battler: Pyre Warden starter deck + %d random cards + Cinder Heart, A%d, %d fights per encounter\n" % [_extra_cards, _ascension, per_encounter])
 	print("| Encounter | Pool | Win % | Avg turns | Avg HP lost (wins) | Worst HP lost |")
 	print("|---|---|---|---|---|---|")
 	for enc in encounters:
@@ -38,6 +43,10 @@ func _ready() -> void:
 				deck.append(CardInstance.new(data))
 			var relics: Array[RelicData] = [cls.starting_relic]
 			var rng := RngStreams.new(hash("%d:%s:%d" % [_seed, enc.id, i]))
+			if _extra_cards > 0:
+				var pool := ContentDB.cards.values().filter(func(c): return c.card_pool == cls.id and c.rarity != CardData.Rarity.STARTER)
+				for k in _extra_cards:
+					deck.append(CardInstance.new(rng.pick(pool, &"rewards")))
 			var combat := CombatState.create(cls, deck, cls.max_hp, cls.max_hp, relics, enc, _ascension, rng)
 			combat.start()
 			while not combat.is_over():
@@ -72,3 +81,5 @@ func _parse_args() -> void:
 			"fights": _fights = int(parts[1])
 			"ascension": _ascension = int(parts[1])
 			"seed": _seed = int(parts[1])
+			"pools": _pools = parts[1]
+			"extra": _extra_cards = int(parts[1])

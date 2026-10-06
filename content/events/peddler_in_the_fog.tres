@@ -1,0 +1,72 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_amrnf"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_liqio"]
+[ext_resource type="Resource" path="res://content/cards/curses/guilt.tres" id="3_2frb8"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="4_q1wqg"]
+
+[sub_resource type="Resource" id="Resource_amrnf"]
+script = ExtResource("2_liqio")
+type = 1
+amount = 40
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_liqio"]
+script = ExtResource("2_liqio")
+type = 12
+amount = 2
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_2frb8"]
+script = ExtResource("1_amrnf")
+text = "[Buy] Pay 40 gold. Gain 2 potions."
+result_text = "You hand over the coins. The bottles are still warm."
+outcomes = Array[ExtResource("2_liqio")]([SubResource("Resource_amrnf"), SubResource("Resource_liqio")])
+min_gold = 40
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_q1wqg"]
+script = ExtResource("2_liqio")
+type = 0
+amount = 65
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_v2yja"]
+script = ExtResource("2_liqio")
+type = 6
+amount = 0
+percent = false
+card = ExtResource("3_2frb8")
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_wcx2f"]
+script = ExtResource("1_amrnf")
+text = "[Rob him] Gain 65 gold. Become cursed with Guilt."
+result_text = "He doesn't fight back. That's somehow worse."
+outcomes = Array[ExtResource("2_liqio")]([SubResource("Resource_q1wqg"), SubResource("Resource_v2yja")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_2auex"]
+script = ExtResource("1_amrnf")
+text = "[Leave]"
+result_text = "You move on."
+outcomes = Array[ExtResource("2_liqio")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("4_q1wqg")
+id = &"peddler_in_the_fog"
+title = "Peddler in the Fog"
+description = "A cloaked figure pushes a cart of clinking bottles through the mist. \"Remedies, friend? Fair prices, for the brave.\""
+act = 1
+glyph = &"coin"
+choices = Array[ExtResource("1_amrnf")]([SubResource("Resource_2frb8"), SubResource("Resource_wcx2f"), SubResource("Resource_2auex")])

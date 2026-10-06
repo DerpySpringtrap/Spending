@@ -14,6 +14,7 @@ var potions: Dictionary = {}     # StringName -> PotionData
 var enemies: Dictionary = {}     # StringName -> EnemyData
 var encounters: Dictionary = {}  # StringName -> EncounterData
 var classes: Dictionary = {}     # StringName -> CharacterClassData
+var events: Dictionary = {}      # StringName -> EventData
 
 var _id_owner: Dictionary = {}   # "<kind>:<id>" -> resource path, for duplicate checks
 
@@ -23,13 +24,13 @@ func _ready() -> void:
 
 
 func reload() -> void:
-	for registry in [cards, statuses, relics, potions, enemies, encounters, classes]:
+	for registry in [cards, statuses, relics, potions, enemies, encounters, classes, events]:
 		registry.clear()
 	_id_owner.clear()
 	_scan(CONTENT_ROOT)
-	print("ContentDB: %d cards, %d statuses, %d relics, %d potions, %d enemies, %d encounters, %d classes" % [
+	print("ContentDB: %d cards, %d statuses, %d relics, %d potions, %d enemies, %d encounters, %d classes, %d events" % [
 		cards.size(), statuses.size(), relics.size(), potions.size(),
-		enemies.size(), encounters.size(), classes.size(),
+		enemies.size(), encounters.size(), classes.size(), events.size(),
 	])
 
 
@@ -68,6 +69,8 @@ func _register(res: Resource, path: String) -> void:
 		_add(encounters, "encounter", res.id, res, path)
 	elif res is CharacterClassData:
 		_add(classes, "class", res.id, res, path)
+	elif res is EventData:
+		_add(events, "event", res.id, res, path)
 	# Other resources (sub-resources saved to disk, themes...) are ignored.
 
 
@@ -127,6 +130,26 @@ func get_encounters(act: int, pool: EncounterData.Pool) -> Array[EncounterData]:
 	for enc: EncounterData in encounters.values():
 		if enc.act == act and enc.pool == pool:
 			result.append(enc)
+	return result
+
+
+func get_event(id: StringName) -> EventData:
+	return events.get(id)
+
+
+func get_events(act: int) -> Array[EventData]:
+	var result: Array[EventData] = []
+	for ev: EventData in events.values():
+		if ev.act == act:
+			result.append(ev)
+	return result
+
+
+func get_potions_for(class_id: StringName) -> Array[PotionData]:
+	var result: Array[PotionData] = []
+	for potion: PotionData in potions.values():
+		if potion.class_restriction == &"" or potion.class_restriction == class_id:
+			result.append(potion)
 	return result
 
 

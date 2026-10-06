@@ -1,0 +1,91 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_8erns"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_oilgh"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_js767"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_26m1t"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="5_pbv58"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="6_bwea8"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="7_niqbd"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="8_aatbu"]
+
+[sub_resource type="Resource" id="Resource_8erns"]
+script = ExtResource("4_26m1t")
+damage_type = 0
+amount = 4
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_oilgh"]
+script = ExtResource("2_oilgh")
+id = &"nibble"
+display_name = "Nibble"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_js767")]([SubResource("Resource_8erns")])
+weight = 2.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_js767"]
+script = ExtResource("5_pbv58")
+amount = 4
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_26m1t"]
+script = ExtResource("2_oilgh")
+id = &"puff_up"
+display_name = "Puff Up"
+intent = 4
+intent_tooltip = "Gains 4 Block."
+effects = Array[ExtResource("3_js767")]([SubResource("Resource_js767")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_pbv58"]
+script = ExtResource("1_8erns")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_oilgh")]([SubResource("Resource_oilgh"), SubResource("Resource_26m1t")])
+opening_moves = Array[ExtResource("2_oilgh")]([])
+on_enter_effects = Array[ExtResource("3_js767")]([])
+passive_triggers = Array[ExtResource("6_bwea8")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("7_niqbd")
+id = &"broodling"
+display_name = "Broodling"
+tier = 3
+act = 1
+hp_min = 10
+hp_max = 12
+gimmick_text = "One of the Matriarch's brood. While it lives, she gains Block."
+starting_statuses = Array[ExtResource("8_aatbu")]([])
+phases = Array[ExtResource("1_8erns")]([SubResource("Resource_pbv58")])
+gold_min = 0
+gold_max = 0
+has_intro_cinematic = false
+intro_title = ""

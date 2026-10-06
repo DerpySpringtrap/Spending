@@ -32,6 +32,13 @@ var floor_number: int = 0
 ## layout plus the visited path. Shape filled in by MapGenerator (Milestone 3).
 var map_data: Dictionary = {}
 var visited_nodes: Array = []
+## Map node the player is on ("" = before floor 1).
+var current_node: String = ""
+var monster_fights: int = 0
+var seen_encounters: Array = []
+var seen_events: Array = []
+## Cards removed at shops (raises the removal price).
+var removals: int = 0
 
 ## Run-summary bookkeeping.
 var run_stats: Dictionary = {}
@@ -58,7 +65,50 @@ func start(class_data: CharacterClassData, ascension_level: int, run_seed: int) 
 	floor_number = 0
 	map_data = {}
 	visited_nodes = []
-	run_stats = {"damage_dealt": 0, "damage_taken": 0, "cards_played": 0, "gold_earned": 0, "enemies_killed": 0}
+	current_node = ""
+	monster_fights = 0
+	seen_encounters = []
+	seen_events = []
+	removals = 0
+	run_stats = {"damage_dealt": 0, "damage_taken": 0, "cards_played": 0, "gold_earned": 0, "enemies_killed": 0,
+		"elites_killed": 0, "biggest_hit": 0}
+	if ascension >= AscensionRules.START_DAMAGED_LEVEL:
+		hp = roundi(max_hp * 0.9)
+	if ascension >= AscensionRules.CURSE_LEVEL:
+		var curse := ContentDB.get_card(&"weight_of_dusk")
+		if curse:
+			deck.append(CardInstance.new(curse))
+
+
+func _ready() -> void:
+	EventBus.card_played.connect(func(_card, _targets): _stat("cards_played", 1))
+	EventBus.damage_dealt.connect(_on_damage_dealt)
+	EventBus.combatant_died.connect(func(c):
+		if c is EnemyCombatant:
+			_stat("enemies_killed", 1)
+			if c.data.tier == EnemyData.Tier.ELITE:
+				_stat("elites_killed", 1))
+
+
+func _stat(key: String, amount: int) -> void:
+	if active:
+		run_stats[key] = int(run_stats.get(key, 0)) + amount
+
+
+func _on_damage_dealt(info: DamageInfo) -> void:
+	if not active or info.hp_lost <= 0:
+		return
+	if info.target is PlayerCombatant:
+		_stat("damage_taken", info.hp_lost)
+	elif info.source is PlayerCombatant:
+		_stat("damage_dealt", info.hp_lost)
+		run_stats["biggest_hit"] = maxi(int(run_stats.get("biggest_hit", 0)), info.hp_lost)
+
+
+func current_map_node() -> Dictionary:
+	if map_data.is_empty() or current_node == "":
+		return {}
+	return map_data.nodes.get(current_node, {})
 
 
 func get_class_data() -> CharacterClassData:
@@ -179,6 +229,8 @@ func to_dict() -> Dictionary:
 		"deck": deck_entries, "relics": relic_ids, "relic_counters": relic_counters,
 		"potions": potion_ids, "act": act, "floor": floor_number,
 		"map": map_data, "visited": visited_nodes, "stats": run_stats,
+		"current_node": current_node, "monster_fights": monster_fights,
+		"seen_encounters": seen_encounters, "seen_events": seen_events, "removals": removals,
 	}
 
 
@@ -208,6 +260,11 @@ func from_dict(data: Dictionary) -> void:
 	map_data = data.get("map", {})
 	visited_nodes = data.get("visited", [])
 	run_stats = data.get("stats", {})
+	current_node = String(data.get("current_node", ""))
+	monster_fights = int(data.get("monster_fights", 0))
+	seen_encounters = data.get("seen_encounters", [])
+	seen_events = data.get("seen_events", [])
+	removals = int(data.get("removals", 0))
 	active = true
 
 

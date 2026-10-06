@@ -30,6 +30,7 @@ enum Scale {
 	CLASS_RESOURCE,  ## Current class resource value (without spending it).
 	EXHAUST_PILE,    ## Cards in the exhaust (Erased) pile.
 	HAND_SIZE,       ## Cards in hand.
+	LIVING_ALLIES,   ## Other living combatants on the source's side.
 }
 
 ## Base magnitude (damage, block, stacks, cards drawn...).
