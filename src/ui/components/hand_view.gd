@@ -205,6 +205,8 @@ func _on_hovered(view: CardView) -> void:
 	if _dragging != null or _kb_targeting != null or _pending.has(view):
 		return
 	_keyboard_active = false
+	if _hovered != view:
+		AudioManager.play_ui_id(&"card_hover")
 	_hovered = view
 	_focus_index = _views.find(view)
 	EventBus.tooltip_requested.emit(view, "", CardTooltips.for_card(view.card))

@@ -62,6 +62,7 @@ func _choice_button(title: String, subtitle: String, glyph: StringName, color: C
 func _on_rest() -> void:
 	var before := RunState.hp
 	RunState.heal(RunLogic.rest_heal_amount())
+	AudioManager.play(&"rest", 0.0)
 	_finish("You rest by the fire and recover %d HP." % (RunState.hp - before))
 
 
@@ -69,6 +70,7 @@ func _on_smith() -> void:
 	var options := RunState.deck.filter(func(c): return c.can_upgrade())
 	_picker.open_picker("Upgrade a Card", options, "upgrade", func(card: CardInstance):
 		RunState.upgrade_card(card)
+		AudioManager.play(&"card_create")
 		_finish("%s upgraded." % card.get_display_name()))
 
 

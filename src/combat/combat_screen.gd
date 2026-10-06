@@ -116,14 +116,27 @@ func _start_fight() -> void:
 	_spawn_view(combat.player, _player_anchor)
 	for enemy in combat.enemies:
 		_spawn_view(enemy, _enemy_row)
+	_start_music(enc)
 	for enemy in combat.enemies:
 		if enemy.data.has_intro_cinematic:
 			var boss := enemy
 			queue.push(&"intro", 0, 1.7, func():
+				AudioManager.play(&"boss_intro", 0.0)
 				_banner.show_banner(boss.display_name.to_upper(), UIStyle.GOLD, 1.0)
 				_fx.shake(6)
 				_view(boss).play_cast())
 	combat.start()
+
+
+func _start_music(enc: EncounterData) -> void:
+	match enc.pool:
+		EncounterData.Pool.BOSS:
+			AudioManager.play_music_id(&"boss", 0.8)
+		EncounterData.Pool.ELITE:
+			AudioManager.play_music_id(&"elite", 0.8)
+		_:
+			AudioManager.play_music_id(&"combat", 0.8)
+	AudioManager.play_ambience_id(&"swamp" if RunState.act == 1 else &"crypt")
 
 
 func _spawn_view(c: Combatant, parent: Control) -> void:
@@ -217,6 +230,7 @@ func _on_combatant_spawned(c: Combatant) -> void:
 	if c is EnemyCombatant:
 		queue.push(&"spawn", c.id, 0.35, func():
 			_spawn_view(c, _enemy_row)
+			AudioManager.play(&"summon")
 			_fx.burst(_view(c).hit_point(), Color("#6E8A4A"), 20, 220, 300))
 
 
@@ -231,23 +245,31 @@ func _view(c: Combatant) -> CombatantView:
 func _on_turn_started(c: Combatant, is_player: bool) -> void:
 	if is_player:
 		_enemy_banner_shown = false
-		queue.push(&"banner", 0, 0.75, func(): _banner.show_banner("Your Turn"))
+		queue.push(&"banner", 0, 0.75, func():
+			AudioManager.play(&"turn_player", 0.0)
+			_banner.show_banner("Your Turn"))
 	elif not _enemy_banner_shown:
 		_enemy_banner_shown = true
-		queue.push(&"banner", 0, 0.6, func(): _banner.show_banner("Enemy Turn", UIStyle.DAMAGE.lightened(0.2), 0.3))
+		queue.push(&"banner", 0, 0.6, func():
+			AudioManager.play(&"turn_enemy", 0.0)
+			_banner.show_banner("Enemy Turn", UIStyle.DAMAGE.lightened(0.2), 0.3))
 
 
 func _on_energy_changed(current: int, max_energy: int) -> void:
 	queue.push(PresentationQueue.INSTANT, 0, 0.0, func(): _energy.set_energy(current, max_energy))
 
 
-func _on_resource_changed(_id: StringName, _old: int, new_value: int, max_value: int) -> void:
-	queue.push(&"resource", 0, 0.08, func(): _gauge.set_value(new_value, max_value))
+func _on_resource_changed(_id: StringName, old: int, new_value: int, max_value: int) -> void:
+	queue.push(&"resource", 0, 0.08, func():
+		if new_value > old:
+			AudioManager.play(&"stoke", 0.08)
+		_gauge.set_value(new_value, max_value))
 
 
 func _on_resource_maxed(_id: StringName) -> void:
 	queue.push(&"overheat", 0, 0.6, func():
 		_gauge.flash()
+		AudioManager.play(&"overheat")
 		_banner.show_banner("Overheat!", UIStyle.BURN, 0.25)
 		_fx.shake(16)
 		_fx.burst(_view(combat.player).hit_point(), UIStyle.BURN, 40, 520, -200))
@@ -257,6 +279,8 @@ func _on_card_drawn(card: CardInstance) -> void:
 	queue.push(&"draw", card.uid, 0.08, func(i: int):
 		_counts.draw -= 1
 		_update_piles()
+		if i < 3:
+			AudioManager.play(&"card_draw", 0.1)
 		var view := CardView.new().setup(card)
 		view.modulate.a = 0.0
 		_hand.add_card(view, _draw_pile.center_global())
@@ -265,6 +289,7 @@ func _on_card_drawn(card: CardInstance) -> void:
 
 func _on_deck_shuffled(count: int) -> void:
 	queue.push(&"shuffle", 0, 0.4, func():
+		AudioManager.play(&"shuffle")
 		for k in mini(count, 6):
 			_fly_card_back(_discard_pile.center_global(), _draw_pile.center_global(), k * 0.04)
 		_counts.draw = count
@@ -278,6 +303,9 @@ func _on_card_played(card: CardInstance, _targets: Array) -> void:
 	queue.push(&"play", card.uid, 0.3 if not is_power else 0.45, func():
 		var view := _take_from_hand(card)
 		_in_flight[card.uid] = view
+		AudioManager.play(&"card_play")
+		if card.data.plays_class_motif:
+			AudioManager.play(StringName("motif_%s" % combat.player.class_data.id), 0.0)
 		var player_view := _view(combat.player)
 		if is_attack:
 			player_view.play_attack()
@@ -306,6 +334,8 @@ func _on_card_discarded(card: CardInstance, _manual: bool) -> void:
 		_in_flight.erase(card.uid)
 		if view == null:
 			view = _take_from_hand(card)
+		if i == 0:
+			AudioManager.play(&"card_discard", 0.1)
 		_fly_to_pile(view, _discard_pile, i * 0.03, func():
 			_counts.discard += 1
 			_update_piles()))
@@ -319,6 +349,7 @@ func _on_card_exhausted(card: CardInstance) -> void:
 			view = _take_from_hand(card)
 		_counts.exhaust += 1
 		_update_piles()
+		AudioManager.play(&"card_exhaust")
 		var t := view.create_tween().set_parallel(true)
 		t.tween_property(view, "modulate", Color(1.6, 0.7, 0.3, 0.0), UIStyle.dur(0.35))
 		t.tween_property(view, "position:y", view.position.y - 60, UIStyle.dur(0.35))
@@ -329,6 +360,7 @@ func _on_card_exhausted(card: CardInstance) -> void:
 func _on_card_created(card: CardInstance, pile: StringName) -> void:
 	queue.push(&"create", card.uid, 0.5, func():
 		var view := CardView.new().setup(card)
+		AudioManager.play(&"card_create")
 		_fx.add_child(view)
 		var center := get_viewport_rect().size * Vector2(0.5, 0.4)
 		view.global_position = center - view.size / 2
@@ -360,7 +392,9 @@ func _route_created_card(view: CardView, pile: StringName) -> void:
 
 func _on_attack_started(attacker: Combatant, _targets: Array) -> void:
 	if attacker is EnemyCombatant:
-		queue.push(&"lunge", attacker.id, 0.2, func(): _view(attacker).play_attack())
+		queue.push(&"lunge", attacker.id, 0.2, func():
+			AudioManager.play(&"enemy_windup", 0.08)
+			_view(attacker).play_attack())
 
 
 func _on_damage_dealt(info: DamageInfo) -> void:
@@ -372,6 +406,7 @@ func _on_damage_dealt(info: DamageInfo) -> void:
 		view.set_hp(info.hp_after, info.target.max_hp)
 		view.set_block(info.block_after)
 		var at := view.hit_point()
+		_play_hit_sound(info, big)
 		match info.type:
 			DamageInfo.Type.POISON:
 				_fx.burst(at, UIStyle.POISON, 14, 120, 600, 60.0, 1.0, Vector2.DOWN)
@@ -394,8 +429,22 @@ func _on_damage_dealt(info: DamageInfo) -> void:
 			_top_bar.set_hp(info.hp_after, info.target.max_hp))
 
 
+func _play_hit_sound(info: DamageInfo, big: bool) -> void:
+	match info.type:
+		DamageInfo.Type.POISON:
+			AudioManager.play(&"poison_tick", 0.1)
+		DamageInfo.Type.BURN:
+			AudioManager.play(&"burn_tick", 0.1)
+		_:
+			if info.hp_lost <= 0 and info.blocked > 0:
+				AudioManager.play(&"block_gain", 0.1, 2.0)
+			else:
+				AudioManager.play(&"hit_heavy" if big else &"hit", 0.08)
+
+
 func _on_block_gained(c: Combatant, amount: int, block_after: int) -> void:
 	queue.push(&"block", c.id, 0.16, func():
+		AudioManager.play(&"block_gain", 0.08)
 		var view := _view(c)
 		view.set_block(block_after)
 		_fx.number(view.head_point() + Vector2(0, 30), "+%d" % amount, UIStyle.BLOCK)
@@ -404,6 +453,7 @@ func _on_block_gained(c: Combatant, amount: int, block_after: int) -> void:
 
 func _on_block_broken(c: Combatant) -> void:
 	queue.push(PresentationQueue.INSTANT, c.id, 0.0, func():
+		AudioManager.play(&"block_break")
 		_fx.burst(_view(c).hit_point(), UIStyle.BLOCK.lightened(0.3), 20, 420, 700))
 
 
@@ -413,6 +463,7 @@ func _on_block_cleared(c: Combatant) -> void:
 
 func _on_healed(c: Combatant, amount: int, hp_after: int) -> void:
 	queue.push(&"heal", c.id, 0.22, func():
+		AudioManager.play(&"heal")
 		var view := _view(c)
 		view.set_hp(hp_after, c.max_hp)
 		_fx.number(view.head_point(), "+%d" % amount, UIStyle.HEAL)
@@ -423,7 +474,10 @@ func _on_healed(c: Combatant, amount: int, hp_after: int) -> void:
 
 func _on_status_applied(c: Combatant, status: StatusEffectData, delta: int, stacks: int) -> void:
 	if delta > 0:
-		queue.push(&"status", c.id, 0.14, func():
+		var sound := &"status_buff" if status.kind == StatusEffectData.Kind.BUFF else &"status_debuff"
+		queue.push(&"status", c.id, 0.14, func(i: int):
+			if i == 0:
+				AudioManager.play(sound, 0.08)
 			var view := _view(c)
 			view.set_status(status, stacks, true)
 			_fx.burst(view.hit_point(), status.tint, 12, 180, -60, 180.0, 0.9))
@@ -445,6 +499,7 @@ func _on_intent_changed(enemy: Combatant, move: EnemyMoveData, damage: int, hits
 
 func _on_combatant_died(c: Combatant) -> void:
 	queue.push(&"death", c.id, 0.55, func():
+		AudioManager.play(&"death")
 		var view := _view(c)
 		view.play_death()
 		_fx.burst(view.hit_point(), Color(0.85, 0.8, 0.75), 40, 260, -120, 180.0, 1.2))
@@ -460,6 +515,7 @@ func _on_combat_ended(victory: bool) -> void:
 		_hand.end_keyboard_targeting(false)
 		_hand.create_tween().tween_property(_hand, "modulate:a", 0.0, UIStyle.dur(0.3))
 		if victory:
+			AudioManager.play(&"victory", 0.0, -6.0)
 			_view(combat.player).play_victory()
 			var view_size := get_viewport_rect().size
 			for k in 5:
@@ -812,6 +868,7 @@ func _use_potion(slot: int, target: Combatant) -> void:
 	var icon := _top_bar.potion_icon(slot)
 	var from := icon.center_global() if icon else Vector2(400, 40)
 	queue.push(&"potion", 0, 0.3, func():
+		AudioManager.play(&"potion")
 		_fx.burst(from, potion.liquid_color, 24, 260, 300)
 		_view(combat.player).play_cast())
 	combat.use_potion(potion, target)

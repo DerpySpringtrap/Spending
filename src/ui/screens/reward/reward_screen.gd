@@ -77,12 +77,15 @@ func _claim(row: Button) -> void:
 	match String(reward.type):
 		"gold":
 			RunState.add_gold(reward.amount)
+			AudioManager.play(&"gold")
 		"relic":
 			RunState.add_relic(reward.relic)
+			AudioManager.play(&"relic", 0.0)
 		"potion":
 			if RunState.add_potion(reward.potion) < 0:
 				_show_message("Your potion slots are full. Discard one from the top bar first.")
 				return
+			AudioManager.play(&"potion")
 		"card":
 			_open_card_choice(row, reward.choices)
 			return
@@ -174,6 +177,7 @@ func _pick_card(row: Button, view: CardView) -> void:
 	_card_overlay.set_meta("picked", true)
 	EventBus.tooltip_cleared.emit(view)
 	RunState.add_card(view.card.data)
+	AudioManager.play(&"card_create")
 	view.glowing = true
 	var t := view.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	t.tween_property(view, "global_position", Vector2(get_viewport_rect().size.x - 180, 10), UIStyle.dur(0.4)).set_delay(UIStyle.dur(0.15))

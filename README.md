@@ -10,7 +10,7 @@ A complete Act 1 run with the **Pyre Warden**: main menu → class select → br
 - 11 relics, 8 potions, 2 curses, 5 events.
 - 7 normal enemies across 8 hallway encounters, 2 elites (Gorehorn Bull, Swamp Witch + Familiar).
 - The 2-phase Drowned Matriarch boss with summoned Broodlings.
-- Act 2–3, the other three classes, audio and meta-progression unlocks come in later milestones (see the roadmap).
+- Act 2–3, the other three classes and meta-progression unlocks come in later milestones (see the roadmap).
 
 ### Play-testing
 Open `project.godot` in Godot 4.4+ and press **F5**.

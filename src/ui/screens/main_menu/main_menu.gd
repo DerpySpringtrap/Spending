@@ -157,6 +157,22 @@ func _build_options() -> void:
 		Settings.fullscreen = on
 		Settings.apply_all())
 	box.add_child(full)
+	var volumes := GridContainer.new()
+	volumes.columns = 2
+	volumes.add_theme_constant_override("h_separation", 16)
+	box.add_child(volumes)
+	for bus in Settings.AUDIO_BUSES:
+		volumes.add_child(UIBuild.label("%s volume" % bus, &"DimLabel", UIStyle.SIZE_BODY))
+		var slider := HSlider.new()
+		slider.min_value = 0.0
+		slider.max_value = 1.0
+		slider.step = 0.05
+		slider.custom_minimum_size = Vector2(260, 24)
+		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		slider.value = Settings.volumes.get(bus, 1.0)
+		slider.value_changed.connect(func(v: float): Settings.set_volume(bus, v))
+		slider.drag_ended.connect(_preview_volume.bind(bus))
+		volumes.add_child(slider)
 	box.add_child(UIBuild.label("Screen shake", &"DimLabel", UIStyle.SIZE_BODY))
 	var shake := HSlider.new()
 	shake.min_value = 0.0
@@ -168,6 +184,14 @@ func _build_options() -> void:
 	var close := UIBuild.button("Done", true)
 	close.pressed.connect(_toggle_options)
 	box.add_child(close)
+
+
+## Plays a sample on the bus that was just adjusted (music/ambience are already audible).
+func _preview_volume(_changed: bool, bus: StringName) -> void:
+	if bus == &"UI":
+		AudioManager.play_ui_id(&"ui_click")
+	elif bus == &"SFX" or bus == &"Master":
+		AudioManager.play(&"hit")
 
 
 func _toggle_options() -> void:

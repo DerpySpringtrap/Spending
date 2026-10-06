@@ -3,9 +3,9 @@ extends Node
 ##
 ## Music uses two players that crossfade, so switching map -> combat -> boss
 ## never hard-cuts. SFX use a small voice pool with slight pitch randomisation
-## to avoid repetition fatigue. Hooking these up to EventBus signals (card
-## played -> card SFX, etc.) happens in the Milestone 5 audio pass; this
-## milestone only provides the playback API.
+## to avoid repetition fatigue. Sounds are addressed by id through SoundBank
+## (play(&"hit")). Screen music/ambience follows EventBus.screen_changed, and
+## every Button in the game gets hover/click sounds automatically.
 
 const SFX_VOICES := 16
 const DEFAULT_FADE := 1.5
@@ -27,6 +27,8 @@ func _ready() -> void:
 	_ambience = _make_player(&"Ambience")
 	for i in SFX_VOICES:
 		_sfx_pool.append(_make_player(&"SFX"))
+	EventBus.screen_changed.connect(_on_screen_changed)
+	get_tree().node_added.connect(_on_node_added)
 
 
 func _make_player(bus: StringName) -> AudioStreamPlayer:
@@ -100,3 +102,46 @@ func play_ui(stream: AudioStream) -> void:
 func play_random_sfx(streams: Array[AudioStream], pitch_variance: float = 0.05) -> void:
 	if not streams.is_empty():
 		play_sfx(streams.pick_random(), pitch_variance)
+
+
+# --- Id-based API (SoundBank) -----------------------------------------------------
+
+## Plays a sound effect by id with the bank's gain and slight pitch variance.
+func play(id: StringName, pitch_variance: float = 0.05, volume_db: float = 0.0) -> void:
+	play_sfx(SoundBank.sfx(id), pitch_variance, SoundBank.gain_db(id) + volume_db)
+
+
+func play_ui_id(id: StringName) -> void:
+	play_sfx(SoundBank.sfx(id), 0.03, SoundBank.gain_db(id), &"UI")
+
+
+func play_music_id(id: StringName, fade_time: float = DEFAULT_FADE) -> void:
+	play_music(SoundBank.music(id), fade_time)
+
+
+func play_ambience_id(id: StringName) -> void:
+	play_ambience(SoundBank.ambience(id))
+
+
+## Music and ambience per screen. Combat picks its own track (normal, elite,
+## boss) because only it knows the encounter.
+func _on_screen_changed(screen_id: StringName) -> void:
+	var act := RunState.act if RunState.active else 1
+	match screen_id:
+		&"main_menu", &"class_select":
+			play_music_id(&"menu")
+			play_ambience(null)
+		&"map", &"reward", &"shop", &"rest", &"event":
+			play_music_id(&"map_act%d" % act)
+			play_ambience_id(&"swamp" if act == 1 else &"crypt")
+		&"run_summary":
+			stop_music(0.8)
+			play_ambience(null)
+			var victory: bool = GameManager.last_run_summary.get("victory", false)
+			play(&"victory" if victory else &"defeat", 0.0)
+
+
+func _on_node_added(node: Node) -> void:
+	if node is BaseButton and not node is PileButton:
+		node.mouse_entered.connect(func(): if not node.disabled: play_ui_id(&"ui_hover"))
+		node.pressed.connect(func(): play_ui_id(&"ui_click"))

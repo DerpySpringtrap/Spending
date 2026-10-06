@@ -96,6 +96,7 @@ func _on_node_chosen(node_id: String) -> void:
 	if _leaving or _pile_viewer.visible:
 		return
 	_leaving = true
+	AudioManager.play_ui_id(&"map_select")
 	var b: MapNodeButton = _view.buttons[node_id]
 	var t := b.create_tween()
 	t.tween_property(b, "scale", Vector2(1.35, 1.35), UIStyle.dur(0.12)).set_trans(Tween.TRANS_BACK)
@@ -117,6 +118,7 @@ func _on_potion(slot: int) -> void:
 	for effect in potion.effects:
 		if effect is HealEffect:
 			RunState.heal(effect.amount)
+	AudioManager.play(&"potion")
 	RunState.remove_potion(slot)
 	EventBus.potion_used.emit(potion, slot)
 	_top_bar.refresh()

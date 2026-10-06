@@ -144,6 +144,7 @@ func _buy(entry: Dictionary) -> bool:
 		_show_message("Not enough gold.")
 		return false
 	RunState.add_gold(-entry.price)
+	AudioManager.play(&"shop_buy")
 	entry.sold = true
 	_refresh_prices()
 	_top_bar.refresh()
@@ -165,6 +166,7 @@ func _on_removal() -> void:
 		return
 	_picker.open_picker("Remove a Card (%d gold)" % _stock.removal_price, RunState.deck, "remove", func(card: CardInstance):
 		RunState.add_gold(-_stock.removal_price)
+		AudioManager.play(&"shop_buy")
 		RunState.remove_card(card)
 		RunState.removals += 1
 		_stock.removal_used = true
