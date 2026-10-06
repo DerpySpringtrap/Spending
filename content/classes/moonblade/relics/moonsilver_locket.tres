@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/relic_data.gd" id="1_r4l0x"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_amlwp"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_m0qfp"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="4_enwst"]
+
+[sub_resource type="Resource" id="Resource_ellmj"]
+script = ExtResource("4_enwst")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ysbjq"]
+script = ExtResource("2_amlwp")
+timing = 24
+condition = 0
+effects = Array[ExtResource("3_m0qfp")]([SubResource("Resource_ellmj")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = true
+
+[resource]
+script = ExtResource("1_r4l0x")
+id = &"moonsilver_locket"
+display_name = "Moonsilver Locket"
+description = "The first time you change phase each turn, draw 1 card."
+flavor = "Its two halves never quite close."
+rarity = 0
+class_restriction = &"moonblade"
+triggers = Array[ExtResource("2_amlwp")]([SubResource("Resource_ysbjq")])
+counter_max = 0
+max_energy_bonus = 0
+draw_per_turn_bonus = 0
+max_hp_bonus = 0
+potion_slot_bonus = 0
+gold_gain_multiplier = 1.0
+shop_price_multiplier = 1.0
+requires_unlock = false

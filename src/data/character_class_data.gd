@@ -23,6 +23,11 @@ extends Resource
 ## Optional stance/phase definitions (Moonblade). Each is a status applied as a
 ## FLAG while the stance is active, so stance bonuses use the status pipeline.
 @export var stances: Array[StatusEffectData] = []
+## Moonblade: changing phase at max class resource enters this stance instead
+## (both phase bonuses). It ends at the end of the turn and resets the resource.
+@export var eclipse_stance: StatusEffectData
+## Effects run on entering the eclipse stance (draw 2).
+@export var eclipse_effects: Array[GameEffect] = []
 
 @export_group("Presentation")
 @export var primary_color: Color = Color.WHITE

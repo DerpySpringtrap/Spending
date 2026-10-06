@@ -24,10 +24,13 @@ How to add cards, statuses, relics and enemies without writing code. Every piece
 | `OverheatEffect` | Pyre Warden's Overheat (used by the Heat resource) | blast/recoil/reset values |
 | `SummonEnemyEffect` | Adds enemies mid-fight (boss adds) | `enemy`, `amount`, `max_enemies` |
 | `RemoveDebuffsEffect` | Cleanses debuffs (phase changes) | `target` |
+| `ChangeStanceEffect` | Moonblade Wax / Wane / Shift (empty `stance` = Shift; the eclipse status = enter Eclipse) | `stance` |
+| `ConditionalEffect` | "If in Waxing, draw 1" (a phase also counts during Eclipse) | `required_status`, `effects`, `else_effects` |
 
 4. **Upgrades:** set `upgrade_delta` on each effect (+3 damage, +1 Burn…), and/or `upgraded_cost`, `upgrade_adds_keywords`, `upgraded_description`.
 5. **Description:** write it with tokens. `Deal {dmg} damage. Stoke {heat}.` Each token must match an effect's `value_key`. The card shows live numbers: Strength, Weak and the hovered enemy's Vulnerable are all included. Keywords such as *Exhaust* are appended automatically.
-6. **Scaling:** set an effect's `scale` to multiply its amount by X (energy spent / resource vented), the current class resource, the exhaust pile size or the hand size.
+6. **Scaling:** set an effect's `scale` to multiply its amount by X (energy spent / resource vented), the current class resource, the exhaust pile size, the hand size or the phase changes this turn. A scaled damage effect that comes out at 0 deals no hit at all.
+   - `cost_reduction_per_stance_change` (Moonfall) lowers the cost by that much per phase change this turn.
 7. Run the tests (below). `test_content` fails if a token has no matching effect.
 
 ## Adding a status
@@ -35,6 +38,7 @@ How to add cards, statuses, relics and enemies without writing code. Every piece
 - **Stat modifiers** cover most buffs/debuffs: `damage_dealt_flat_per_stack` (Strength), `damage_dealt_multiplier` (Weak), `damage_taken_multiplier` (Vulnerable), `block_gained_*` (Dexterity/Frail), `retains_block`, `skips_turn`.
 - **Decay:** how stacks go down (`DECREMENT_ON_ROUND_END` for Weak-style durations, `HALVE_ON_TURN_END` for Burn…).
 - **Triggers:** `EffectTrigger` = timing + effects. Tick a status with `amount_from_stacks` (Poison: `TURN_START` → `DealDamageEffect(type POISON, target SELF)`). Reactive statuses use `ATTACKED` + `target = ATTACKER` (Thorns).
+- Trigger options: `once_per_turn` ("the first time each turn"), `every_nth`, `required_card_tag`, and `condition` (`REQUIRES_STATUS` + `required_status_id` = only while the owner has that status).
 - A **Power card** is just `ApplyStatusEffect(target SELF)` with a status that carries the triggers.
 
 ## Adding a relic

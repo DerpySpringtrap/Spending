@@ -22,6 +22,15 @@ const STATUS_GLYPHS := {
 	&"eternal_pyre": &"sun",
 	&"ember_shell": &"shield",
 	&"toxic_burst": &"burst",
+	&"waxing": &"crescent",
+	&"waning": &"crescent_wane",
+	&"eclipse": &"eclipse",
+	&"silver_reflection": &"shield",
+	&"orbit": &"crescent",
+	&"tidal_rhythm": &"shield",
+	&"starfall": &"star",
+	&"full_moon": &"sun",
+	&"moonlit_vigil": &"crescent_wane",
 }
 
 const INTENT_GLYPHS := {
@@ -110,6 +119,19 @@ static func _draw_unit(ci: CanvasItem, glyph: StringName, c: Color, shade: Color
 				ci.draw_polyline(PackedVector2Array([Vector2(-0.1, -0.85), Vector2(0.12, -0.35), Vector2(-0.15, 0.05), Vector2(0.1, 0.5)]), Color(0, 0, 0, 0.8), 0.14)
 			elif glyph == &"shield_flame":
 				_poly(ci, _scaled(_flame_points(), 0.5, Vector2(0, 0.05)), Color("#FFD27A"))
+		&"crescent", &"crescent_wane":
+			var outer := PackedVector2Array()
+			var flip := -1.0 if glyph == &"crescent_wane" else 1.0
+			for i in 25:
+				var a := -PI / 2 + PI * i / 24.0
+				outer.append(Vector2(cos(a) * 0.9 * flip, sin(a) * 0.9))
+			for i in 25:
+				var a := PI / 2 - PI * i / 24.0
+				outer.append(Vector2(cos(a) * 0.38 * flip, sin(a) * 0.9))
+			_poly(ci, outer, c)
+		&"eclipse":
+			ci.draw_circle(Vector2.ZERO, 0.95, c)
+			ci.draw_circle(Vector2(0.18, -0.08), 0.74, Color("#141A33"))
 		&"star":
 			_poly(ci, _star(5, 1.0, 0.45), c)
 		&"sparkle":

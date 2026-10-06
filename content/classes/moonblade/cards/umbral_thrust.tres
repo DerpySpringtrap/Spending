@@ -1,0 +1,65 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_xk788"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_51agk"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="3_jskym"]
+[ext_resource type="Resource" path="res://content/statuses/vulnerable.tres" id="4_ol4in"]
+[ext_resource type="Resource" path="res://content/statuses/waning.tres" id="5_vy25x"]
+[ext_resource type="Script" path="res://src/combat/effects/conditional_effect.gd" id="6_3b6xu"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="7_eeuge"]
+
+[sub_resource type="Resource" id="Resource_y8pq8"]
+script = ExtResource("2_51agk")
+damage_type = 0
+amount = 13
+upgrade_delta = 4
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_y14xs"]
+script = ExtResource("3_jskym")
+status = ExtResource("4_ol4in")
+amount = 2
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"vuln"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_1s52f"]
+script = ExtResource("6_3b6xu")
+required_status = ExtResource("5_vy25x")
+effects = Array[ExtResource("1_xk788")]([SubResource("Resource_y14xs")])
+else_effects = Array[ExtResource("1_xk788")]([])
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("7_eeuge")
+id = &"umbral_thrust"
+display_name = "Umbral Thrust"
+description = "Deal {dmg} damage.
+If in Waning, apply {vuln} Vulnerable."
+card_pool = &"moonblade"
+type = 0
+rarity = 2
+target_mode = 1
+cost = 2
+effects = Array[ExtResource("1_xk788")]([SubResource("Resource_y8pq8"), SubResource("Resource_1s52f")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_xk788")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_xk788")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0

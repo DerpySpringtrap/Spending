@@ -30,6 +30,7 @@ var _hp: HealthBar
 var _tray: StatusTray
 var _time := 0.0
 var _dead := false
+var _aura: Polygon2D
 
 
 func setup(p_combatant: Combatant) -> CombatantView:
@@ -69,6 +70,11 @@ func _build_body() -> void:
 		var data := (combatant as EnemyCombatant).data
 		scene = data.visual_scene
 		art_id = data.id
+	_aura = Polygon2D.new()
+	_aura.name = "Aura"
+	_aura.polygon = PlaceholderArt.ellipse(Vector2(0, -6), 135, 30)
+	_aura.color = Color(1, 1, 1, 0)
+	_body_root.add_child(_aura)
 	_body = scene.instantiate() if scene else PlaceholderArt.build(art_id, accent)
 	_body.name = "Body"
 	_body_root.add_child(_body)
@@ -187,6 +193,15 @@ func play_cast() -> void:
 
 func play_victory() -> void:
 	_play(&"victory")
+
+
+## Ground glow under the body (Moonblade phases). Alpha 0 hides it.
+func set_aura(color: Color) -> void:
+	var t := create_tween().set_parallel(true)
+	t.tween_property(_aura, "color", color, UIStyle.dur(0.3))
+	if color.a > 0.0:
+		_aura.scale = Vector2(0.6, 0.6)
+		t.tween_property(_aura, "scale", Vector2.ONE, UIStyle.dur(0.35)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 ## White hit flash (overbright modulate).

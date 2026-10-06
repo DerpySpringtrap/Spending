@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_0dc4n"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_22vc5"]
+
+[resource]
+script = ExtResource("1_0dc4n")
+id = &"waxing"
+display_name = "Waxing"
+description = "Phase. Your Attacks deal 2 additional damage per hit."
+kind = 0
+stack_mode = 3
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 2
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_22vc5")]([])
+tint = Color(0.913725, 0.847059, 0.65098, 1)

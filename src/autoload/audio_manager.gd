@@ -31,6 +31,17 @@ func _ready() -> void:
 	get_tree().node_added.connect(_on_node_added)
 
 
+## Releases every stream on quit so nothing outlives the audio server (avoids
+## "leaked at exit" warnings when a test quits mid-song).
+func _exit_tree() -> void:
+	if _music_tween:
+		_music_tween.kill()
+	for player in [_music_a, _music_b, _ambience] + _sfx_pool:
+		player.stop()
+		player.stream = null
+	SoundBank.clear_cache()
+
+
 func _make_player(bus: StringName) -> AudioStreamPlayer:
 	var player := AudioStreamPlayer.new()
 	player.bus = bus if AudioServer.get_bus_index(bus) != -1 else &"Master"

@@ -7,6 +7,8 @@ var class_data: CharacterClassData
 var energy: int = 0
 ## Current value of the class's secondary resource (Heat, Ink, Sap...).
 var resource_value: int = 0
+## Current phase (Moonblade): the active stance status, or null.
+var stance: StatusEffectData
 
 
 func _init(p_class: CharacterClassData, p_hp: int, p_max_hp: int) -> void:

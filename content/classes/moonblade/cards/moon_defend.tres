@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_bsrpy"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_durb0"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_4hyau"]
+
+[sub_resource type="Resource" id="Resource_7tjlv"]
+script = ExtResource("2_durb0")
+amount = 5
+upgrade_delta = 3
+times = 1
+target = 1
+value_key = &"block"
+scale = 0
+
+[resource]
+script = ExtResource("3_4hyau")
+id = &"moon_defend"
+display_name = "Defend"
+description = "Gain {block} Block."
+card_pool = &"moonblade"
+type = 1
+rarity = 0
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_bsrpy")]([SubResource("Resource_7tjlv")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_bsrpy")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_bsrpy")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0

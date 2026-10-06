@@ -224,6 +224,7 @@ func _connect_bus() -> void:
 	_listen(EventBus.relic_triggered, _on_relic_triggered)
 	_listen(EventBus.combat_ended, _on_combat_ended)
 	_listen(EventBus.combatant_spawned, _on_combatant_spawned)
+	_listen(EventBus.stance_changed, _on_stance_changed)
 
 
 func _on_combatant_spawned(c: Combatant) -> void:
@@ -253,6 +254,26 @@ func _on_turn_started(c: Combatant, is_player: bool) -> void:
 		queue.push(&"banner", 0, 0.6, func():
 			AudioManager.play(&"turn_enemy", 0.0)
 			_banner.show_banner("Enemy Turn", UIStyle.DAMAGE.lightened(0.2), 0.3))
+
+
+func _on_stance_changed(_old: StringName, new_stance: StringName) -> void:
+	var status: StatusEffectData = ContentDB.statuses.get(new_stance)
+	var color := Color(status.tint, 0.6) if status else Color(1, 1, 1, 0)
+	queue.push(&"stance", 0, 0.25 if new_stance != &"eclipse" else 0.7, func():
+		var view := _view(combat.player)
+		view.set_aura(color)
+		if status == null:
+			return
+		match new_stance:
+			&"waxing":
+				AudioManager.play(&"stance_wax", 0.03)
+			&"waning":
+				AudioManager.play(&"stance_wane", 0.03)
+			&"eclipse":
+				AudioManager.play(&"eclipse", 0.0)
+				_banner.show_banner("Eclipse", status.tint.lightened(0.3), 0.3)
+				_fx.shake(8)
+		_fx.burst(view.hit_point(), status.tint, 22 if new_stance != &"eclipse" else 50, 260, -120, 180.0, 1.0))
 
 
 func _on_energy_changed(current: int, max_energy: int) -> void:

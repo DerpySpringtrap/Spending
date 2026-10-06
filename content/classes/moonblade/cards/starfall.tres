@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_6qkr1"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_v3yax"]
+[ext_resource type="Resource" path="res://content/statuses/starfall.tres" id="3_sld60"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_w4xyb"]
+
+[sub_resource type="Resource" id="Resource_6tg43"]
+script = ExtResource("2_v3yax")
+status = ExtResource("3_sld60")
+amount = 3
+upgrade_delta = 1
+times = 1
+target = 1
+value_key = &"n"
+scale = 0
+
+[resource]
+script = ExtResource("4_w4xyb")
+id = &"starfall"
+display_name = "Starfall"
+description = "Whenever you change phase, deal {n} damage to ALL enemies."
+card_pool = &"moonblade"
+type = 2
+rarity = 3
+target_mode = 0
+cost = 2
+effects = Array[ExtResource("1_6qkr1")]([SubResource("Resource_6tg43")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_6qkr1")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_6qkr1")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = true
+cost_reduction_per_stance_change = 0

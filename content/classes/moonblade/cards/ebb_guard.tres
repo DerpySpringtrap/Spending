@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_1ehwe"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_siiy2"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="3_gc65v"]
+[ext_resource type="Resource" path="res://content/statuses/waning.tres" id="4_7ju0b"]
+[ext_resource type="Script" path="res://src/combat/effects/conditional_effect.gd" id="5_584k7"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="6_8h3ta"]
+
+[sub_resource type="Resource" id="Resource_qiti8"]
+script = ExtResource("2_siiy2")
+amount = 7
+upgrade_delta = 3
+times = 1
+target = 1
+value_key = &"block"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_7lfc7"]
+script = ExtResource("3_gc65v")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"draw"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_5e0eq"]
+script = ExtResource("5_584k7")
+required_status = ExtResource("4_7ju0b")
+effects = Array[ExtResource("1_1ehwe")]([SubResource("Resource_7lfc7")])
+else_effects = Array[ExtResource("1_1ehwe")]([])
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("6_8h3ta")
+id = &"ebb_guard"
+display_name = "Ebb Guard"
+description = "Gain {block} Block.
+If in Waning, draw {draw} card."
+card_pool = &"moonblade"
+type = 1
+rarity = 1
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_1ehwe")]([SubResource("Resource_qiti8"), SubResource("Resource_5e0eq")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_1ehwe")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_1ehwe")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0

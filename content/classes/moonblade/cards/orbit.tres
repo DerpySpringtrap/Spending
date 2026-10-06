@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_q2n5d"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_ldvmf"]
+[ext_resource type="Resource" path="res://content/statuses/orbit.tres" id="3_ek2k4"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_slbjj"]
+
+[sub_resource type="Resource" id="Resource_c0vfy"]
+script = ExtResource("2_ldvmf")
+status = ExtResource("3_ek2k4")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &"n"
+scale = 0
+
+[resource]
+script = ExtResource("4_slbjj")
+id = &"orbit"
+display_name = "Orbit"
+description = "Whenever you change phase, draw {n} card."
+card_pool = &"moonblade"
+type = 2
+rarity = 2
+target_mode = 0
+cost = 2
+effects = Array[ExtResource("1_q2n5d")]([SubResource("Resource_c0vfy")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_q2n5d")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_q2n5d")]([])
+can_upgrade = true
+upgraded_cost = 1
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = true
+cost_reduction_per_stance_change = 0

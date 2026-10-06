@@ -75,3 +75,15 @@ static func give(combat_state: CombatState, id: StringName, upgraded := false) -
 	var c := card(id, upgraded)
 	combat_state.hand.append(c)
 	return c
+
+
+## A Moonblade combat with its starter deck (and Moonsilver Locket if asked).
+static func moonblade_combat(enemies: Array, with_relic := false, seed_value := 1) -> CombatState:
+	var cls := ContentDB.get_character_class(&"moonblade")
+	var deck: Array[CardInstance] = []
+	for data in cls.starting_deck:
+		deck.append(CardInstance.new(data))
+	var relics: Array[RelicData] = []
+	if with_relic:
+		relics.append(cls.starting_relic)
+	return CombatState.create(cls, deck, cls.max_hp, cls.max_hp, relics, encounter(enemies), 0, RngStreams.new(seed_value))

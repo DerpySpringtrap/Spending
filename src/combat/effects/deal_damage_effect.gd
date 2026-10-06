@@ -14,7 +14,15 @@ func _base_amount(ctx: EffectContext) -> int:
 	return base
 
 
+## A scaled effect at 0 ("4 per phase change" with none) deals no hit at
+## all, so flat bonuses like Strength or Waxing don't turn it into damage.
+func _skipped(ctx: EffectContext) -> bool:
+	return scale != Scale.NONE and _base_amount(ctx) <= 0
+
+
 func execute(ctx: EffectContext) -> void:
+	if _skipped(ctx):
+		return
 	var base := _base_amount(ctx)
 	for i in times:
 		for target_combatant in ctx.resolve_targets(self):
@@ -26,6 +34,8 @@ func execute(ctx: EffectContext) -> void:
 
 
 func preview_amount(ctx: EffectContext) -> int:
+	if _skipped(ctx):
+		return 0
 	var base := _base_amount(ctx)
 	if damage_type != DamageInfo.Type.ATTACK:
 		return base

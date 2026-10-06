@@ -66,6 +66,10 @@ const KW_ETHEREAL := &"ethereal"
 ## Plays the class motif accent (powers / signature rares).
 @export var plays_class_motif: bool = false
 
+@export_group("Class mechanics")
+## Moonfall: costs this much less for each phase change this turn.
+@export var cost_reduction_per_stance_change: int = 0
+
 
 func get_cost(upgraded: bool) -> int:
 	if upgraded and upgraded_cost != NO_UPGRADE_COST:

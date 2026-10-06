@@ -37,9 +37,11 @@ var round_number: int = 0
 var phase: Phase = Phase.NOT_STARTED
 var result: Result = Result.NONE
 var cards_played_this_turn: int = 0
+var stance_changes_this_turn: int = 0
 
 var queue := ActionQueue.new()
 var _trigger_counts: Dictionary = {}  # "<owner id>:<trigger instance id>" -> int
+var _once_per_turn_fired: Dictionary = {}  # same keys; cleared each player turn
 var _ending := false
 
 
@@ -205,7 +207,8 @@ func end_player_turn() -> void:
 		return
 
 	var res := player.get_resource_data()
-	if res and res.max_triggers_at_turn_end and player.resource_value >= res.max_value:
+	if res and res.max_triggers_at_turn_end and not res.on_reach_max_effects.is_empty() \
+			and player.resource_value >= res.max_value:
 		_trigger_resource_max()
 		_flush()
 		if is_over():
@@ -219,6 +222,7 @@ func end_player_turn() -> void:
 		return
 
 	_discard_hand()
+	_end_eclipse()
 	_end_turn_decay(player)
 	for card in draw_pile + discard_pile + hand:
 		card.cost_override_this_turn = -99
@@ -235,6 +239,8 @@ func _start_player_turn() -> void:
 		return
 	phase = Phase.PLAYER_TURN
 	cards_played_this_turn = 0
+	stance_changes_this_turn = 0
+	_once_per_turn_fired.clear()
 	EventBus.round_started.emit(round_number)
 	_begin_turn(player)
 	if is_over():
@@ -499,7 +505,8 @@ func change_class_resource(delta: int) -> int:
 	EventBus.class_resource_changed.emit(res.id, old, player.resource_value, res.max_value)
 	if actual > 0:
 		fire(EffectTrigger.Timing.CLASS_RESOURCE_GAINED, player, {"amount": actual})
-		if player.resource_value >= res.max_value and not res.max_triggers_at_turn_end:
+		if player.resource_value >= res.max_value and not res.max_triggers_at_turn_end \
+				and not res.on_reach_max_effects.is_empty():
 			_trigger_resource_max()
 	else:
 		fire(EffectTrigger.Timing.CLASS_RESOURCE_SPENT, player, {"amount": -actual})
@@ -514,6 +521,84 @@ func _trigger_resource_max() -> void:
 	var res := player.get_resource_data()
 	EventBus.class_resource_maxed.emit(res.id)
 	_run_effects(res.on_reach_max_effects, EffectContext.new(self, player, null))
+
+
+# =============================================================================
+# Stances (Moonblade phases)
+# =============================================================================
+
+## Enters [param target] (null = Shift to the other phase). Each real change
+## grants 1 class resource (Lunar Charge); changing at max enters the class's
+## eclipse stance instead. While in Eclipse, phase changes don't leave it but
+## still count as changes for triggers and Moonfall.
+func change_stance(target: StatusEffectData = null) -> void:
+	var cls := player.class_data
+	if cls.stances.size() < 2 or is_over():
+		return
+	var old := player.stance
+	var eclipse := cls.eclipse_stance
+	var in_eclipse := eclipse != null and old == eclipse
+	if not in_eclipse:
+		if target == null:
+			target = cls.stances[1] if old == cls.stances[0] else cls.stances[0]
+		if target == old:
+			return  # Already in that phase: not a change.
+	stance_changes_this_turn += 1
+	if not in_eclipse:
+		var res := player.get_resource_data()
+		var full := res != null and player.resource_value >= res.max_value
+		if eclipse != null and (target == eclipse or full):
+			target = eclipse
+		_set_stance(target)
+		if target == eclipse:
+			_run_effects(cls.eclipse_effects, EffectContext.new(self, player, null))
+		else:
+			change_class_resource(1)
+	_apply_stance_cost_reductions()
+	fire(EffectTrigger.Timing.STANCE_CHANGED, player, {"stance": player.stance})
+
+
+## True if [param combatant] has the status, or (player only) the status is a
+## phase and the player is in Eclipse, which counts as both phases.
+func has_status_or_stance(combatant: Combatant, status_id: StringName) -> bool:
+	if combatant == null:
+		return false
+	if combatant.has_status(status_id):
+		return true
+	if combatant != player or player.stance == null or player.stance != player.class_data.eclipse_stance:
+		return false
+	for stance in player.class_data.stances:
+		if stance.id == status_id:
+			return true
+	return false
+
+
+func _set_stance(new_stance: StatusEffectData) -> void:
+	var old := player.stance
+	player.stance = null
+	if old != null:
+		remove_status(player, old.id)
+	if new_stance != null:
+		apply_status(player, new_stance, 1, player)
+		player.stance = new_stance
+	EventBus.stance_changed.emit(old.id if old else &"", new_stance.id if new_stance else &"")
+
+
+## Eclipse lasts until the end of the turn, then Lunar Charge resets.
+func _end_eclipse() -> void:
+	var eclipse := player.class_data.eclipse_stance
+	if eclipse == null or player.stance != eclipse:
+		return
+	_set_stance(null)
+	set_class_resource(0)
+	_flush()
+
+
+func _apply_stance_cost_reductions() -> void:
+	for card in hand + draw_pile + discard_pile:
+		var per := card.data.cost_reduction_per_stance_change
+		if per > 0:
+			card.cost_override_this_turn = maxi(0, card.data.get_cost(card.upgraded) - per * stance_changes_this_turn)
 
 
 # =============================================================================
@@ -643,6 +728,9 @@ func remove_status(target: Combatant, status_id: StringName) -> void:
 	target.status_data.erase(status_id)
 	target.skip_next_round_decay.erase(status_id)
 	EventBus.status_removed.emit(target, data)
+	if target == player and player.stance != null and player.stance.id == status_id:
+		player.stance = null
+		EventBus.stance_changed.emit(status_id, &"")
 	_refresh_intents()
 
 
@@ -723,8 +811,13 @@ func _fire_all(timing: EffectTrigger.Timing, payload: Dictionary) -> void:
 
 func _queue_trigger(trigger: EffectTrigger, owner: Combatant, status_id: StringName,
 		relic: RelicData, payload: Dictionary, immediate: bool) -> void:
-	if not _trigger_condition_met(trigger, payload):
+	if not _trigger_condition_met(trigger, owner, payload):
 		return
+	if trigger.once_per_turn:
+		var once_key := "%d:%d" % [owner.id, trigger.get_instance_id()]
+		if _once_per_turn_fired.has(once_key):
+			return
+		_once_per_turn_fired[once_key] = true
 	if trigger.every_nth > 1:
 		var key := "%d:%d" % [owner.id, trigger.get_instance_id()]
 		var count: int = _trigger_counts.get(key, 0) + 1
@@ -740,7 +833,7 @@ func _queue_trigger(trigger: EffectTrigger, owner: Combatant, status_id: StringN
 		queue.push(action)
 
 
-func _trigger_condition_met(trigger: EffectTrigger, payload: Dictionary) -> bool:
+func _trigger_condition_met(trigger: EffectTrigger, owner: Combatant, payload: Dictionary) -> bool:
 	if trigger.required_card_tag != &"":
 		var card: CardInstance = payload.get("card")
 		if card == null or not card.data.tags.has(trigger.required_card_tag):
@@ -751,6 +844,8 @@ func _trigger_condition_met(trigger: EffectTrigger, payload: Dictionary) -> bool
 			return info != null and info.block_before > 0
 		EffectTrigger.Condition.UNBLOCKED_HIT:
 			return info != null and info.hp_lost > 0
+		EffectTrigger.Condition.REQUIRES_STATUS:
+			return has_status_or_stance(owner, trigger.required_status_id)
 	return true
 
 

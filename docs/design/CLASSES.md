@@ -87,14 +87,14 @@ Puts Vent bonuses in reach on turn 1 and teaches the resource immediately.
 
 **Fantasy:** A fencer of a lunar order who fights in rhythm with the moon's phases. Elegant footwork, ripostes, a blade that glows silver or violet with each phase. Rewards tempo and precise sequencing.
 
-**Stats:** 72 HP · 99 gold · unlocked after your first completed run (win or lose).
+**Stats:** 66 HP · 99 gold · unlocked after your first completed run (win or lose).
 
 ### Mechanic: Phases (stance) + Lunar Charge
 - You start each combat in **no phase**. Cards say **Wax** (enter Waxing), **Wane** (enter Waning) or **Shift** (swap to the other phase; enters Waxing if in none).
-  - **Waxing:** your Attacks deal **+3 damage per hit**. (Flat, so it's exact in previews and loves multi-hit cards.)
-  - **Waning:** cards grant **+3 Block**, and when an enemy attacks you, **Riposte for 3 damage**.
+  - **Waxing:** your Attacks deal **+2 damage per hit**. (Flat, so it's exact in previews and loves multi-hit cards.)
+  - **Waning:** cards grant **+2 Block**, and when an enemy attacks you, **Riposte for 2 damage**.
 - Every phase *change* grants **1 Lunar Charge** (max 4).
-- Changing phase with **4 Charges** enters **Eclipse** instead: both phase bonuses at once, draw 2 cards. At end of turn you return to no phase and Charges reset to 0.
+- Changing phase with **4 Charges** enters **Eclipse** instead: +3 damage per hit, +3 Block, Riposte 3, and draw 2 cards. At end of turn you return to no phase and Charges reset to 0.
 
 ### Archetypes
 1. **Phase dance:** cheap Shift cards plus payoffs that trigger on every phase change (draw, damage, energy).
@@ -108,7 +108,7 @@ Puts Vent bonuses in reach on turn 1 and teaches the resource immediately.
 |---|---|---|---|---|
 | **Crescent Cut** | 1 | Attack | Deal 6 damage. Wax. | 9 dmg |
 | **Tidal Parry** | 1 | Skill | Gain 6 Block. Wane. | 9 Block |
-| **Moonstep** | 0 | Skill | Shift. Draw 1 card. | Also Retain |
+| **Moonstep** | 0 | Skill | Shift. | Draw 1 card, Retain |
 
 ### Higher-rarity examples
 | Card | Rarity | Cost | Type | Effect | Upgraded |

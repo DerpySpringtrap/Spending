@@ -31,6 +31,7 @@ enum Scale {
 	EXHAUST_PILE,    ## Cards in the exhaust (Erased) pile.
 	HAND_SIZE,       ## Cards in hand.
 	LIVING_ALLIES,   ## Other living combatants on the source's side.
+	STANCE_CHANGES,  ## Phase changes the player made this turn (Moonblade).
 }
 
 ## Base magnitude (damage, block, stacks, cards drawn...).

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ClassResourceData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_5jvms"]
+[ext_resource type="Script" path="res://src/data/class_resource_data.gd" id="2_uwncl"]
+
+[resource]
+script = ExtResource("2_uwncl")
+id = &"lunar_charge"
+display_name = "Lunar Charge"
+description = "Gain 1 each time you change phase. Change phase at 4 Charges to enter Eclipse: Waxing and Waning at once, and draw 2 cards. Eclipse ends at the end of your turn and Charges reset to 0."
+color = Color(0.72549, 0.65098, 0.909804, 1)
+max_value = 4
+starting_value = 0
+persists_between_turns = true
+on_reach_max_effects = Array[ExtResource("1_5jvms")]([])
+max_triggers_at_turn_end = false

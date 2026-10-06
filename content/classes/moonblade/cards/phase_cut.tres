@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_ckphy"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_4fapt"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_6jvgg"]
+
+[sub_resource type="Resource" id="Resource_sm6px"]
+script = ExtResource("2_4fapt")
+damage_type = 0
+amount = 5
+upgrade_delta = 2
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_c5sn7"]
+script = ExtResource("2_4fapt")
+damage_type = 0
+amount = 4
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"bonus"
+scale = 6
+
+[resource]
+script = ExtResource("3_6jvgg")
+id = &"phase_cut"
+display_name = "Phase Cut"
+description = "Deal {dmg} damage.
+Deal {bonus} more (4 per phase change this turn)."
+card_pool = &"moonblade"
+type = 0
+rarity = 2
+target_mode = 1
+cost = 1
+effects = Array[ExtResource("1_ckphy")]([SubResource("Resource_sm6px"), SubResource("Resource_c5sn7")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_ckphy")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_ckphy")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = "Deal {dmg} damage.
+Deal {bonus} more (4 per phase change this turn)."
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0

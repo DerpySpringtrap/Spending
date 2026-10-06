@@ -1,7 +1,7 @@
 extends Node
 ## End-to-end run through the real screens. Spawns a driver under the scene
 ## tree root (so it survives scene changes) and opens the main menu.
-## godot --headless --path . res://tests/flow_test.tscn [-- --shots=<dir> --nodes=30]
+## godot --headless --path . res://tests/flow_test.tscn [-- --shots=<dir> --nodes=30 --class=moonblade]
 
 func _ready() -> void:
 	var driver := Node.new()

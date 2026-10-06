@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_o1buh"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_s00hv"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="3_e1cm4"]
+[ext_resource type="Resource" path="res://content/statuses/waxing.tres" id="4_018ps"]
+[ext_resource type="Script" path="res://src/combat/effects/conditional_effect.gd" id="5_ivf1d"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="6_gqhw6"]
+
+[sub_resource type="Resource" id="Resource_dnu6k"]
+script = ExtResource("2_s00hv")
+damage_type = 0
+amount = 8
+upgrade_delta = 3
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_k73c6"]
+script = ExtResource("3_e1cm4")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"draw"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_2qsde"]
+script = ExtResource("5_ivf1d")
+required_status = ExtResource("4_018ps")
+effects = Array[ExtResource("1_o1buh")]([SubResource("Resource_k73c6")])
+else_effects = Array[ExtResource("1_o1buh")]([])
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("6_gqhw6")
+id = &"silver_lunge"
+display_name = "Silver Lunge"
+description = "Deal {dmg} damage.
+If in Waxing, draw {draw} card."
+card_pool = &"moonblade"
+type = 0
+rarity = 1
+target_mode = 1
+cost = 1
+effects = Array[ExtResource("1_o1buh")]([SubResource("Resource_dnu6k"), SubResource("Resource_2qsde")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_o1buh")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_o1buh")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0

@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="CharacterClassData" load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_8oi3q"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="2_jfq8y"]
+[ext_resource type="Resource" path="res://content/statuses/eclipse.tres" id="3_d2typ"]
+[ext_resource type="Script" path="res://src/data/character_class_data.gd" id="4_cvc3p"]
+[ext_resource type="Resource" path="res://content/classes/moonblade/lunar_charge_resource.tres" id="5_bvj71"]
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="6_ol6l1"]
+[ext_resource type="Resource" path="res://content/statuses/waxing.tres" id="7_lwwh2"]
+[ext_resource type="Resource" path="res://content/statuses/waning.tres" id="8_jfv32"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="9_iovsh"]
+[ext_resource type="Resource" path="res://content/classes/moonblade/cards/moon_strike.tres" id="10_t2b36"]
+[ext_resource type="Resource" path="res://content/classes/moonblade/cards/moon_defend.tres" id="11_77fn3"]
+[ext_resource type="Resource" path="res://content/classes/moonblade/cards/crescent_cut.tres" id="12_x82nx"]
+[ext_resource type="Resource" path="res://content/classes/moonblade/cards/tidal_parry.tres" id="13_sjoky"]
+[ext_resource type="Resource" path="res://content/classes/moonblade/cards/moonstep.tres" id="14_qygke"]
+[ext_resource type="Resource" path="res://content/classes/moonblade/relics/moonsilver_locket.tres" id="15_m2d0p"]
+
+[sub_resource type="Resource" id="Resource_13b5c"]
+script = ExtResource("2_jfq8y")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_cvc3p")
+id = &"moonblade"
+display_name = "Moonblade"
+title = "Duelist of the Waning Court"
+description = "A lunar fencer who fights in rhythm with the moon. Wax to strike harder, Wane to parry and riposte, and build Lunar Charge toward an Eclipse."
+max_hp = 66
+starting_gold = 99
+energy_per_turn = 3
+cards_per_turn = 5
+max_hand_size = 10
+starting_deck = Array[ExtResource("9_iovsh")]([ExtResource("10_t2b36"), ExtResource("10_t2b36"), ExtResource("10_t2b36"), ExtResource("10_t2b36"), ExtResource("11_77fn3"), ExtResource("11_77fn3"), ExtResource("11_77fn3"), ExtResource("12_x82nx"), ExtResource("13_sjoky"), ExtResource("14_qygke")])
+starting_relic = ExtResource("15_m2d0p")
+secondary_resource = ExtResource("5_bvj71")
+stances = Array[ExtResource("6_ol6l1")]([ExtResource("7_lwwh2"), ExtResource("8_jfv32")])
+eclipse_stance = ExtResource("3_d2typ")
+eclipse_effects = Array[ExtResource("1_8oi3q")]([SubResource("Resource_13b5c")])
+primary_color = Color(0.0784314, 0.101961, 0.2, 1)
+secondary_color = Color(0.788235, 0.823529, 0.890196, 1)
+accent_color = Color(0.478431, 0.360784, 0.780392, 1)
+attack_sfx = Array[AudioStream]([])
+unlocked_by_default = false
+unlock_hint = "Finish a run (win or lose) to unlock."

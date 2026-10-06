@@ -7,6 +7,12 @@ const GLOSSARY := {
 	"Stoke": "Gain Heat.",
 	"Vent": "If you have enough Heat, spend it to get the bonus. Otherwise the card plays without it.",
 	"Overheat": "End your turn at max Heat: deal 12 damage to ALL enemies, lose 3 HP, reset Heat.",
+	"Wax": "Enter the Waxing phase. Changing phase grants 1 Lunar Charge.",
+	"Wane": "Enter the Waning phase. Changing phase grants 1 Lunar Charge.",
+	"Shift": "Change to the other phase (Waxing if you have none). Changing phase grants 1 Lunar Charge.",
+	"Lunar Charge": "Gained when you change phase. Change phase at 4 to enter Eclipse.",
+	"Riposte": "In Waning, deal 2 damage back whenever an enemy attacks you.",
+	"Eclipse": "Both phases at once, stronger (+3 damage per hit, +3 Block, Riposte 3), plus draw 2. Ends at the end of your turn and resets Lunar Charge.",
 }
 
 const KEYWORDS := {
@@ -27,7 +33,7 @@ static func for_card(card: CardInstance) -> String:
 	if card.data.cost == CardData.COST_UNPLAYABLE:
 		sections.append(_section("Unplayable", "This card can't be played."))
 	for term in GLOSSARY:
-		if text.contains(term):
+		if RegEx.create_from_string("\\b%s\\b" % term).search(text) != null:
 			sections.append(_section(term, GLOSSARY[term]))
 	for status: StatusEffectData in ContentDB.statuses.values():
 		if status.hidden or status.display_name == card.data.display_name:

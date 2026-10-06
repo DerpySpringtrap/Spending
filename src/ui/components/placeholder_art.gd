@@ -10,6 +10,8 @@ static func build(id: StringName, accent: Color = Color("#E8692C")) -> Node2D:
 	match id:
 		&"pyre_warden":
 			_warden(root, accent)
+		&"moonblade":
+			_moonblade(root, accent)
 		&"mire_toad":
 			_toad(root)
 		&"bog_lurker":
@@ -99,6 +101,40 @@ static func _warden(root: Node2D, accent: Color) -> void:
 	_poly(root, VectorIcons._scaled(VectorIcons._flame_points(), 24, Vector2(68, -108)), accent)
 	_poly(root, VectorIcons._scaled(VectorIcons._flame_points(), 12, Vector2(68, -100)), gold)
 	_meta(root, 210, 280)
+
+
+static func _moonblade(root: Node2D, accent: Color) -> void:
+	var navy := Color("#1E2547")
+	var dark := Color("#141A33")
+	var silver := Color("#C9D2E3")
+	var gold := Color("#E9D8A6")
+	var violet := Color("#7A5CC7")
+	# Crescent halo (behind the head)
+	var halo := ellipse(Vector2(0, -232), 46, 46, 32, -PI * 0.15, PI * 1.15)
+	var inner := ellipse(Vector2(10, -238), 38, 38, 32, PI * 1.15, -PI * 0.15)
+	halo.append_array(inner)
+	_poly(root, halo, Color(gold, 0.85))
+	# Long cape flowing to the left
+	_poly(root, PackedVector2Array([Vector2(-30, -176), Vector2(26, -176), Vector2(30, -40), Vector2(-20, -8), Vector2(-96, -4),
+		Vector2(-70, -60)]), violet.darkened(0.35))
+	# Legs (slim, fencer's stance)
+	_poly(root, PackedVector2Array([Vector2(-28, -80), Vector2(-12, -80), Vector2(-30, 0), Vector2(-48, 0)]), dark)
+	_poly(root, PackedVector2Array([Vector2(6, -80), Vector2(22, -80), Vector2(44, 0), Vector2(26, 0)]), dark)
+	# Torso: slender doublet with a silver sash
+	_poly(root, PackedVector2Array([Vector2(-30, -78), Vector2(30, -78), Vector2(36, -170), Vector2(-36, -170)]), navy)
+	_poly(root, PackedVector2Array([Vector2(-34, -160), Vector2(-24, -168), Vector2(32, -90), Vector2(22, -84)]), silver)
+	_poly(root, ellipse(Vector2(0, -124), 7, 7), accent.lightened(0.3))
+	# Sword arm reaching forward (right) with a rapier
+	_poly(root, PackedVector2Array([Vector2(24, -160), Vector2(36, -166), Vector2(78, -128), Vector2(70, -118)]), navy.lightened(0.1))
+	_poly(root, ellipse(Vector2(76, -122), 9, 9), Color("#D9C6B0"))
+	_poly(root, PackedVector2Array([Vector2(80, -126), Vector2(84, -122), Vector2(176, -176), Vector2(174, -180)]), silver.lightened(0.2))
+	_poly(root, ellipse(Vector2(80, -124), 12, 5, 16), gold)
+	# Head with a hood-like cowl
+	_poly(root, ellipse(Vector2(0, -196), 22, 26), Color("#D9C6B0"))
+	_poly(root, PackedVector2Array([Vector2(-26, -186), Vector2(-24, -218), Vector2(0, -232), Vector2(24, -218), Vector2(26, -186),
+		Vector2(16, -204), Vector2(-16, -204)]), dark)
+	_poly(root, rounded_rect(4, -200, 12, 4, 2), violet.lightened(0.4))
+	_meta(root, 200, 280)
 
 
 static func _toad(root: Node2D) -> void:

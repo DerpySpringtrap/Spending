@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_dx8de"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_or1ma"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="3_y5shh"]
+[ext_resource type="Resource" path="res://content/statuses/waxing.tres" id="4_cdge3"]
+[ext_resource type="Script" path="res://src/combat/effects/conditional_effect.gd" id="5_nts51"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="6_oaqay"]
+
+[sub_resource type="Resource" id="Resource_kk5l6"]
+script = ExtResource("2_or1ma")
+damage_type = 0
+amount = 4
+upgrade_delta = 2
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_rk4fb"]
+script = ExtResource("3_y5shh")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"charge"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_3ywqe"]
+script = ExtResource("5_nts51")
+required_status = ExtResource("4_cdge3")
+effects = Array[ExtResource("1_dx8de")]([SubResource("Resource_rk4fb")])
+else_effects = Array[ExtResource("1_dx8de")]([])
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("6_oaqay")
+id = &"starlit_jab"
+display_name = "Starlit Jab"
+description = "Deal {dmg} damage.
+If in Waxing, gain {charge} Lunar Charge."
+card_pool = &"moonblade"
+type = 0
+rarity = 1
+target_mode = 1
+cost = 0
+effects = Array[ExtResource("1_dx8de")]([SubResource("Resource_kk5l6"), SubResource("Resource_3ywqe")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_dx8de")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_dx8de")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0

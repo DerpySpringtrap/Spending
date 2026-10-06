@@ -7,12 +7,16 @@ var _max_nodes := 30
 var _seen := {}
 var _failures: PackedStringArray = []
 var _visual := false
+var _class_id := &"pyre_warden"
 
 
 func _ready() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--shots="):
 			_shots_dir = arg.trim_prefix("--shots=")
+		elif arg.begins_with("--class="):
+			_class_id = StringName(arg.trim_prefix("--class="))
+			MetaProgress.unlock(&"class", _class_id)
 		elif arg.begins_with("--nodes="):
 			_max_nodes = int(arg.trim_prefix("--nodes="))
 	_visual = _shots_dir != "" and DisplayServer.get_name() != "headless"
@@ -35,6 +39,7 @@ func _run() -> void:
 	await _screen_shot("class_select")
 	var cs := get_tree().current_scene
 	cs._seed_edit.text = "2024"
+	cs._select(_class_id)
 	_press(_find_button("Embark"))
 	await _settle()
 	for step in _max_nodes:

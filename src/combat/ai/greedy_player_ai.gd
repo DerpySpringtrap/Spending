@@ -120,5 +120,35 @@ func _evaluate(effects: Array[GameEffect], ctx: EffectContext, totals: Dictionar
 			totals.other += ctx.amount_for(effect) * 4.0
 		elif effect is GainEnergyEffect:
 			totals.other += ctx.amount_for(effect) * 5.0
+		elif effect is ChangeStanceEffect:
+			totals.other += _stance_value(combat, effect.stance)
+		elif effect is ConditionalEffect:
+			_evaluate(effect.effects if effect.is_met(ctx) else effect.else_effects, ctx, totals)
 		elif effect is SpreadStatusEffect and ctx.chosen_target != null:
 			totals.other += ctx.chosen_target.get_stacks(effect.status.id) * (combat.living_enemies().size() - 1) * 1.5
+
+
+## Rough value of a phase change: the charge it builds, plus Waxing when the
+## hand still has attacks or Waning when enemies are about to hit.
+func _stance_value(combat: CombatState, stance: StatusEffectData) -> float:
+	var stances := combat.player.class_data.stances
+	if stances.size() < 2:
+		return 0.0
+	var current := combat.player.stance
+	if current != null and current == combat.player.class_data.eclipse_stance:
+		return 3.0
+	var target := stance
+	if target == null:
+		target = stances[1] if current == stances[0] else stances[0]
+	if target == current:
+		return 0.0
+	var value := 3.0
+	if target == stances[0]:
+		for card in combat.hand:
+			if card.data.type == CardData.CardType.ATTACK:
+				value += 2.0
+	else:
+		for enemy in combat.living_enemies():
+			if combat.get_intent_damage(enemy).x > 0:
+				value += 3.0
+	return value

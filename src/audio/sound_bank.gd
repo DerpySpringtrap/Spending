@@ -76,3 +76,7 @@ static func _load(path: String, looping: bool) -> AudioStream:
 		stream.loop = true
 	_cache[path] = stream
 	return stream
+
+
+static func clear_cache() -> void:
+	_cache.clear()

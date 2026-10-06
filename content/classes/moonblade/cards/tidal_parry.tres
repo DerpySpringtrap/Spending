@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_r8ic6"]
+[ext_resource type="Script" path="res://src/combat/effects/change_stance_effect.gd" id="2_bihra"]
+[ext_resource type="Resource" path="res://content/statuses/waning.tres" id="3_w1hp0"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_jm30j"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="5_wp3yj"]
+
+[sub_resource type="Resource" id="Resource_38wv3"]
+script = ExtResource("2_bihra")
+stance = ExtResource("3_w1hp0")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_fxx5v"]
+script = ExtResource("4_jm30j")
+amount = 6
+upgrade_delta = 3
+times = 1
+target = 1
+value_key = &"block"
+scale = 0
+
+[resource]
+script = ExtResource("5_wp3yj")
+id = &"tidal_parry"
+display_name = "Tidal Parry"
+description = "Wane.
+Gain {block} Block."
+card_pool = &"moonblade"
+type = 1
+rarity = 0
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_r8ic6")]([SubResource("Resource_38wv3"), SubResource("Resource_fxx5v")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_r8ic6")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_r8ic6")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0

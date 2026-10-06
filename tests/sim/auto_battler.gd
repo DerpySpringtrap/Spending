@@ -2,9 +2,10 @@ extends Node
 ## Headless balance simulator: plays Act 1 encounters with the Pyre Warden's
 ## starting deck using GreedyPlayerAI and reports win rate, length and damage.
 ##
-## godot --headless --path . res://tests/sim/auto_battler.tscn -- --fights=1000 --ascension=0 --seed=1
+## godot --headless --path . res://tests/sim/auto_battler.tscn -- --fights=1000 --class=moonblade --ascension=0 --seed=1
 ## Exit code 1 if any fight hit an engine error (timeout or invalid state).
 
+var _class_id: StringName = &"pyre_warden"
 var _fights := 1000
 var _ascension := 0
 var _seed := 1
@@ -15,7 +16,7 @@ var _extra_cards := 0
 
 func _ready() -> void:
 	_parse_args()
-	var cls := ContentDB.get_character_class(&"pyre_warden")
+	var cls := ContentDB.get_character_class(_class_id)
 	var encounters: Array[EncounterData] = []
 	for pool_name in _pools.split(","):
 		var pool: int = EncounterData.Pool.keys().find(pool_name.to_upper())
@@ -29,7 +30,7 @@ func _ready() -> void:
 	var total_fights := 0
 	var total_wins := 0
 
-	print("\nAuto-battler: Pyre Warden starter deck + %d random cards + Cinder Heart, A%d, %d fights per encounter\n" % [_extra_cards, _ascension, per_encounter])
+	print("\nAuto-battler: %s starter deck + %d random cards + %s, A%d, %d fights per encounter\n" % [cls.display_name, _extra_cards, cls.starting_relic.display_name, _ascension, per_encounter])
 	print("| Encounter | Pool | Win % | Avg turns | Avg HP lost (wins) | Worst HP lost |")
 	print("|---|---|---|---|---|---|")
 	for enc in encounters:
@@ -83,3 +84,4 @@ func _parse_args() -> void:
 			"seed": _seed = int(parts[1])
 			"pools": _pools = parts[1]
 			"extra": _extra_cards = int(parts[1])
+			"class": _class_id = StringName(parts[1])

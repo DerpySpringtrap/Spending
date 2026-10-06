@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_trrgl"]
+[ext_resource type="Script" path="res://src/combat/effects/change_stance_effect.gd" id="2_bsixu"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="3_4r4wi"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_8i8bv"]
+
+[sub_resource type="Resource" id="Resource_8bnlf"]
+script = ExtResource("2_bsixu")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_6qa6e"]
+script = ExtResource("3_4r4wi")
+amount = 0
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"draw"
+scale = 0
+
+[resource]
+script = ExtResource("4_8i8bv")
+id = &"moonstep"
+display_name = "Moonstep"
+description = "Shift."
+card_pool = &"moonblade"
+type = 1
+rarity = 0
+target_mode = 0
+cost = 0
+effects = Array[ExtResource("1_trrgl")]([SubResource("Resource_8bnlf"), SubResource("Resource_6qa6e")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_trrgl")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_trrgl")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = "Shift.
+Draw {draw} card."
+upgrade_adds_keywords = Array[StringName]([&"retain"])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0

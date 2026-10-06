@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_l8wcv"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_8xhpj"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="3_axckt"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="4_0xv8k"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="5_r5k28"]
+
+[sub_resource type="Resource" id="Resource_qmrqo"]
+script = ExtResource("2_8xhpj")
+amount = 5
+upgrade_delta = 2
+times = 1
+target = 1
+value_key = &"block"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_hhhpi"]
+script = ExtResource("3_axckt")
+status = ExtResource("4_0xv8k")
+amount = 1
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"weak"
+scale = 0
+
+[resource]
+script = ExtResource("5_r5k28")
+id = &"veil_of_dusk"
+display_name = "Veil of Dusk"
+description = "Gain {block} Block.
+Apply {weak} Weak."
+card_pool = &"moonblade"
+type = 1
+rarity = 1
+target_mode = 1
+cost = 1
+effects = Array[ExtResource("1_l8wcv")]([SubResource("Resource_qmrqo"), SubResource("Resource_hhhpi")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_l8wcv")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_l8wcv")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0

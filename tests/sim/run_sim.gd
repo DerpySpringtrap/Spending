@@ -3,8 +3,9 @@ extends Node
 ## (GreedyPlayerAI in combat, heuristic choices elsewhere). Catches crashes in
 ## the run loop and gives a first read on difficulty.
 ##
-## godot --headless --path . res://tests/sim/run_sim.tscn -- --runs=200 --ascension=0
+## godot --headless --path . res://tests/sim/run_sim.tscn -- --runs=200 --class=moonblade --ascension=0
 
+var _class_id: StringName = &"pyre_warden"
 var _runs := 200
 var _ascension := 0
 var _ai := GreedyPlayerAI.new()
@@ -21,6 +22,7 @@ func _ready() -> void:
 			match parts[0]:
 				"runs": _runs = int(parts[1])
 				"ascension": _ascension = int(parts[1])
+				"class": _class_id = StringName(parts[1])
 	var started := Time.get_ticks_msec()
 	var final_hp_total := 0
 	var deck_sizes := 0
@@ -46,7 +48,7 @@ func _ready() -> void:
 
 
 func _play_run(seed_value: int) -> Dictionary:
-	RunState.start(ContentDB.get_character_class(&"pyre_warden"), _ascension, seed_value)
+	RunState.start(ContentDB.get_character_class(_class_id), _ascension, seed_value)
 	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), 1)
 	var guard := 0
 	while guard < 40:

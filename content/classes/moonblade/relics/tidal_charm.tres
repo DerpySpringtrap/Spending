@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/relic_data.gd" id="1_cuge7"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_bdjjk"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_vqdqo"]
+[ext_resource type="Script" path="res://src/combat/effects/change_stance_effect.gd" id="4_e1gl6"]
+[ext_resource type="Resource" path="res://content/statuses/waning.tres" id="5_k736s"]
+
+[sub_resource type="Resource" id="Resource_5ip16"]
+script = ExtResource("4_e1gl6")
+stance = ExtResource("5_k736s")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_4mjag"]
+script = ExtResource("2_bdjjk")
+timing = 0
+condition = 0
+effects = Array[ExtResource("3_vqdqo")]([SubResource("Resource_5ip16")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+
+[resource]
+script = ExtResource("1_cuge7")
+id = &"tidal_charm"
+display_name = "Tidal Charm"
+description = "At the start of each combat, enter Waning."
+flavor = "Salt-white, and always cold."
+rarity = 1
+class_restriction = &"moonblade"
+triggers = Array[ExtResource("2_bdjjk")]([SubResource("Resource_4mjag")])
+counter_max = 0
+max_energy_bonus = 0
+draw_per_turn_bonus = 0
+max_hp_bonus = 0
+potion_slot_bonus = 0
+gold_gain_multiplier = 1.0
+shop_price_multiplier = 1.0
+requires_unlock = false

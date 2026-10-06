@@ -52,6 +52,7 @@ enum Condition {
 	NONE,
 	HIT_WHILE_BLOCKING, ## ATTACKED only: the owner had Block when hit.
 	UNBLOCKED_HIT,      ## ATTACKED only: the hit dealt HP damage.
+	REQUIRES_STATUS,    ## The owner has [member required_status_id] (a phase counts while in Eclipse).
 }
 
 @export var timing: Timing = Timing.TURN_START
@@ -64,3 +65,7 @@ enum Condition {
 @export_range(1, 99) var every_nth: int = 1
 ## Optional filter: only fire if the triggering card has this tag.
 @export var required_card_tag: StringName = &""
+## Status id checked by Condition.REQUIRES_STATUS.
+@export var required_status_id: StringName = &""
+## Fires at most once per turn ("the first time you change phase each turn").
+@export var once_per_turn: bool = false

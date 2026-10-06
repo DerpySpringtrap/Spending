@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_ai7cr"]
+[ext_resource type="Script" path="res://src/combat/effects/change_stance_effect.gd" id="2_xckhx"]
+[ext_resource type="Resource" path="res://content/statuses/waning.tres" id="3_3m7n4"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_cxefr"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="5_fkh62"]
+
+[sub_resource type="Resource" id="Resource_s5x2v"]
+script = ExtResource("2_xckhx")
+stance = ExtResource("3_3m7n4")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_rhp3o"]
+script = ExtResource("4_cxefr")
+amount = 4
+upgrade_delta = 1
+times = 1
+target = 1
+value_key = &"block"
+scale = 6
+
+[resource]
+script = ExtResource("5_fkh62")
+id = &"perfect_riposte"
+display_name = "Perfect Riposte"
+description = "Wane.
+Gain {block} Block (4 per phase change this turn, including this one)."
+card_pool = &"moonblade"
+type = 1
+rarity = 3
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_ai7cr")]([SubResource("Resource_s5x2v"), SubResource("Resource_rhp3o")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"phase"])
+on_discard_effects = Array[ExtResource("1_ai7cr")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_ai7cr")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = "Wane.
+Gain {block} Block (5 per phase change this turn, including this one)."
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
