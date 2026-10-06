@@ -67,3 +67,6 @@ Early read for M6 tuning: Thornback Beetle is heavy for the easy pool (the AI at
 | Hallway fights | 100%, 9–25 HP lost on average |
 
 A human player should do considerably better than this AI. Treat these as a baseline to compare against play-testing feedback.
+
+## Backlog (requested, not yet scheduled)
+- **Card art:** every card gets its own illustration. Art is themed per class, so the same kind of card (e.g. an attack) looks different for the Pyre Warden than for the Moonblade, and depicts what that specific card does. Hook: `CardData.art` already exists; `CardView` currently draws a placeholder type glyph when it's empty. Lower priority than sound, the second class and Act 2.
