@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/relic_data.gd" id="1_740ac"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_kol58"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_cyyee"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="4_b6wf4"]
+
+[sub_resource type="Resource" id="Resource_vasgs"]
+script = ExtResource("4_b6wf4")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_gpk05"]
+script = ExtResource("2_kol58")
+timing = 3
+condition = 0
+effects = Array[ExtResource("3_cyyee")]([SubResource("Resource_vasgs")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+
+[resource]
+script = ExtResource("1_740ac")
+id = &"coal_satchel"
+display_name = "Coal Satchel"
+description = "At the start of your turn, gain 1 Heat."
+flavor = "Never empty, never cold."
+rarity = 2
+class_restriction = &"pyre_warden"
+triggers = Array[ExtResource("2_kol58")]([SubResource("Resource_gpk05")])
+counter_max = 0
+max_energy_bonus = 0
+draw_per_turn_bonus = 0
+max_hp_bonus = 0
+potion_slot_bonus = 0
+gold_gain_multiplier = 1.0
+shop_price_multiplier = 1.0
+requires_unlock = false
+unlock_level = 3

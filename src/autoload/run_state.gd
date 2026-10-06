@@ -72,6 +72,9 @@ func start(class_data: CharacterClassData, ascension_level: int, run_seed: int) 
 	removals = 0
 	run_stats = {"damage_dealt": 0, "damage_taken": 0, "cards_played": 0, "gold_earned": 0, "enemies_killed": 0,
 		"elites_killed": 0, "biggest_hit": 0}
+	if ascension >= AscensionRules.MAX_HP_LEVEL:
+		max_hp -= AscensionRules.MAX_HP_PENALTY
+		hp = mini(hp, max_hp)
 	if ascension >= AscensionRules.START_DAMAGED_LEVEL:
 		hp = roundi(max_hp * 0.9)
 	if ascension >= AscensionRules.CURSE_LEVEL:

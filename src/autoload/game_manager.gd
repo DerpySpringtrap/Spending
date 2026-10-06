@@ -52,7 +52,7 @@ func start_new_run(class_id: StringName, ascension: int = 0, run_seed: int = -1)
 	if run_seed < 0:
 		run_seed = randi()
 	RunState.start(class_data, clampi(ascension, 0, MAX_ASCENSION), run_seed)
-	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), 1)
+	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), 1, RunState.ascension)
 	MetaProgress.stats["runs_started"] += 1
 	MetaProgress.save_meta()
 	EventBus.run_started.emit(class_id, ascension, run_seed)
@@ -73,8 +73,9 @@ func continue_run() -> void:
 ## Called when the player dies, beats the final boss, or abandons the run.
 func end_run(victory: bool) -> void:
 	var floors := RunState.total_floor()
-	var xp := floors * 5 + (100 if victory else 0) + RunState.ascension * 10
-	MetaProgress.record_run(RunState.class_id, victory, floors, RunState.ascension, xp)
+	var bosses := RunState.act - 1 + (1 if victory else 0)
+	var xp := floors * 5 + bosses * 25 + (60 if victory else 0) + RunState.ascension * 10
+	var meta := MetaProgress.record_run(RunState.class_id, victory, floors, RunState.ascension, xp)
 	MetaProgress.stats["enemies_killed"] += int(RunState.run_stats.get("enemies_killed", 0))
 	MetaProgress.save_meta()
 	last_run_summary = {
@@ -83,6 +84,7 @@ func end_run(victory: bool) -> void:
 		"hp": RunState.hp, "max_hp": RunState.max_hp,
 		"deck": RunState.deck.duplicate(), "relics": RunState.relics.duplicate(),
 		"stats": RunState.run_stats.duplicate(), "seed": RunState.rng.seed_value,
+		"meta": meta,
 	}
 	EventBus.run_ended.emit(victory)
 	RunState.clear()

@@ -57,3 +57,4 @@ upgrade_adds_keywords = Array[StringName]([])
 upgrade_removes_keywords = Array[StringName]([])
 plays_class_motif = false
 cost_reduction_per_stance_change = 0
+unlock_level = 2

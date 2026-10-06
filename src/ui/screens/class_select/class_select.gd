@@ -36,7 +36,11 @@ func _ready() -> void:
 		if cls == null:
 			continue
 		var unlocked := MetaProgress.is_class_unlocked(id)
-		var footer := "%d HP · Starting relic: %s" % [cls.max_hp, cls.starting_relic.display_name] if unlocked \
+		var xp := MetaProgress.get_class_xp(id)
+		var level := MetaProgress.level_for_xp(xp)
+		var bounds := MetaProgress.level_bounds(xp)
+		var level_text := "Level %d (max)" % level if bounds.y < 0 else "Level %d · %d/%d XP" % [level, xp, bounds.y]
+		var footer := "%d HP · Starting relic: %s\n%s" % [cls.max_hp, cls.starting_relic.display_name, level_text] if unlocked \
 				else "Locked. " + cls.unlock_hint
 		var panel := _class_panel(cls.id, cls.display_name, cls.title, cls.accent_color if id == &"moonblade" else cls.secondary_color,
 				cls.description, footer, unlocked, unlocked)

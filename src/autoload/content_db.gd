@@ -120,7 +120,7 @@ func get_character_class(id: StringName) -> CharacterClassData:
 func get_reward_pool(pool_id: StringName, rarity: CardData.Rarity) -> Array[CardData]:
 	var result: Array[CardData] = []
 	for card: CardData in cards.values():
-		if card.card_pool == pool_id and card.rarity == rarity:
+		if card.card_pool == pool_id and card.rarity == rarity and MetaProgress.is_level_unlocked(pool_id, card.unlock_level):
 			result.append(card)
 	return result
 
@@ -156,6 +156,7 @@ func get_potions_for(class_id: StringName) -> Array[PotionData]:
 func get_relics_by_rarity(rarity: RelicData.Rarity, class_id: StringName = &"") -> Array[RelicData]:
 	var result: Array[RelicData] = []
 	for relic: RelicData in relics.values():
-		if relic.rarity == rarity and (relic.class_restriction == &"" or relic.class_restriction == class_id):
+		if relic.rarity == rarity and (relic.class_restriction == &"" or relic.class_restriction == class_id) \
+				and MetaProgress.is_level_unlocked(class_id, relic.unlock_level):
 			result.append(relic)
 	return result

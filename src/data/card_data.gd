@@ -70,6 +70,11 @@ const KW_ETHEREAL := &"ethereal"
 ## Moonfall: costs this much less for each phase change this turn.
 @export var cost_reduction_per_stance_change: int = 0
 
+@export_group("Meta")
+## Class level (MetaProgress) needed before this card can show up in rewards
+## and shops. 1 = available from the start.
+@export_range(1, 10) var unlock_level: int = 1
+
 
 func get_cost(upgraded: bool) -> int:
 	if upgraded and upgraded_cost != NO_UPGRADE_COST:

@@ -36,3 +36,4 @@ upgraded_description = ""
 upgrade_adds_keywords = Array[StringName]([&"innate"])
 upgrade_removes_keywords = Array[StringName]([])
 plays_class_motif = false
+unlock_level = 2

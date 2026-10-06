@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/relic_data.gd" id="1_amwpm"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_q6v2g"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_2d4yf"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_8jt6f"]
+
+[sub_resource type="Resource" id="Resource_cj056"]
+script = ExtResource("4_8jt6f")
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_b6pyp"]
+script = ExtResource("2_q6v2g")
+timing = 12
+condition = 0
+effects = Array[ExtResource("3_2d4yf")]([SubResource("Resource_cj056")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+
+[resource]
+script = ExtResource("1_amwpm")
+id = &"ash_pouch"
+display_name = "Ash Pouch"
+description = "Whenever you Exhaust a card, gain 3 Block."
+flavor = "What burns away still guards you."
+rarity = 1
+class_restriction = &"pyre_warden"
+triggers = Array[ExtResource("2_q6v2g")]([SubResource("Resource_b6pyp")])
+counter_max = 0
+max_energy_bonus = 0
+draw_per_turn_bonus = 0
+max_hp_bonus = 0
+potion_slot_bonus = 0
+gold_gain_multiplier = 1.0
+shop_price_multiplier = 1.0
+requires_unlock = false
+unlock_level = 3

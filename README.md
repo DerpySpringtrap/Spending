@@ -2,15 +2,17 @@
 
 A run-based roguelike deckbuilder in the style of Slay the Spire / Monster Train, built with **Godot 4.4** and GDScript. *Duskbound* is a working title.
 
-## Status: early playable build
-A complete Act 1 run with the **Pyre Warden**: main menu → class select → branching map → fights, elites, rest sites, the merchant, treasure and events → the **Drowned Matriarch** boss → run summary. Death is permanent; runs auto-save on the map and can be continued from the main menu.
+## Status: playable test build
+Two acts and two classes: main menu → class select → branching map → fights, elites, rest sites, the merchant, treasure and events → the **Drowned Matriarch** → pick a boss relic → **Act 2: The Gilded Catacombs** → the **Gilded Hierophant** → run summary. Death is permanent; runs auto-save on the map and can be continued from the main menu.
 
 ### What's in this build
-- 30 Pyre Warden cards built around Heat (Stoke, Vent, Overheat), Burn and Block.
-- 11 relics, 8 potions, 2 curses, 5 events.
-- 7 normal enemies across 8 hallway encounters, 2 elites (Gorehorn Bull, Swamp Witch + Familiar).
-- The 2-phase Drowned Matriarch boss with summoned Broodlings.
-- Act 2–3, the other three classes and meta-progression unlocks come in later milestones (see the roadmap).
+- **Pyre Warden** (30 cards): Heat (Stoke, Vent, Overheat), Burn and Block.
+- **Moonblade** (32 cards, unlocked after your first run): Wax/Wane/Shift between phases, build Lunar Charge, enter Eclipse.
+- **Act 1** (The Drowned Thicket): 7 enemies, 2 elites, the Drowned Matriarch. **Act 2** (The Gilded Catacombs): 5 enemies, 3 elites, the Gilded Hierophant and its Gold Idols.
+- 21 relics (including 4 boss relics), 8 potions, 2 curses, 8 events.
+- **Meta-progression:** each class earns XP per run. Level 2 and 4 add new cards to the reward pool, level 3 adds class relics. Winning a run unlocks the next Ascension level for that class.
+- Synthesized music, ambience and sound effects for every screen and combat beat (volume sliders in Options).
+- The Hollow Scribe, Rootmother and Act 3 are designed but not built yet (see the roadmap).
 
 ### Play-testing
 Open `project.godot` in Godot 4.4+ and press **F5**.
@@ -26,14 +28,15 @@ Open `project.godot` in Godot 4.4+ and press **F5**.
 | Map | Click a glowing room | `←`/`→` + `Enter` |
 | Auto-play a turn | – | `A` (in combat) |
 
-**Debug keys** (only when running from the editor): `F1` help · `F2` +100 gold · `F3` full heal · `F4` win the fight · `F6` skip to the boss (on the map) · `F7` add a random rare card · `F9` add a potion.
+**Debug keys** (in the editor and in play-test builds): `F1` help · `F2` +100 gold · `F3` full heal · `F4` win the fight · `F6` skip to the boss (on the map) · `F7` add a random rare card · `F8` unlock every class, card, relic and ascension · `F9` add a potion.
 
-The Options menu (main menu) has fast animations, screen-shake strength, damage-number and fullscreen toggles. To replay a run, enter the same seed on the class-select screen; the run summary shows the seed.
+The Options menu (main menu) has volume sliders (master, music, SFX, UI, ambience), fast animations, screen-shake strength, damage-number and fullscreen toggles. To replay a run, enter the same seed on the class-select screen; the run summary shows the seed.
 
 ### What feedback is most useful
 - Difficulty: which fights feel unfair or trivial? (The simulator's numbers are in `docs/ROADMAP.md`.)
 - Cards that feel useless, too strong, or confusing.
-- Anything unclear on screen: intents, statuses, Heat, tooltips.
+- Anything unclear on screen: intents, statuses, Heat, phases and Lunar Charge, tooltips.
+- Sound: anything too loud, repetitive or missing.
 - Pacing: animation speed, how long fights and the act take.
 
 ## Docs

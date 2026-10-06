@@ -10,11 +10,14 @@ func _ready() -> void:
 	title.add_theme_color_override("font_color", UIStyle.GOLD if victory else UIStyle.DAMAGE)
 	column.add_child(title)
 	var stats: Dictionary = s.get("stats", {})
-	var subtitle := "The Drowned Matriarch has fallen. Act 1 conquered!\nActs 2 and 3 arrive in the content update." if victory \
-			else "Fell on floor %d%s." % [s.get("floor", 0), (" to " + str(stats.get("killed_by"))) if stats.has("killed_by") else ""]
+	var subtitle := "The Gilded Hierophant has fallen. The Catacombs are yours!" if victory \
+			else "Fell in Act %d, floor %d%s." % [s.get("act", 1), s.get("floor", 0),
+				(" to " + str(stats.get("killed_by"))) if stats.has("killed_by") else ""]
 	var sub := UIBuild.label(subtitle, &"", UIStyle.SIZE_H2)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(sub)
+	var meta_panel := _meta_panel(s)
+	column.add_child(meta_panel)
 
 	var grid := GridContainer.new()
 	grid.columns = 4
@@ -75,10 +78,56 @@ func _ready() -> void:
 	var menu := UIBuild.button("Main Menu", false, Vector2(240, 64))
 	menu.pressed.connect(func(): GameManager.go_to_screen(&"main_menu"))
 	buttons.add_child(menu)
-	UIBuild.stagger_in([title, sub, panel, relic_row, deck_flow, buttons], 0.1)
+	UIBuild.stagger_in([title, sub, meta_panel, panel, relic_row, deck_flow, buttons], 0.1)
 	again.grab_focus.call_deferred()
 	if victory:
 		_confetti()
+
+
+## Class level, an XP bar that fills with this run's XP, and any unlocks.
+func _meta_panel(s: Dictionary) -> Control:
+	var meta: Dictionary = s.get("meta", {})
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	panel.custom_minimum_size = Vector2(720, 0)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	panel.add_child(box)
+	if meta.is_empty():
+		return panel
+	var cls := ContentDB.get_character_class(s.get("class_id", &""))
+	var new_xp: int = meta.get("new_xp", 0)
+	var old_xp: int = meta.get("old_xp", 0)
+	var level := MetaProgress.level_for_xp(new_xp)
+	var header := UIBuild.label("%s · Level %d   (+%d XP)" % [cls.display_name if cls else "", level, meta.get("xp", 0)],
+			&"HeadingLabel", 26, UIStyle.GOLD)
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(header)
+	var bar := ProgressBar.new()
+	bar.custom_minimum_size = Vector2(680, 22)
+	bar.show_percentage = false
+	var bounds := MetaProgress.level_bounds(new_xp)
+	if bounds.y < 0:
+		bar.max_value = 1
+		bar.value = 1
+	else:
+		bar.min_value = bounds.x
+		bar.max_value = bounds.y
+		bar.value = clampi(old_xp, bounds.x, bounds.y)
+		bar.create_tween().tween_property(bar, "value", float(new_xp), UIStyle.dur(1.2)).set_delay(UIStyle.dur(0.6)) \
+				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	box.add_child(bar)
+	var next_text := "Max level" if bounds.y < 0 else "%d / %d XP to level %d" % [new_xp, bounds.y, level + 1]
+	var next := UIBuild.label(next_text, &"DimLabel", UIStyle.SIZE_BODY)
+	next.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(next)
+	for unlock: String in meta.get("unlocks", []):
+		var line := UIBuild.label("★ " + unlock, &"", UIStyle.SIZE_LARGE, UIStyle.GOLD.lightened(0.2))
+		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		box.add_child(line)
+	if not (meta.get("unlocks", []) as Array).is_empty():
+		get_tree().create_timer(UIStyle.dur(1.0)).timeout.connect(func(): AudioManager.play(&"relic", 0.0))
+	return panel
 
 
 func _confetti() -> void:

@@ -8,6 +8,8 @@ const REST_HEAL_LEVEL := 5
 const START_DAMAGED_LEVEL := 6
 const CURSE_LEVEL := 10
 const POTION_SLOT_LEVEL := 11
+const MAX_HP_LEVEL := 14
+const MAX_HP_PENALTY := 5
 
 
 static func enemy_damage_multiplier(tier: EnemyData.Tier, ascension: int) -> float:

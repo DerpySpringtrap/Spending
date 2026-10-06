@@ -46,3 +46,4 @@ upgraded_description = ""
 upgrade_adds_keywords = Array[StringName]([])
 upgrade_removes_keywords = Array[StringName]([])
 plays_class_motif = true
+unlock_level = 2

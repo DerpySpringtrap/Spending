@@ -49,7 +49,7 @@ func _ready() -> void:
 
 func _play_run(seed_value: int) -> Dictionary:
 	RunState.start(ContentDB.get_character_class(_class_id), _ascension, seed_value)
-	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), 1)
+	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), 1, _ascension)
 	var guard := 0
 	while guard < 40 * GameManager.FINAL_ACT:
 		guard += 1

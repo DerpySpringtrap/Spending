@@ -8,6 +8,17 @@ extends Node
 const PATH := "user://meta.json"
 const VERSION := 1
 
+## Total class XP needed for each level (index 0 = level 1).
+const LEVEL_XP: Array[int] = [0, 60, 160, 300]
+## What each level unlocks, for the summary and class select.
+const LEVEL_REWARDS := {
+	2: "3 new cards join the reward pool",
+	3: "Class relics can now drop",
+	4: "3 more new cards join the reward pool",
+}
+## Classes unlocked by finishing any run.
+const FIRST_RUN_UNLOCKS: Array[StringName] = [&"moonblade"]
+
 var unlocked_classes: Array[StringName] = []
 var unlocked_cards: Array[StringName] = []
 var unlocked_relics: Array[StringName] = []
@@ -22,6 +33,8 @@ var stats: Dictionary = {
 }
 ## Enemy ids the player has met (bestiary / first-encounter gimmick popups).
 var seen_enemies: Array[StringName] = []
+## Debug / play-testing: every class, card and relic is available (F8).
+var unlock_all := false
 
 
 func _ready() -> void:
@@ -29,7 +42,7 @@ func _ready() -> void:
 
 
 func is_class_unlocked(class_id: StringName) -> bool:
-	if unlocked_classes.has(class_id):
+	if unlock_all or unlocked_classes.has(class_id):
 		return true
 	var data: CharacterClassData = ContentDB.get_character_class(class_id)
 	return data != null and data.unlocked_by_default
@@ -50,18 +63,75 @@ func unlock(kind: StringName, id: StringName) -> void:
 
 
 func get_max_ascension(class_id: StringName) -> int:
+	if unlock_all:
+		return GameManager.MAX_ASCENSION
 	return int(max_ascension.get(class_id, 0))
 
 
-## Called by GameManager when a run ends. Returns the XP earned for the summary.
-func record_run(class_id: StringName, victory: bool, floor_reached: int, ascension: int, xp: int) -> int:
+func get_class_xp(class_id: StringName) -> int:
+	return int(class_xp.get(class_id, 0))
+
+
+static func level_for_xp(xp: int) -> int:
+	var level := 1
+	for i in LEVEL_XP.size():
+		if xp >= LEVEL_XP[i]:
+			level = i + 1
+	return level
+
+
+func get_class_level(class_id: StringName) -> int:
+	return level_for_xp(get_class_xp(class_id))
+
+
+static func max_level() -> int:
+	return LEVEL_XP.size()
+
+
+## [from, to] XP bounds of the current level ([to] = -1 at max level).
+static func level_bounds(xp: int) -> Vector2i:
+	var level := level_for_xp(xp)
+	var next := LEVEL_XP[level] if level < LEVEL_XP.size() else -1
+	return Vector2i(LEVEL_XP[level - 1], next)
+
+
+## True if content needing [param level] is available for [param pool_id]
+## (a class id; neutral pools are always unlocked).
+func is_level_unlocked(pool_id: StringName, level: int) -> bool:
+	if level <= 1 or unlock_all:
+		return true
+	if ContentDB.get_character_class(pool_id) == null:
+		return true
+	return get_class_level(pool_id) >= level
+
+
+## Called by GameManager when a run ends. Returns what happened for the
+## summary: {"xp", "old_xp", "new_xp", "old_level", "new_level", "unlocks": [String]}.
+func record_run(class_id: StringName, victory: bool, floor_reached: int, ascension: int, xp: int) -> Dictionary:
 	stats["runs_won"] += 1 if victory else 0
 	stats["highest_floor"] = maxi(stats["highest_floor"], floor_reached)
-	class_xp[class_id] = int(class_xp.get(class_id, 0)) + xp
-	if victory and ascension >= get_max_ascension(class_id):
-		max_ascension[class_id] = mini(ascension + 1, GameManager.MAX_ASCENSION)
+	var old_xp := get_class_xp(class_id)
+	var old_level := level_for_xp(old_xp)
+	class_xp[class_id] = old_xp + xp
+	var new_level := get_class_level(class_id)
+	var unlocks: Array[String] = []
+	var cls_name := String(class_id).capitalize()
+	var cls: CharacterClassData = ContentDB.get_character_class(class_id)
+	if cls:
+		cls_name = cls.display_name
+	for level in range(old_level + 1, new_level + 1):
+		unlocks.append("%s level %d: %s" % [cls_name, level, LEVEL_REWARDS.get(level, "")])
+	for unlock_id in FIRST_RUN_UNLOCKS:
+		if not unlocked_classes.has(unlock_id) and not is_class_unlocked(unlock_id):
+			unlock(&"class", unlock_id)
+			var data: CharacterClassData = ContentDB.get_character_class(unlock_id)
+			unlocks.append("New class unlocked: %s" % (data.display_name if data else String(unlock_id)))
+	if victory and ascension >= int(max_ascension.get(class_id, 0)) and ascension < GameManager.MAX_ASCENSION:
+		max_ascension[class_id] = ascension + 1
+		unlocks.append("Ascension %d unlocked for %s" % [ascension + 1, cls_name])
 	save_meta()
-	return xp
+	return {"xp": xp, "old_xp": old_xp, "new_xp": old_xp + xp, "old_level": old_level, "new_level": new_level,
+		"unlocks": unlocks}
 
 
 func to_dict() -> Dictionary:
@@ -73,6 +143,7 @@ func to_dict() -> Dictionary:
 		"class_xp": class_xp,
 		"stats": stats,
 		"seen_enemies": _to_strings(seen_enemies),
+		"unlock_all": unlock_all,
 	}
 
 
@@ -81,6 +152,7 @@ func from_dict(data: Dictionary) -> void:
 	unlocked_cards = _to_string_names(data.get("unlocked_cards", []))
 	unlocked_relics = _to_string_names(data.get("unlocked_relics", []))
 	seen_enemies = _to_string_names(data.get("seen_enemies", []))
+	unlock_all = bool(data.get("unlock_all", false))
 	max_ascension.clear()
 	for key in data.get("max_ascension", {}):
 		max_ascension[StringName(key)] = int(data["max_ascension"][key])

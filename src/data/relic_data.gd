@@ -33,3 +33,6 @@ enum Rarity { STARTER, COMMON, UNCOMMON, RARE, BOSS, SHOP, EVENT, SPECIAL }
 @export_group("Meta")
 ## Must be unlocked through meta-progression before it can drop.
 @export var requires_unlock: bool = false
+## Class level (MetaProgress) needed before this relic can drop. Checked
+## against the current run's class. 1 = available from the start.
+@export_range(1, 10) var unlock_level: int = 1

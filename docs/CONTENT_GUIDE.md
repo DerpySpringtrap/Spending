@@ -31,7 +31,8 @@ How to add cards, statuses, relics and enemies without writing code. Every piece
 5. **Description:** write it with tokens. `Deal {dmg} damage. Stoke {heat}.` Each token must match an effect's `value_key`. The card shows live numbers: Strength, Weak and the hovered enemy's Vulnerable are all included. Keywords such as *Exhaust* are appended automatically.
 6. **Scaling:** set an effect's `scale` to multiply its amount by X (energy spent / resource vented), the current class resource, the exhaust pile size, the hand size or the phase changes this turn. A scaled damage effect that comes out at 0 deals no hit at all.
    - `cost_reduction_per_stance_change` (Moonfall) lowers the cost by that much per phase change this turn.
-7. Run the tests (below). `test_content` fails if a token has no matching effect.
+7. **Unlocks:** `unlock_level` (Meta group) is the class level needed before the card can appear in rewards and shops. Relics have the same field, checked against the run's class.
+8. Run the tests (below). `test_content` fails if a token has no matching effect.
 
 ## Adding a status
 `content/statuses/<id>.tres` → **StatusEffectData**.

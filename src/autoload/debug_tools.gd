@@ -3,7 +3,7 @@ extends CanvasLayer
 ## (running from the editor), never in exported release builds.
 ##
 ## F1 help · F2 +100 gold · F3 full heal · F4 win the current fight
-## F6 skip to the boss (on the map) · F7 add a random rare card · F9 +1 potion
+## F6 skip to the boss (on the map) · F7 add a random rare card · F8 unlock everything · F9 +1 potion
 
 var _toast: Label
 var _help: PanelContainer
@@ -12,7 +12,8 @@ var _help: PanelContainer
 func _ready() -> void:
 	layer = 120
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	if not OS.is_debug_build():
+	# Play-test exports keep the keys via the "playtest" custom feature tag.
+	if not OS.is_debug_build() and not OS.has_feature("playtest"):
 		set_process_unhandled_input(false)
 		return
 	_toast = Label.new()
@@ -27,7 +28,7 @@ func _ready() -> void:
 	_help.position = Vector2(24, 120)
 	_help.visible = false
 	var text := Label.new()
-	text.text = "DEBUG KEYS\nF1  this help\nF2  +100 gold\nF3  full heal\nF4  win the current fight\nF6  skip to the boss (on the map)\nF7  add a random rare card\nF9  add a random potion"
+	text.text = "DEBUG KEYS\nF1  this help\nF2  +100 gold\nF3  full heal\nF4  win the current fight\nF6  skip to the boss (on the map)\nF7  add a random rare card\nF8  unlock all classes, cards, relics, ascensions\nF9  add a random potion"
 	_help.add_child(text)
 	add_child(_help)
 
@@ -63,6 +64,13 @@ func _unhandled_input(event: InputEvent) -> void:
 				if card:
 					RunState.add_card(card)
 					_say("Added " + card.display_name)
+		KEY_F8:
+			MetaProgress.unlock_all = not MetaProgress.unlock_all
+			MetaProgress.save_meta()
+			_say("Unlock everything: %s" % ("ON" if MetaProgress.unlock_all else "OFF"))
+			var scene := get_tree().current_scene
+			if scene and String(scene.name) == "ClassSelect":
+				GameManager.go_to_screen(&"class_select")
 		KEY_F9:
 			if RunState.active:
 				var potion := RunLogic.roll_potion()

@@ -31,7 +31,8 @@ static func node_id(floor_index: int, col: int) -> String:
 	return "%d_%d" % [floor_index, col]
 
 
-static func generate(rng: RandomNumberGenerator, act: int = 1) -> Dictionary:
+## [param ascension] >= AscensionRules.ELITE_SPAWN_BONUS_LEVEL makes elites ~40% more common.
+static func generate(rng: RandomNumberGenerator, act: int = 1, ascension: int = 0) -> Dictionary:
 	var nodes := {}
 	var edges := {}  # id -> Array[String]
 	var starts: Array[int] = []
@@ -68,7 +69,7 @@ static func generate(rng: RandomNumberGenerator, act: int = 1) -> Dictionary:
 		if nodes[id].floor == FLOORS - 1:
 			nodes[id].next = [boss_id]
 
-	_assign_types(nodes, rng)
+	_assign_types(nodes, rng, ascension)
 	return {"act": act, "floors": FLOORS, "columns": COLUMNS, "nodes": nodes, "boss": boss_id}
 
 
@@ -76,7 +77,7 @@ static func _has_edge(edges: Dictionary, from: String, to: String) -> bool:
 	return edges.has(from) and edges[from].has(to)
 
 
-static func _assign_types(nodes: Dictionary, rng: RandomNumberGenerator) -> void:
+static func _assign_types(nodes: Dictionary, rng: RandomNumberGenerator, ascension: int = 0) -> void:
 	var parents := {}  # id -> Array of parent ids
 	for id in nodes:
 		for next_id in nodes[id].next:
@@ -97,19 +98,23 @@ static func _assign_types(nodes: Dictionary, rng: RandomNumberGenerator) -> void
 			14:
 				node.type = TYPE_REST
 			_:
-				node.type = _roll_type(node, parents.get(id, []), nodes, rng)
+				node.type = _roll_type(node, parents.get(id, []), nodes, rng, ascension)
 
 
-static func _roll_type(node: Dictionary, parent_ids: Array, nodes: Dictionary, rng: RandomNumberGenerator) -> String:
+static func _roll_type(node: Dictionary, parent_ids: Array, nodes: Dictionary, rng: RandomNumberGenerator,
+		ascension: int = 0) -> String:
 	var parent_types := parent_ids.map(func(p): return nodes[p].type)
+	var weights := WEIGHTS.duplicate()
+	if ascension >= AscensionRules.ELITE_SPAWN_BONUS_LEVEL:
+		weights[TYPE_ELITE] = roundi(weights[TYPE_ELITE] * 1.4)
 	for attempt in 20:
 		var total := 0
-		for t in WEIGHTS:
-			total += WEIGHTS[t]
+		for t in weights:
+			total += weights[t]
 		var roll := rng.randi_range(1, total)
 		var chosen := TYPE_MONSTER
-		for t in WEIGHTS:
-			roll -= WEIGHTS[t]
+		for t in weights:
+			roll -= weights[t]
 			if roll <= 0:
 				chosen = t
 				break

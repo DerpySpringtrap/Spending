@@ -68,5 +68,26 @@ Early read for M6 tuning: Thornback Beetle is heavy for the easy pool (the AI at
 
 A human player should do considerably better than this AI. Treat these as a baseline to compare against play-testing feedback.
 
+## Milestones 4–5 progress: test build 2
+
+Built in the order requested: sound, the Moonblade, Act 2, meta-progression.
+
+**Audio (part of M5):** every sound is synthesized by `tools/audio/synth_audio.py`: 45 SFX, 6 music loops (menu, map ×2, combat, elite, boss), 2 ambiences. The combat director plays sounds on its beats, screens pick their music and ambience, and every button gets hover/click sounds. Options has volume sliders. Still to do: boss stems, heartbeat layer.
+
+**Moonblade:** 32 cards, phases (Waxing, Waning, Eclipse), Lunar Charge, 3 class relics. New engine pieces: `ChangeStanceEffect`, `ConditionalEffect`, once-per-turn and requires-status triggers, the phase-changes scale, Moonfall's cost reduction. Tuned down from the design (+2 per phase instead of +3, Riposte 2, 66 HP, Moonstep draws only when upgraded) after the simulator showed it far ahead of the Warden.
+
+**Act 2:** Gilded Skeleton, Candle Acolyte, Coin Mimic, Crypt Hound, Embalmer; elites Gilded Knight, Twin Reliquaries, Plague Censer; the Gilded Hierophant with two Gold Idols. New engine pieces: revive once (Reassemble), gold theft returned on kill, enemy escape, stack loss on HP loss. Bosses now offer a choice of 3 boss relics; the next act heals 75% of missing HP. The run is won after the Act 2 boss.
+
+**Meta-progression:** class XP and levels 1–4 (cards at 2 and 4, class relics at 3), the Moonblade unlocks after any finished run, wins unlock the next Ascension. Ascension 1 (more elites) and 14 (−5 max HP) are now in. Debug `F8` unlocks everything.
+
+**Simulator numbers** (deliberately simple AI, A0, 200 runs, both acts):
+
+| Class | Full-run wins | Notes |
+|---|---|---|
+| Pyre Warden | ~2% | The AI doesn't plan Heat or Vent, so this undersells the class |
+| Moonblade | ~16% | Act 2 boss ~33% with starter + 10 random cards |
+
+Play-testing feedback on Act 2 difficulty is the most useful next input.
+
 ## Backlog (requested, not yet scheduled)
 - **Card art:** every card gets its own illustration. Art is themed per class, so the same kind of card (e.g. an attack) looks different for the Pyre Warden than for the Moonblade, and depicts what that specific card does. Hook: `CardData.art` already exists; `CardView` currently draws a placeholder type glyph when it's empty. Lower priority than sound, the second class and Act 2.
