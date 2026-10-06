@@ -59,6 +59,13 @@ godot --headless --path . res://tests/sim/auto_battler.tscn -- --fights=1000 --e
 godot --headless --path . res://tests/sim/run_sim.tscn -- --runs=300           # full-run simulator
 ```
 
+## Exporting a Windows build
+Install the Godot 4.4.1 export templates (Editor → Manage Export Templates), then:
+```bash
+godot --headless --path . --export-release "Windows Desktop" build/windows/Duskbound.exe
+```
+The preset (`export_presets.cfg`) embeds the game data in the .exe, leaves out `tests/`, `tools/` and `docs/`, and sets the `playtest` feature tag so the debug keys stay on. Remove that tag for a public release.
+
 ## Adding content
 Create a resource (right-click in the FileSystem dock → New Resource → `CardData`, `RelicData`, `EnemyData`…) under the matching `content/` folder and give it a unique `id`. `ContentDB` picks it up automatically at startup. See the [content guide](docs/CONTENT_GUIDE.md).
 

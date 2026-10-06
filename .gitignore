@@ -2,7 +2,6 @@
 .godot/
 /android/
 *.translation
-export_presets.cfg
 export_credentials.cfg
 *.tmp
 
@@ -12,3 +11,4 @@ Thumbs.db
 .vscode/
 *.swp
 /_gen/
+/build/
