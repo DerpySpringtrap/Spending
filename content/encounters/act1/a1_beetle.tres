@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_2nwum"]
+[ext_resource type="Resource" path="res://content/enemies/act1/thornback_beetle.tres" id="2_dykod"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="3_mgyfk"]
+
+[resource]
+script = ExtResource("3_mgyfk")
+id = &"a1_beetle"
+act = 1
+pool = 0
+enemies = Array[ExtResource("1_2nwum")]([ExtResource("2_dykod")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

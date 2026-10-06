@@ -23,6 +23,10 @@ enum Decay {
 	DECREMENT_ON_TURN_END,
 	REMOVE_ON_TURN_END,
 	HALVE_ON_TURN_END,    ## Burn: big upfront damage that burns out quickly.
+	## Weak/Vulnerable/Frail: -1 after every combatant has acted. Applied
+	## during the enemy phase, the first decrement is skipped, so "1 Weak" from
+	## an enemy always covers the player's next turn.
+	DECREMENT_ON_ROUND_END,
 	DECREMENT_ON_TRIGGER, ## Lose one stack each time a trigger fires.
 	REMOVE_ON_TRIGGER,
 }

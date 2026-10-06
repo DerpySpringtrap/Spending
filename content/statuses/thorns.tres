@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_i0rlh"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_ntg5a"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_4f7da"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_tlcmv"]
+
+[sub_resource type="Resource" id="Resource_6vu3l"]
+script = ExtResource("4_tlcmv")
+damage_type = 1
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 5
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_56wv5"]
+script = ExtResource("2_ntg5a")
+timing = 14
+condition = 0
+effects = Array[ExtResource("3_4f7da")]([SubResource("Resource_6vu3l")])
+amount_from_stacks = true
+every_nth = 1
+required_card_tag = &""
+
+[resource]
+script = ExtResource("1_i0rlh")
+id = &"thorns"
+display_name = "Thorns"
+description = "When attacked, deals {stacks} damage back to the attacker."
+kind = 0
+stack_mode = 0
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_ntg5a")]([SubResource("Resource_56wv5")])
+tint = Color(0.709804, 0.627451, 0.415686, 1)

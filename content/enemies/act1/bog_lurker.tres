@@ -1,0 +1,138 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_ldksb"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_gj0x4"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_pr4ga"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_edk58"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="5_j0rgh"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="6_bw5ql"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="7_cvxec"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="8_g8gm3"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="9_si7vx"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="10_w2a5l"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="11_2xstb"]
+
+[sub_resource type="Resource" id="Resource_rdqdm"]
+script = ExtResource("4_edk58")
+damage_type = 0
+amount = 11
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_qtlbt"]
+script = ExtResource("2_gj0x4")
+id = &"lunge"
+display_name = "Lunge"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_pr4ga")]([SubResource("Resource_rdqdm")])
+weight = 2.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_i45wu"]
+script = ExtResource("5_j0rgh")
+amount = 8
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ypgyi"]
+script = ExtResource("6_bw5ql")
+status = ExtResource("7_cvxec")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_bqb2u"]
+script = ExtResource("2_gj0x4")
+id = &"submerge"
+display_name = "Submerge"
+intent = 5
+intent_tooltip = "Gains Block and 1 Strength."
+effects = Array[ExtResource("3_pr4ga")]([SubResource("Resource_i45wu"), SubResource("Resource_ypgyi")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_o3pw5"]
+script = ExtResource("4_edk58")
+damage_type = 0
+amount = 5
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_h5m1k"]
+script = ExtResource("6_bw5ql")
+status = ExtResource("8_g8gm3")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_himsk"]
+script = ExtResource("2_gj0x4")
+id = &"mud_spit"
+display_name = "Mud Spit"
+intent = 3
+intent_tooltip = "Attacks for {dmg} and applies 1 Weak."
+effects = Array[ExtResource("3_pr4ga")]([SubResource("Resource_o3pw5"), SubResource("Resource_h5m1k")])
+weight = 1.5
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_cmm8v"]
+script = ExtResource("1_ldksb")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_gj0x4")]([SubResource("Resource_qtlbt"), SubResource("Resource_bqb2u"), SubResource("Resource_himsk")])
+opening_moves = Array[ExtResource("2_gj0x4")]([])
+on_enter_effects = Array[ExtResource("3_pr4ga")]([])
+passive_triggers = Array[ExtResource("9_si7vx")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("10_w2a5l")
+id = &"bog_lurker"
+display_name = "Bog Lurker"
+tier = 0
+act = 1
+hp_min = 40
+hp_max = 44
+gimmick_text = "A patient ambusher. Never repeats the same move three times in a row."
+starting_statuses = Array[ExtResource("11_2xstb")]([])
+phases = Array[ExtResource("1_ldksb")]([SubResource("Resource_cmm8v")])
+gold_min = 10
+gold_max = 20
+has_intro_cinematic = false
+intro_title = ""

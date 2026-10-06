@@ -50,6 +50,8 @@ res://
 └── tests/                         # Headless test scenes (smoke_test.tscn); GUT later
 ```
 
+**Enums are append-only.** `.tres` files store enum fields as integers, so inserting a value mid-enum silently corrupts existing content. Always add new values at the end.
+
 **Naming:** `snake_case` files/folders, `PascalCase` `class_name`s, `&"snake_case"` StringName ids. A resource's file name matches its id (`content/classes/pyre_warden/cards/kindle.tres` → `id = &"kindle"`).
 
 ## 3. Autoloads
@@ -113,7 +115,7 @@ Runtime (non-Resource) types:
 - **Description templates.** `"Deal {dmg} damage."` maps `{dmg}` to the effect whose `value_key == &"dmg"`. The card view calls `effect.preview_amount(ctx)`, which runs the same damage pipeline as real play (Strength, Weak, hovered target's Vulnerable). Displayed numbers are therefore always exact, and are coloured green or red when modified.
 - **Escape hatches.** `behavior_script` on statuses and relics, and `ai_script` on boss phases, cover the 10% of designs that don't fit the declarative model. Nobody needs to fork the engine for them.
 
-## 5. Combat architecture (implemented in Milestone 1)
+## 5. Combat architecture (Milestone 1: implemented)
 
 ```
  Input (CardView drag / keyboard)                       Presentation (M2)
@@ -134,6 +136,8 @@ Runtime (non-Resource) types:
 - **Turn loop:** `COMBAT_START` → [player turn: reset block → `TURN_START` triggers → gain energy → draw → player acts → `TURN_END` triggers → discard hand (retain/ethereal) → status decay] → [each enemy: `TURN_START` → execute intent → `TURN_END` → roll next intent] → `ROUND_END` → repeat.
 - **ActionQueue:** effects push actions rather than recursing, so trigger chains (a Thorns kill that fires a "when an enemy dies" relic) resolve in a predictable FIFO order with no stack overflows.
 - **Damage pipeline** (single function, used both for real play and for previews): base → + flat (Strength, phase bonuses) → × outgoing multipliers (Weak) → × incoming multipliers (Vulnerable) → + incoming flat → floor at 0 → block absorbs → HP loss → triggers.
+- **Code map:** `src/combat/combat_state.gd` (rules and turn loop), `combatant.gd` / `player_combatant.gd` / `enemy_combatant.gd`, `effect_context.gd`, `action_queue.gd`, `damage_calc.gd` (the one pipeline, also used for previews), `card_text.gd` (live descriptions), `effects/` (11 GameEffects), `ai/enemy_ai.gd` (intent selection), `ai/greedy_player_ai.gd` (sim/autoplay AI).
+- **Status timing:** Weak/Vulnerable/Frail decay at round end. If an enemy applies one during its turn, the first decay is skipped, so "1 Weak" always covers the player's next turn. Poison ticks at turn start (ignores Block). Burn ticks at turn end (blocked by Block) and then halves.
 - **Presentation replay:** the queue groups signals into beats (e.g. `attack_started` + `damage_dealt` + `status_applied` = one beat), plays each beat's animation, then the next. Player input is disabled while beats are pending. Fast mode shortens beats; tests skip them entirely.
 
 ## 6. Event bus
@@ -168,9 +172,16 @@ The animation and audio hook plan (deliverable #5) will map every signal to its 
 
 ## 9. Testing & tooling
 
-- `tests/smoke_test.tscn`: headless check of autoloads, RNG determinism and save round-trip.
-  Run: `godot --headless --path . res://tests/smoke_test.tscn` (exit code 0 = pass).
-- M1 adds combat unit tests (damage pipeline, status decay, turn order) and a **headless auto-battler** that simulates thousands of fights with a simple AI. It's used for balance passes in M6.
+All runnable headless; exit code 0 = pass.
+
+| Command (`godot --headless --path . <scene>`) | What it checks |
+|---|---|
+| `res://tests/test_runner.tscn` | All `tests/unit/test_*.gd`: damage pipeline, status decay, turn flow, Heat, enemy AI, content validation |
+| `res://tests/smoke_test.tscn` | Autoloads, RNG determinism, run save round-trip |
+| `res://tests/ui_smoke_test.tscn` | Drives the real combat screen (select, target, auto-play to victory). Add `-- --shots=<dir>` with a display for screenshots |
+| `res://tests/sim/auto_battler.tscn -- --fights=1000 --ascension=0` | Balance sim with `GreedyPlayerAI`; prints win rate, turns and HP lost per encounter |
+
+The test framework is a tiny built-in one (`tests/test_case.gd`). Every method named `test_*` is run.
 - M4 adds an editor-side **content validator** (missing art, unknown keywords in descriptions, `{tokens}` without a matching `value_key`, cards that aren't in any pool).
 
 ## 10. Decisions made (change any of these if you disagree)
@@ -182,4 +193,4 @@ The animation and audio hook plan (deliverable #5) will map every signal to its 
 | Renderer | Forward+ by default | Switch to Compatibility if we target web/mobile |
 | Base resolution | 1920×1080, `canvas_items` stretch, `expand` aspect | Crisp UI at any size; ultrawide shows more background |
 | Save model | Save on map, no mid-combat saves until M6 | Simplest robust model; prevents save-scumming |
-| Testing | Plain headless scenes now, GUT once combat exists | No dependency until it pays off |
+| Testing | Small built-in xUnit runner (`tests/test_case.gd`) | Zero dependencies, runs headless in CI; can migrate to GUT if we need its extras |

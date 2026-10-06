@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_ag5bk"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_rgqh0"]
+
+[resource]
+script = ExtResource("1_ag5bk")
+id = &"frail"
+display_name = "Frail"
+description = "Gains 25% less Block from cards for {stacks} turn(s)."
+kind = 1
+stack_mode = 1
+decay = 5
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 0.75
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_rgqh0")]([])
+tint = Color(0.560784, 0.627451, 0.709804, 1)

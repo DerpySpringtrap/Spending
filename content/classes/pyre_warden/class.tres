@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="CharacterClassData" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://src/data/character_class_data.gd" id="1_0n8td"]
+[ext_resource type="Resource" path="res://content/classes/pyre_warden/heat_resource.tres" id="2_0rqty"]
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="3_rwaah"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_81nm7"]
+[ext_resource type="Resource" path="res://content/classes/pyre_warden/cards/warden_strike.tres" id="5_goakb"]
+[ext_resource type="Resource" path="res://content/classes/pyre_warden/cards/warden_defend.tres" id="6_5fg0s"]
+[ext_resource type="Resource" path="res://content/classes/pyre_warden/cards/kindle.tres" id="7_r8l4y"]
+[ext_resource type="Resource" path="res://content/classes/pyre_warden/cards/vent_flame.tres" id="8_4kf54"]
+[ext_resource type="Resource" path="res://content/classes/pyre_warden/cards/smoldering_guard.tres" id="9_woen0"]
+[ext_resource type="Resource" path="res://content/classes/pyre_warden/relics/cinder_heart.tres" id="10_qops1"]
+
+[resource]
+script = ExtResource("1_0n8td")
+id = &"pyre_warden"
+display_name = "Pyre Warden"
+title = "Keeper of the Last Ember"
+description = "An exiled knight whose armor is a furnace. Stoke Heat, Vent it for power, or ride it to an Overheat."
+max_hp = 80
+starting_gold = 99
+energy_per_turn = 3
+cards_per_turn = 5
+max_hand_size = 10
+starting_deck = Array[ExtResource("4_81nm7")]([ExtResource("5_goakb"), ExtResource("5_goakb"), ExtResource("5_goakb"), ExtResource("5_goakb"), ExtResource("6_5fg0s"), ExtResource("6_5fg0s"), ExtResource("6_5fg0s"), ExtResource("7_r8l4y"), ExtResource("8_4kf54"), ExtResource("9_woen0")])
+starting_relic = ExtResource("10_qops1")
+secondary_resource = ExtResource("2_0rqty")
+stances = Array[ExtResource("3_rwaah")]([])
+primary_color = Color(0.168627, 0.145098, 0.133333, 1)
+secondary_color = Color(0.909804, 0.411765, 0.172549, 1)
+accent_color = Color(0.964706, 0.705882, 0.235294, 1)
+attack_sfx = Array[AudioStream]([])
+unlocked_by_default = true
+unlock_hint = ""

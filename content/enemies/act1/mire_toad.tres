@@ -1,0 +1,127 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_gjxnq"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_8iov8"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_60wtc"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_ax7hf"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_ocu2j"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="6_gapa6"]
+[ext_resource type="Resource" path="res://content/cards/status/muck.tres" id="7_48wva"]
+[ext_resource type="Script" path="res://src/combat/effects/add_card_to_pile_effect.gd" id="8_dn3ta"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="9_3ddl1"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="10_5yrsd"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="11_5tf1a"]
+[ext_resource type="Resource" path="res://content/statuses/toxic_burst.tres" id="12_ljy5b"]
+
+[sub_resource type="Resource" id="Resource_jerhh"]
+script = ExtResource("4_ax7hf")
+damage_type = 0
+amount = 6
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_0e2o6"]
+script = ExtResource("2_8iov8")
+id = &"tongue_lash"
+display_name = "Tongue Lash"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_60wtc")]([SubResource("Resource_jerhh")])
+weight = 2.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_tk301"]
+script = ExtResource("5_ocu2j")
+status = ExtResource("6_gapa6")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_su0bw"]
+script = ExtResource("2_8iov8")
+id = &"bloat"
+display_name = "Bloat"
+intent = 6
+intent_tooltip = "Gains 2 Strength."
+effects = Array[ExtResource("3_60wtc")]([SubResource("Resource_tk301")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 1
+min_turn = 0
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_uoyfy"]
+script = ExtResource("8_dn3ta")
+card = ExtResource("7_48wva")
+pile = 2
+upgraded = false
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_0crvo"]
+script = ExtResource("2_8iov8")
+id = &"croak"
+display_name = "Croak"
+intent = 7
+intent_tooltip = "Shuffles a Muck into your discard pile."
+effects = Array[ExtResource("3_60wtc")]([SubResource("Resource_uoyfy")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_wpc5b"]
+script = ExtResource("1_gjxnq")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_8iov8")]([SubResource("Resource_0e2o6"), SubResource("Resource_su0bw"), SubResource("Resource_0crvo")])
+opening_moves = Array[ExtResource("2_8iov8")]([])
+on_enter_effects = Array[ExtResource("3_60wtc")]([])
+passive_triggers = Array[ExtResource("9_3ddl1")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_ufdhk"]
+script = ExtResource("11_5tf1a")
+status = ExtResource("12_ljy5b")
+stacks = 1
+
+[resource]
+script = ExtResource("10_5yrsd")
+id = &"mire_toad"
+display_name = "Mire Toad"
+tier = 0
+act = 1
+hp_min = 18
+hp_max = 22
+gimmick_text = "Toxic Burst: when it dies, it applies 3 Poison to you."
+starting_statuses = Array[ExtResource("11_5tf1a")]([SubResource("Resource_ufdhk")])
+phases = Array[ExtResource("1_gjxnq")]([SubResource("Resource_wpc5b")])
+gold_min = 10
+gold_max = 20
+has_intro_cinematic = false
+intro_title = ""

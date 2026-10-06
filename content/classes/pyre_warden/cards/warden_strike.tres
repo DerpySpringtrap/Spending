@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_mu72r"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_5piry"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_sy4ba"]
+
+[sub_resource type="Resource" id="Resource_v415j"]
+script = ExtResource("2_5piry")
+damage_type = 0
+amount = 6
+upgrade_delta = 3
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[resource]
+script = ExtResource("3_sy4ba")
+id = &"warden_strike"
+display_name = "Strike"
+description = "Deal {dmg} damage."
+card_pool = &"pyre_warden"
+type = 0
+rarity = 0
+target_mode = 1
+cost = 1
+effects = Array[ExtResource("1_mu72r")]([SubResource("Resource_v415j")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"strike"])
+on_discard_effects = Array[ExtResource("1_mu72r")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_mu72r")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_ywqdo"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_svch4"]
+[ext_resource type="Script" path="res://src/combat/effects/spend_class_resource_effect.gd" id="3_7p7f6"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_ksoe8"]
+
+[sub_resource type="Resource" id="Resource_5h1y8"]
+script = ExtResource("2_svch4")
+damage_type = 0
+amount = 14
+upgrade_delta = 4
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_65t6l"]
+script = ExtResource("2_svch4")
+damage_type = 0
+amount = 10
+upgrade_delta = 2
+times = 1
+target = 0
+value_key = &"bonus"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_k4idu"]
+script = ExtResource("3_7p7f6")
+spend_all = false
+bonus_effects = Array[ExtResource("1_ywqdo")]([SubResource("Resource_65t6l")])
+amount = 4
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"vent"
+scale = 0
+
+[resource]
+script = ExtResource("4_ksoe8")
+id = &"furnace_blow"
+display_name = "Furnace Blow"
+description = "Deal {dmg} damage.
+Vent {vent}: Deal {bonus} more damage."
+card_pool = &"pyre_warden"
+type = 0
+rarity = 1
+target_mode = 1
+cost = 2
+effects = Array[ExtResource("1_ywqdo")]([SubResource("Resource_5h1y8"), SubResource("Resource_k4idu")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"heat"])
+on_discard_effects = Array[ExtResource("1_ywqdo")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_ywqdo")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_vsv6e"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_tuaut"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_mfioh"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_6fuq3"]
+
+[sub_resource type="Resource" id="Resource_tp22u"]
+script = ExtResource("4_6fuq3")
+damage_type = 3
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_iwniw"]
+script = ExtResource("2_tuaut")
+timing = 2
+condition = 0
+effects = Array[ExtResource("3_mfioh")]([SubResource("Resource_tp22u")])
+amount_from_stacks = true
+every_nth = 1
+required_card_tag = &""
+
+[resource]
+script = ExtResource("1_vsv6e")
+id = &"poison"
+display_name = "Poison"
+description = "At the start of its turn, loses {stacks} HP (ignores Block), then Poison decreases by 1."
+kind = 1
+stack_mode = 0
+decay = 1
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_tuaut")]([SubResource("Resource_iwniw")])
+tint = Color(0.482353, 0.788235, 0.313726, 1)

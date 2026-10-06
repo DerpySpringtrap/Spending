@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_5q6c6"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_i2mn0"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="3_gueg8"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_cdjkr"]
+
+[sub_resource type="Resource" id="Resource_nxgtw"]
+script = ExtResource("2_i2mn0")
+amount = 7
+upgrade_delta = 3
+times = 1
+target = 1
+value_key = &"block"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_la7pm"]
+script = ExtResource("3_gueg8")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"heat"
+scale = 0
+
+[resource]
+script = ExtResource("4_cdjkr")
+id = &"smoldering_guard"
+display_name = "Smoldering Guard"
+description = "Gain {block} Block.
+Stoke {heat}."
+card_pool = &"pyre_warden"
+type = 1
+rarity = 0
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_5q6c6")]([SubResource("Resource_nxgtw"), SubResource("Resource_la7pm")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"heat"])
+on_discard_effects = Array[ExtResource("1_5q6c6")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_5q6c6")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

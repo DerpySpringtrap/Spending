@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_oj7p0"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_ql8f8"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_447ly"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="4_dx18y"]
+[ext_resource type="Resource" path="res://content/statuses/poison.tres" id="5_4500s"]
+
+[sub_resource type="Resource" id="Resource_tqntl"]
+script = ExtResource("4_dx18y")
+status = ExtResource("5_4500s")
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 2
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_yqe50"]
+script = ExtResource("2_ql8f8")
+timing = 21
+condition = 0
+effects = Array[ExtResource("3_447ly")]([SubResource("Resource_tqntl")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+
+[resource]
+script = ExtResource("1_oj7p0")
+id = &"toxic_burst"
+display_name = "Toxic Burst"
+description = "On death, applies 3 Poison to you."
+kind = 2
+stack_mode = 3
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_ql8f8")]([SubResource("Resource_yqe50")])
+tint = Color(0.482353, 0.788235, 0.313726, 1)

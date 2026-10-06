@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_mrctm"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_yxry2"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="3_50nda"]
+[ext_resource type="Resource" path="res://content/statuses/ember_shell.tres" id="4_rddjf"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="5_j3elk"]
+
+[sub_resource type="Resource" id="Resource_0eski"]
+script = ExtResource("2_yxry2")
+amount = 2
+upgrade_delta = 1
+times = 1
+target = 1
+value_key = &"block"
+scale = 2
+
+[sub_resource type="Resource" id="Resource_wwdpx"]
+script = ExtResource("3_50nda")
+status = ExtResource("4_rddjf")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("5_j3elk")
+id = &"molten_bastion"
+display_name = "Molten Bastion"
+description = "Gain {block} Block (2 per Heat).
+Your Block isn't removed at the start of your next turn."
+card_pool = &"pyre_warden"
+type = 1
+rarity = 3
+target_mode = 0
+cost = 2
+effects = Array[ExtResource("1_mrctm")]([SubResource("Resource_0eski"), SubResource("Resource_wwdpx")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"heat"])
+on_discard_effects = Array[ExtResource("1_mrctm")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_mrctm")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = "Gain {block} Block (3 per Heat).
+Your Block isn't removed at the start of your next turn."
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

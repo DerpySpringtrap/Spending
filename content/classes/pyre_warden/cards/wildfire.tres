@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_hem8b"]
+[ext_resource type="Script" path="res://src/combat/effects/spread_status_effect.gd" id="2_0xl1n"]
+[ext_resource type="Resource" path="res://content/statuses/burn.tres" id="3_v6t1l"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_asl4t"]
+
+[sub_resource type="Resource" id="Resource_212l0"]
+script = ExtResource("2_0xl1n")
+status = ExtResource("3_v6t1l")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_asl4t")
+id = &"wildfire"
+display_name = "Wildfire"
+description = "Every other enemy gains Burn equal to this enemy's Burn."
+card_pool = &"pyre_warden"
+type = 1
+rarity = 2
+target_mode = 1
+cost = 2
+effects = Array[ExtResource("1_hem8b")]([SubResource("Resource_212l0")])
+keywords = Array[StringName]([&"exhaust"])
+tags = Array[StringName]([&"burn"])
+on_discard_effects = Array[ExtResource("1_hem8b")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_hem8b")]([])
+can_upgrade = true
+upgraded_cost = 1
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

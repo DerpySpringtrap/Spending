@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_7vo50"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_btf2u"]
+[ext_resource type="Resource" path="res://content/statuses/burn.tres" id="3_n7c8p"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="4_skqdh"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="5_0cl02"]
+
+[sub_resource type="Resource" id="Resource_fdf1k"]
+script = ExtResource("2_btf2u")
+status = ExtResource("3_n7c8p")
+amount = 3
+upgrade_delta = 2
+times = 1
+target = 0
+value_key = &"burn"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_q11xp"]
+script = ExtResource("4_skqdh")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"heat"
+scale = 0
+
+[resource]
+script = ExtResource("5_0cl02")
+id = &"brand"
+display_name = "Brand"
+description = "Apply {burn} Burn.
+Stoke {heat}."
+card_pool = &"pyre_warden"
+type = 1
+rarity = 1
+target_mode = 1
+cost = 0
+effects = Array[ExtResource("1_7vo50")]([SubResource("Resource_fdf1k"), SubResource("Resource_q11xp")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"burn", &"heat"])
+on_discard_effects = Array[ExtResource("1_7vo50")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_7vo50")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

@@ -1,0 +1,106 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_rpwvx"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_injli"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_qwmxw"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_5amwy"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="5_510p4"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="6_t1pgj"]
+[ext_resource type="Resource" path="res://content/statuses/thorns.tres" id="7_os1m5"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_4d1bg"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_kn5ul"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_kaxv7"]
+
+[sub_resource type="Resource" id="Resource_swc87"]
+script = ExtResource("4_5amwy")
+damage_type = 0
+amount = 9
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_44kmx"]
+script = ExtResource("2_injli")
+id = &"ram"
+display_name = "Ram"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_qwmxw")]([SubResource("Resource_swc87")])
+weight = 1.5
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_rxdpo"]
+script = ExtResource("5_510p4")
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ihswt"]
+script = ExtResource("6_t1pgj")
+status = ExtResource("7_os1m5")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ukb6v"]
+script = ExtResource("2_injli")
+id = &"harden"
+display_name = "Harden"
+intent = 5
+intent_tooltip = "Gains Block and 1 Thorns."
+effects = Array[ExtResource("3_qwmxw")]([SubResource("Resource_rxdpo"), SubResource("Resource_ihswt")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_425ka"]
+script = ExtResource("1_rpwvx")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_injli")]([SubResource("Resource_44kmx"), SubResource("Resource_ukb6v")])
+opening_moves = Array[ExtResource("2_injli")]([])
+on_enter_effects = Array[ExtResource("3_qwmxw")]([])
+passive_triggers = Array[ExtResource("8_4d1bg")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_55c2p"]
+script = ExtResource("10_kaxv7")
+status = ExtResource("7_os1m5")
+stacks = 3
+
+[resource]
+script = ExtResource("9_kn5ul")
+id = &"thornback_beetle"
+display_name = "Thornback Beetle"
+tier = 0
+act = 1
+hp_min = 28
+hp_max = 32
+gimmick_text = "Starts with 3 Thorns. Multi-hit attacks hurt you more than it."
+starting_statuses = Array[ExtResource("10_kaxv7")]([SubResource("Resource_55c2p")])
+phases = Array[ExtResource("1_rpwvx")]([SubResource("Resource_425ka")])
+gold_min = 10
+gold_max = 20
+has_intro_cinematic = false
+intro_title = ""

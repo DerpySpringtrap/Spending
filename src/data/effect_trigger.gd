@@ -46,7 +46,16 @@ enum Timing {
 	MAP_NODE_ENTERED,
 }
 
+## Extra condition evaluated when the event happens (not when the queued
+## reaction later resolves).
+enum Condition {
+	NONE,
+	HIT_WHILE_BLOCKING, ## ATTACKED only: the owner had Block when hit.
+	UNBLOCKED_HIT,      ## ATTACKED only: the hit dealt HP damage.
+}
+
 @export var timing: Timing = Timing.TURN_START
+@export var condition: Condition = Condition.NONE
 @export var effects: Array[GameEffect] = []
 ## When true, effect amounts are replaced by the owner's current stack count
 ## (Poison: lose HP equal to stacks; Thorns: deal damage equal to stacks).

@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_7ti3n"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_bqg5h"]
+[ext_resource type="Resource" path="res://content/statuses/eternal_pyre.tres" id="3_tqkpy"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_sd3p3"]
+
+[sub_resource type="Resource" id="Resource_2je3j"]
+script = ExtResource("2_bqg5h")
+status = ExtResource("3_tqkpy")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_sd3p3")
+id = &"eternal_pyre"
+display_name = "Eternal Pyre"
+description = "Overheating no longer costs HP, and Heat resets to 5 instead of 0."
+card_pool = &"pyre_warden"
+type = 2
+rarity = 3
+target_mode = 0
+cost = 3
+effects = Array[ExtResource("1_7ti3n")]([SubResource("Resource_2je3j")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"heat"])
+on_discard_effects = Array[ExtResource("1_7ti3n")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_7ti3n")]([])
+can_upgrade = true
+upgraded_cost = 2
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = true

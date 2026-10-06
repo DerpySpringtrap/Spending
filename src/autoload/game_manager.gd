@@ -61,6 +61,15 @@ func continue_run() -> void:
 		go_to_screen(&"main_menu")
 
 
+## Milestone 1 shortcut until the map exists: start (or continue) a run and
+## jump straight into a random Act 1 fight.
+func start_debug_combat(class_id: StringName = &"pyre_warden") -> void:
+	if not RunState.active:
+		RunState.start(ContentDB.get_character_class(class_id), 0, randi())
+	pending_encounter = null
+	go_to_screen(&"combat")
+
+
 func start_combat(encounter: EncounterData) -> void:
 	pending_encounter = encounter
 	go_to_screen(&"combat")

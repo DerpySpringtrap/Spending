@@ -22,6 +22,16 @@ enum Target {
 	EVERYONE,
 }
 
+## Optional multiplier source: the final amount is amount × this value.
+## Used for "Deal 4 damage per Heat", X-cost cards, "per card in Erased pile"...
+enum Scale {
+	NONE,
+	X,               ## Energy spent on an X card, or resource spent by a Vent/Inscribe/Graft.
+	CLASS_RESOURCE,  ## Current class resource value (without spending it).
+	EXHAUST_PILE,    ## Cards in the exhaust (Erased) pile.
+	HAND_SIZE,       ## Cards in hand.
+}
+
 ## Base magnitude (damage, block, stacks, cards drawn...).
 @export var amount: int = 0
 ## Added to [member amount] when the owning card is upgraded.
@@ -33,23 +43,31 @@ enum Target {
 ## "Deal {dmg} damage." looks up the effect whose value_key is &"dmg" and shows
 ## its live, stat-modified preview value.
 @export var value_key: StringName = &""
+@export var scale: Scale = Scale.NONE
 
 
 func get_amount(upgraded: bool) -> int:
 	return amount + (upgrade_delta if upgraded else 0)
 
 
-## Applies the effect. [param ctx] is an EffectContext (Milestone 1) carrying
-## the combat state, source, chosen target, owning card and any amount override
-## (status triggers pass their stack count through it).
-func execute(_ctx) -> void:
-	push_error("%s does not implement execute()" % resource_path)
+## Applies the effect. [param ctx] carries the combat state, source, chosen
+## target, owning card and any amount override (status triggers pass their
+## stack count through it). Use [method EffectContext.amount_for] to read the
+## final amount so upgrades, scaling and overrides are respected.
+func execute(_ctx: EffectContext) -> void:
+	push_error("%s does not implement execute()" % get_script().resource_path)
 
 
 ## Value shown on the card face / intent icon after modifiers (Strength, Weak,
-## Vulnerable on the hovered target...). Defaults to the raw amount.
-func preview_amount(_ctx, upgraded: bool) -> int:
-	return get_amount(upgraded)
+## Vulnerable on the hovered target...). Defaults to the scaled amount.
+func preview_amount(ctx: EffectContext) -> int:
+	return ctx.amount_for(self)
+
+
+## Nested effects (e.g. the bonus of a Vent clause), so card text and tooling
+## can find their value_keys.
+func get_sub_effects() -> Array[GameEffect]:
+	return []
 
 
 ## Short human-readable summary used by tooling and debug overlays.

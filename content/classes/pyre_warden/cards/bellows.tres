@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_o7i6x"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="2_jft4x"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="3_6pbxu"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_c6yos"]
+
+[sub_resource type="Resource" id="Resource_n2cn7"]
+script = ExtResource("2_jft4x")
+amount = 4
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"heat"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_uin4n"]
+script = ExtResource("3_6pbxu")
+amount = 1
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"draw"
+scale = 0
+
+[resource]
+script = ExtResource("4_c6yos")
+id = &"bellows"
+display_name = "Bellows"
+description = "Stoke {heat}.
+Draw {draw} card."
+card_pool = &"pyre_warden"
+type = 1
+rarity = 2
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_o7i6x")]([SubResource("Resource_n2cn7"), SubResource("Resource_uin4n")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"heat"])
+on_discard_effects = Array[ExtResource("1_o7i6x")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_o7i6x")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = "Stoke {heat}.
+Draw {draw} cards."
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false

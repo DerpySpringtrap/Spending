@@ -68,6 +68,7 @@ signal attack_started(attacker, targets: Array)  ## Lunge / wind-up cue.
 signal damage_dealt(info)
 signal block_gained(combatant, amount: int, block_after: int)
 signal block_broken(combatant)
+signal block_cleared(combatant)  ## Block expired at the start of its owner's turn.
 signal healed(combatant, amount: int, hp_after: int)
 signal max_hp_changed(combatant, old_value: int, new_value: int)
 signal status_applied(combatant, status: StatusEffectData, delta: int, stacks_after: int)

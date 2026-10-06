@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_io8ws"]
+[ext_resource type="Resource" path="res://content/enemies/act1/mire_toad.tres" id="2_w0cxq"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="3_hgknh"]
+
+[resource]
+script = ExtResource("3_hgknh")
+id = &"a1_two_toads"
+act = 1
+pool = 0
+enemies = Array[ExtResource("1_io8ws")]([ExtResource("2_w0cxq"), ExtResource("2_w0cxq")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

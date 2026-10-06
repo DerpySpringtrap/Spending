@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_gqqm6"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_d3pp6"]
+[ext_resource type="Resource" path="res://content/statuses/searing_aegis.tres" id="3_2w0bb"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_7skwl"]
+
+[sub_resource type="Resource" id="Resource_2pis0"]
+script = ExtResource("2_d3pp6")
+status = ExtResource("3_2w0bb")
+amount = 2
+upgrade_delta = 1
+times = 1
+target = 1
+value_key = &"burn"
+scale = 0
+
+[resource]
+script = ExtResource("4_7skwl")
+id = &"searing_aegis"
+display_name = "Searing Aegis"
+description = "Whenever you are attacked while you have Block, apply {burn} Burn to the attacker."
+card_pool = &"pyre_warden"
+type = 2
+rarity = 2
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_gqqm6")]([SubResource("Resource_2pis0")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"burn"])
+on_discard_effects = Array[ExtResource("1_gqqm6")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_gqqm6")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = true

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_3snei"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_vb35c"]
+
+[resource]
+script = ExtResource("1_3snei")
+id = &"ember_shell"
+display_name = "Ember Shell"
+description = "Block is not removed at the start of your next turn."
+kind = 0
+stack_mode = 1
+decay = 1
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = true
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_vb35c")]([])
+tint = Color(0.909804, 0.411765, 0.172549, 1)

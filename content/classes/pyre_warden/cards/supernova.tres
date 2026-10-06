@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_v3ean"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_s4tnu"]
+[ext_resource type="Script" path="res://src/combat/effects/spend_class_resource_effect.gd" id="3_aattj"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_ueame"]
+
+[sub_resource type="Resource" id="Resource_q7m0b"]
+script = ExtResource("2_s4tnu")
+damage_type = 0
+amount = 4
+upgrade_delta = 1
+times = 1
+target = 2
+value_key = &"dmg"
+scale = 1
+
+[sub_resource type="Resource" id="Resource_lgv6r"]
+script = ExtResource("3_aattj")
+spend_all = true
+bonus_effects = Array[ExtResource("1_v3ean")]([SubResource("Resource_q7m0b")])
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_ueame")
+id = &"supernova"
+display_name = "Supernova"
+description = "Vent ALL Heat.
+Deal {dmg} damage to ALL enemies (4 per Heat)."
+card_pool = &"pyre_warden"
+type = 0
+rarity = 3
+target_mode = 2
+cost = 2
+effects = Array[ExtResource("1_v3ean")]([SubResource("Resource_lgv6r")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"heat"])
+on_discard_effects = Array[ExtResource("1_v3ean")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_v3ean")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = "Vent ALL Heat.
+Deal {dmg} damage to ALL enemies (5 per Heat)."
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = true

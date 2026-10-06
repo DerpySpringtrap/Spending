@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_mpdm1"]
+[ext_resource type="Resource" path="res://content/enemies/act1/mire_toad.tres" id="2_r8trn"]
+[ext_resource type="Resource" path="res://content/enemies/act1/thornback_beetle.tres" id="3_3a82u"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_m4fwg"]
+
+[resource]
+script = ExtResource("4_m4fwg")
+id = &"a1_toad_and_beetle"
+act = 1
+pool = 1
+enemies = Array[ExtResource("1_mpdm1")]([ExtResource("2_r8trn"), ExtResource("3_3a82u")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

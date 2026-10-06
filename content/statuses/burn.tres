@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_0pxka"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_yqd4v"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_s71uq"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_vivis"]
+
+[sub_resource type="Resource" id="Resource_ork2t"]
+script = ExtResource("4_vivis")
+damage_type = 2
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_e2lm2"]
+script = ExtResource("2_yqd4v")
+timing = 4
+condition = 0
+effects = Array[ExtResource("3_s71uq")]([SubResource("Resource_ork2t")])
+amount_from_stacks = true
+every_nth = 1
+required_card_tag = &""
+
+[resource]
+script = ExtResource("1_0pxka")
+id = &"burn"
+display_name = "Burn"
+description = "At the end of its turn, takes {stacks} damage, then Burn is halved."
+kind = 1
+stack_mode = 0
+decay = 4
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_yqd4v")]([SubResource("Resource_e2lm2")])
+tint = Color(0.941176, 0.478431, 0.164706, 1)

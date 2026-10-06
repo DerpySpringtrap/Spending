@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ClassResourceData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_g7v5v"]
+[ext_resource type="Resource" path="res://content/statuses/eternal_pyre.tres" id="2_pq16u"]
+[ext_resource type="Script" path="res://src/combat/effects/overheat_effect.gd" id="3_wt5o2"]
+[ext_resource type="Script" path="res://src/data/class_resource_data.gd" id="4_l0x53"]
+
+[sub_resource type="Resource" id="Resource_pucbl"]
+script = ExtResource("3_wt5o2")
+blast_damage = 12
+self_damage = 3
+reset_to = 0
+mastery_status = ExtResource("2_pq16u")
+mastery_reset_to = 5
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_l0x53")
+id = &"heat"
+display_name = "Heat"
+description = "Stoke to gain Heat; Vent to spend it for bonuses. End your turn at 10 Heat to Overheat: deal 12 damage to ALL enemies, lose 3 HP, and reset Heat to 0."
+color = Color(0.909804, 0.411765, 0.172549, 1)
+max_value = 10
+starting_value = 0
+persists_between_turns = true
+on_reach_max_effects = Array[ExtResource("1_g7v5v")]([SubResource("Resource_pucbl")])
+max_triggers_at_turn_end = true
