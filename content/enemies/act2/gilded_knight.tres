@@ -1,0 +1,136 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_jwldg"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_u4b07"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_oio4v"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_mb00g"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_5igsq"]
+[ext_resource type="Resource" path="res://content/statuses/en_garde.tres" id="6_j561h"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="7_80jd3"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_8iiti"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_6ede4"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_0q4qu"]
+[ext_resource type="Resource" path="res://content/statuses/gilded_plate.tres" id="11_rm3vg"]
+
+[sub_resource type="Resource" id="Resource_jwldg"]
+script = ExtResource("4_mb00g")
+damage_type = 0
+amount = 17
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_u4b07"]
+script = ExtResource("2_u4b07")
+id = &"cleave"
+display_name = "Cleave"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_oio4v")]([SubResource("Resource_jwldg")])
+weight = 2.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_oio4v"]
+script = ExtResource("5_5igsq")
+status = ExtResource("6_j561h")
+amount = 5
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_mb00g"]
+script = ExtResource("2_u4b07")
+id = &"en_garde"
+display_name = "En Garde"
+intent = 6
+intent_tooltip = "Until its next turn, deals 5 damage back to each attacker."
+effects = Array[ExtResource("3_oio4v")]([SubResource("Resource_oio4v")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 2
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_5igsq"]
+script = ExtResource("4_mb00g")
+damage_type = 0
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_j561h"]
+script = ExtResource("7_80jd3")
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_80jd3"]
+script = ExtResource("2_u4b07")
+id = &"shield_bash"
+display_name = "Shield Bash"
+intent = 1
+intent_tooltip = "Attacks for {dmg} and gains 10 Block."
+effects = Array[ExtResource("3_oio4v")]([SubResource("Resource_5igsq"), SubResource("Resource_j561h")])
+weight = 1.5
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_8iiti"]
+script = ExtResource("1_jwldg")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_u4b07")]([SubResource("Resource_u4b07"), SubResource("Resource_mb00g"), SubResource("Resource_80jd3")])
+opening_moves = Array[ExtResource("2_u4b07")]([])
+on_enter_effects = Array[ExtResource("3_oio4v")]([])
+passive_triggers = Array[ExtResource("8_8iiti")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_6ede4"]
+script = ExtResource("10_0q4qu")
+status = ExtResource("11_rm3vg")
+stacks = 8
+
+[resource]
+script = ExtResource("9_6ede4")
+id = &"gilded_knight"
+display_name = "The Gilded Knight"
+tier = 1
+act = 2
+hp_min = 110
+hp_max = 116
+gimmick_text = "Gilded Plate: gains Block every turn, but each hit that wounds it strips a layer. Multi-hit attacks shine here."
+starting_statuses = Array[ExtResource("10_0q4qu")]([SubResource("Resource_6ede4")])
+phases = Array[ExtResource("1_jwldg")]([SubResource("Resource_8iiti")])
+gold_min = 30
+gold_max = 40
+has_intro_cinematic = false
+intro_title = ""

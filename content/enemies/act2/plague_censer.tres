@@ -1,0 +1,137 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_fuvtu"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_s47iy"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_k1jhw"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_x01cg"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_0lg33"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="6_ghowf"]
+[ext_resource type="Resource" path="res://content/statuses/frail.tres" id="7_off6m"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_4q0e1"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_hcx08"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_arp37"]
+[ext_resource type="Resource" path="res://content/statuses/incense.tres" id="11_cw64k"]
+
+[sub_resource type="Resource" id="Resource_fuvtu"]
+script = ExtResource("4_x01cg")
+damage_type = 0
+amount = 13
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_s47iy"]
+script = ExtResource("2_s47iy")
+id = &"swing"
+display_name = "Swing"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_k1jhw")]([SubResource("Resource_fuvtu")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_k1jhw"]
+script = ExtResource("5_0lg33")
+status = ExtResource("6_ghowf")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_x01cg"]
+script = ExtResource("5_0lg33")
+status = ExtResource("7_off6m")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_0lg33"]
+script = ExtResource("2_s47iy")
+id = &"fumigate"
+display_name = "Fumigate"
+intent = 8
+intent_tooltip = "Applies 2 Weak and 2 Frail."
+effects = Array[ExtResource("3_k1jhw")]([SubResource("Resource_k1jhw"), SubResource("Resource_x01cg")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_ghowf"]
+script = ExtResource("4_x01cg")
+damage_type = 0
+amount = 21
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_off6m"]
+script = ExtResource("2_s47iy")
+id = &"censer_smash"
+display_name = "Censer Smash"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_k1jhw")]([SubResource("Resource_ghowf")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_4q0e1"]
+script = ExtResource("1_fuvtu")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 0
+moves = Array[ExtResource("2_s47iy")]([SubResource("Resource_s47iy"), SubResource("Resource_0lg33"), SubResource("Resource_off6m")])
+opening_moves = Array[ExtResource("2_s47iy")]([])
+on_enter_effects = Array[ExtResource("3_k1jhw")]([])
+passive_triggers = Array[ExtResource("8_4q0e1")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_hcx08"]
+script = ExtResource("10_arp37")
+status = ExtResource("11_cw64k")
+stacks = 1
+
+[resource]
+script = ExtResource("9_hcx08")
+id = &"plague_censer"
+display_name = "Plague Censer"
+tier = 1
+act = 2
+hp_min = 95
+hp_max = 100
+gimmick_text = "Incense: every 2nd card you play poisons you. Big, slow turns are punished."
+starting_statuses = Array[ExtResource("10_arp37")]([SubResource("Resource_hcx08")])
+phases = Array[ExtResource("1_fuvtu")]([SubResource("Resource_4q0e1")])
+gold_min = 30
+gold_max = 40
+has_intro_cinematic = false
+intro_title = ""

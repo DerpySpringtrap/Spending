@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_yx4wn"]
+[ext_resource type="Resource" path="res://content/enemies/act2/gilded_hierophant.tres" id="2_cquja"]
+[ext_resource type="Resource" path="res://content/enemies/act2/gold_idol.tres" id="3_mgib0"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_5a8u1"]
+
+[resource]
+script = ExtResource("4_5a8u1")
+id = &"a2_gilded_hierophant"
+act = 2
+pool = 3
+enemies = Array[ExtResource("1_yx4wn")]([ExtResource("2_cquja"), ExtResource("3_mgib0"), ExtResource("3_mgib0")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

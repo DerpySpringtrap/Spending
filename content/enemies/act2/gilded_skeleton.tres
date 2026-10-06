@@ -1,0 +1,136 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_p2ia7"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_27fn5"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_ht841"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_61xsv"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="5_p5oiu"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="6_bwr38"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="7_3e8tw"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_q7g71"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_3af61"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_g20f5"]
+[ext_resource type="Resource" path="res://content/statuses/reassemble.tres" id="11_etgmq"]
+
+[sub_resource type="Resource" id="Resource_p2ia7"]
+script = ExtResource("4_61xsv")
+damage_type = 0
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_27fn5"]
+script = ExtResource("2_27fn5")
+id = &"bone_slash"
+display_name = "Bone Slash"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_ht841")]([SubResource("Resource_p2ia7")])
+weight = 2.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_ht841"]
+script = ExtResource("5_p5oiu")
+amount = 12
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_61xsv"]
+script = ExtResource("2_27fn5")
+id = &"shield_up"
+display_name = "Shield Up"
+intent = 4
+intent_tooltip = "Gains 12 Block."
+effects = Array[ExtResource("3_ht841")]([SubResource("Resource_ht841")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_p5oiu"]
+script = ExtResource("4_61xsv")
+damage_type = 0
+amount = 6
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_bwr38"]
+script = ExtResource("6_bwr38")
+status = ExtResource("7_3e8tw")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_3e8tw"]
+script = ExtResource("2_27fn5")
+id = &"rattle"
+display_name = "Rattle"
+intent = 3
+intent_tooltip = "Attacks for {dmg} and applies 1 Weak."
+effects = Array[ExtResource("3_ht841")]([SubResource("Resource_p5oiu"), SubResource("Resource_bwr38")])
+weight = 1.2
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_q7g71"]
+script = ExtResource("1_p2ia7")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_27fn5")]([SubResource("Resource_27fn5"), SubResource("Resource_61xsv"), SubResource("Resource_3e8tw")])
+opening_moves = Array[ExtResource("2_27fn5")]([])
+on_enter_effects = Array[ExtResource("3_ht841")]([])
+passive_triggers = Array[ExtResource("8_q7g71")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_3af61"]
+script = ExtResource("10_g20f5")
+status = ExtResource("11_etgmq")
+stacks = 1
+
+[resource]
+script = ExtResource("9_3af61")
+id = &"gilded_skeleton"
+display_name = "Gilded Skeleton"
+tier = 0
+act = 2
+hp_min = 34
+hp_max = 38
+gimmick_text = "Reassemble: the first time it falls while an ally stands, it rises again at half HP."
+starting_statuses = Array[ExtResource("10_g20f5")]([SubResource("Resource_3af61")])
+phases = Array[ExtResource("1_p2ia7")]([SubResource("Resource_q7g71")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

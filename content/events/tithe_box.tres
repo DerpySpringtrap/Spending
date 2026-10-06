@@ -1,0 +1,72 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_i3kyc"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_k1184"]
+[ext_resource type="Resource" path="res://content/cards/curses/guilt.tres" id="3_3om1q"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="4_axukg"]
+
+[sub_resource type="Resource" id="Resource_i3kyc"]
+script = ExtResource("2_k1184")
+type = 1
+amount = 60
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_k1184"]
+script = ExtResource("2_k1184")
+type = 11
+amount = 0
+percent = false
+rarity = 1
+relic_rarity = 2
+
+[sub_resource type="Resource" id="Resource_3om1q"]
+script = ExtResource("1_i3kyc")
+text = "Give 60 gold"
+result_text = "The box hums. A small relic drops into your palm."
+outcomes = Array[ExtResource("2_k1184")]([SubResource("Resource_i3kyc"), SubResource("Resource_k1184")])
+min_gold = 60
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_axukg"]
+script = ExtResource("2_k1184")
+type = 0
+amount = 90
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_0wtak"]
+script = ExtResource("2_k1184")
+type = 6
+amount = 0
+percent = false
+card = ExtResource("3_3om1q")
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_4a77x"]
+script = ExtResource("1_i3kyc")
+text = "Pry it open"
+result_text = "Coins spill out. Somewhere, a bell tolls for you alone."
+outcomes = Array[ExtResource("2_k1184")]([SubResource("Resource_axukg"), SubResource("Resource_0wtak")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_72qxc"]
+script = ExtResource("1_i3kyc")
+text = "Leave it be"
+result_text = "You walk on, lighter in conscience than in purse."
+outcomes = Array[ExtResource("2_k1184")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("4_axukg")
+id = &"tithe_box"
+title = "The Tithe Box"
+description = "A gilded offering box sits in an alcove, heavy with coins. An inscription reads: GIVE, AND BE GIVEN."
+act = 2
+glyph = &"coin"
+choices = Array[ExtResource("1_i3kyc")]([SubResource("Resource_3om1q"), SubResource("Resource_4a77x"), SubResource("Resource_72qxc")])

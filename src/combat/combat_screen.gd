@@ -107,6 +107,7 @@ func _start_fight() -> void:
 	_encounter = enc
 	combat = CombatState.create(RunState.get_class_data(), RunState.deck, RunState.hp, RunState.max_hp,
 			RunState.relics, enc, RunState.ascension, RunState.rng)
+	combat.player_gold = RunState.gold
 	_top_bar.refresh()
 	_top_bar.set_location("Act %d · %s" % [RunState.act, String(EncounterData.Pool.keys()[enc.pool]).capitalize()])
 	_gauge.setup(combat.player.get_resource_data(), 0)
@@ -225,6 +226,8 @@ func _connect_bus() -> void:
 	_listen(EventBus.combat_ended, _on_combat_ended)
 	_listen(EventBus.combatant_spawned, _on_combatant_spawned)
 	_listen(EventBus.stance_changed, _on_stance_changed)
+	_listen(EventBus.gold_stolen, _on_gold_stolen)
+	_listen(EventBus.combatant_escaped, _on_combatant_escaped)
 
 
 func _on_combatant_spawned(c: Combatant) -> void:
@@ -274,6 +277,34 @@ func _on_stance_changed(_old: StringName, new_stance: StringName) -> void:
 				_banner.show_banner("Eclipse", status.tint.lightened(0.3), 0.3)
 				_fx.shake(8)
 		_fx.burst(view.hit_point(), status.tint, 22 if new_stance != &"eclipse" else 50, 260, -120, 180.0, 1.0))
+
+
+## Gold changes hands right away (so a save mid-fight can't dupe it); the
+## beat only shows it.
+func _on_gold_stolen(enemy: Combatant, amount: int) -> void:
+	RunState.add_gold(-amount)
+	queue.push(&"gold", enemy.id, 0.3, func():
+		AudioManager.play(&"gold")
+		_top_bar.refresh()
+		var view := _view(enemy)
+		if view == null:
+			return
+		var at := view.head_point() if amount > 0 else _view(combat.player).head_point()
+		_fx.number(at, ("-%d gold" if amount > 0 else "+%d gold") % absi(amount), UIStyle.GOLD)
+		_fx.burst(view.hit_point(), UIStyle.GOLD, 18, 260, 300))
+
+
+func _on_combatant_escaped(enemy: Combatant) -> void:
+	queue.push(&"escape", enemy.id, 0.6, func():
+		var view := _view(enemy)
+		if view == null:
+			return
+		AudioManager.play(&"ui_back")
+		_fx.number(view.head_point(), "Fled!", UIStyle.TEXT_DIM)
+		var t := view.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		t.tween_property(view, "position:x", view.position.x + 700, UIStyle.dur(0.6))
+		t.tween_property(view, "modulate:a", 0.0, UIStyle.dur(0.5))
+		t.chain().tween_callback(func(): view.reparent(_graveyard())))
 
 
 func _on_energy_changed(current: int, max_energy: int) -> void:

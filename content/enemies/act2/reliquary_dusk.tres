@@ -1,0 +1,97 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_uguj6"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_drp0l"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_0kohp"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_qwiee"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="5_51pca"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="6_vu5ic"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="7_2jas4"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="8_3165x"]
+[ext_resource type="Resource" path="res://content/statuses/soul_link.tres" id="9_vlfsh"]
+
+[sub_resource type="Resource" id="Resource_uguj6"]
+script = ExtResource("4_qwiee")
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_drp0l"]
+script = ExtResource("2_drp0l")
+id = &"ward"
+display_name = "Ward"
+intent = 4
+intent_tooltip = "Every enemy gains 10 Block."
+effects = Array[ExtResource("3_0kohp")]([SubResource("Resource_uguj6")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_0kohp"]
+script = ExtResource("5_51pca")
+damage_type = 0
+amount = 13
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_qwiee"]
+script = ExtResource("2_drp0l")
+id = &"smite"
+display_name = "Smite"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_0kohp")]([SubResource("Resource_0kohp")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_51pca"]
+script = ExtResource("1_uguj6")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 0
+moves = Array[ExtResource("2_drp0l")]([SubResource("Resource_drp0l"), SubResource("Resource_qwiee")])
+opening_moves = Array[ExtResource("2_drp0l")]([])
+on_enter_effects = Array[ExtResource("3_0kohp")]([])
+passive_triggers = Array[ExtResource("6_vu5ic")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_vu5ic"]
+script = ExtResource("8_3165x")
+status = ExtResource("9_vlfsh")
+stacks = 25
+
+[resource]
+script = ExtResource("7_2jas4")
+id = &"reliquary_dusk"
+display_name = "Reliquary of Dusk"
+tier = 1
+act = 2
+hp_min = 55
+hp_max = 55
+gimmick_text = "Soul Link: when one Reliquary dies, the other heals and grows stronger. Kill them close together."
+starting_statuses = Array[ExtResource("8_3165x")]([SubResource("Resource_vu5ic")])
+phases = Array[ExtResource("1_uguj6")]([SubResource("Resource_51pca")])
+gold_min = 30
+gold_max = 40
+has_intro_cinematic = false
+intro_title = ""

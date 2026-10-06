@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_won18"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_2n1qf"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_2qa6e"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="4_jgfun"]
+[ext_resource type="Resource" path="res://content/statuses/poison.tres" id="5_bb3y8"]
+
+[sub_resource type="Resource" id="Resource_won18"]
+script = ExtResource("4_jgfun")
+status = ExtResource("5_bb3y8")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 2
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_2n1qf"]
+script = ExtResource("2_2n1qf")
+timing = 6
+condition = 0
+effects = Array[ExtResource("3_2qa6e")]([SubResource("Resource_won18")])
+amount_from_stacks = true
+every_nth = 2
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+
+[resource]
+script = ExtResource("1_won18")
+id = &"incense"
+display_name = "Incense"
+description = "Every 2nd card you play, you gain {stacks} Poison."
+kind = 2
+stack_mode = 0
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+revive_hp_percent = 0.0
+lose_stack_on_hp_lost = false
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_2n1qf")]([SubResource("Resource_2n1qf")])
+tint = Color(0.611765, 0.796078, 0.415686, 1)

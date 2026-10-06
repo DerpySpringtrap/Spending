@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_ctr7a"]
+[ext_resource type="Resource" path="res://content/enemies/act2/gilded_skeleton.tres" id="2_85awl"]
+[ext_resource type="Resource" path="res://content/enemies/act2/candle_acolyte.tres" id="3_vrs6s"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_d7o5i"]
+
+[resource]
+script = ExtResource("4_d7o5i")
+id = &"a2_skeleton"
+act = 2
+pool = 0
+enemies = Array[ExtResource("1_ctr7a")]([ExtResource("2_85awl"), ExtResource("3_vrs6s")])
+weight = 0.8
+exclusive_with = Array[StringName]([])

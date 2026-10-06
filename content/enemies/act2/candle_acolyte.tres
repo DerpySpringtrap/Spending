@@ -1,0 +1,121 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_6u6ls"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_rasfu"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_j7pbl"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="4_f381g"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="5_6cvp8"]
+[ext_resource type="Resource" path="res://content/statuses/frail.tres" id="6_y87im"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="7_silxw"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_0qhml"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_g06qc"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_to5ns"]
+
+[sub_resource type="Resource" id="Resource_6u6ls"]
+script = ExtResource("4_f381g")
+status = ExtResource("5_6cvp8")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_rasfu"]
+script = ExtResource("2_rasfu")
+id = &"chant"
+display_name = "Chant"
+intent = 6
+intent_tooltip = "Every enemy gains 2 Strength."
+effects = Array[ExtResource("3_j7pbl")]([SubResource("Resource_6u6ls")])
+weight = 1.5
+max_consecutive = 1
+cooldown = 2
+min_turn = 2
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_j7pbl"]
+script = ExtResource("4_f381g")
+status = ExtResource("6_y87im")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_f381g"]
+script = ExtResource("2_rasfu")
+id = &"wax_seal"
+display_name = "Wax Seal"
+intent = 7
+intent_tooltip = "Applies 2 Frail."
+effects = Array[ExtResource("3_j7pbl")]([SubResource("Resource_j7pbl")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_6cvp8"]
+script = ExtResource("7_silxw")
+damage_type = 0
+amount = 7
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_y87im"]
+script = ExtResource("2_rasfu")
+id = &"flame"
+display_name = "Flame"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_j7pbl")]([SubResource("Resource_6cvp8")])
+weight = 2.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_silxw"]
+script = ExtResource("1_6u6ls")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_rasfu")]([SubResource("Resource_rasfu"), SubResource("Resource_f381g"), SubResource("Resource_y87im")])
+opening_moves = Array[ExtResource("2_rasfu")]([])
+on_enter_effects = Array[ExtResource("3_j7pbl")]([])
+passive_triggers = Array[ExtResource("8_0qhml")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("9_g06qc")
+id = &"candle_acolyte"
+display_name = "Candle Acolyte"
+tier = 0
+act = 2
+hp_min = 22
+hp_max = 26
+gimmick_text = "A force multiplier: its Chant strengthens every enemy. Kill it first."
+starting_statuses = Array[ExtResource("10_to5ns")]([])
+phases = Array[ExtResource("1_6u6ls")]([SubResource("Resource_silxw")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

@@ -1,0 +1,164 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_7m8ve"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_euwyd"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_3cu0u"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_hw5fa"]
+[ext_resource type="Script" path="res://src/combat/effects/steal_gold_effect.gd" id="5_repwv"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="6_tvsj4"]
+[ext_resource type="Script" path="res://src/combat/effects/escape_effect.gd" id="7_n0e6k"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_152sp"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_k0230"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_q878d"]
+
+[sub_resource type="Resource" id="Resource_7m8ve"]
+script = ExtResource("4_hw5fa")
+damage_type = 0
+amount = 8
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_euwyd"]
+script = ExtResource("5_repwv")
+amount = 15
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_3cu0u"]
+script = ExtResource("2_euwyd")
+id = &"pilfer"
+display_name = "Pilfer"
+intent = 3
+intent_tooltip = "Attacks for {dmg} and steals 15 gold."
+effects = Array[ExtResource("3_3cu0u")]([SubResource("Resource_7m8ve"), SubResource("Resource_euwyd")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_hw5fa"]
+script = ExtResource("6_tvsj4")
+amount = 14
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_repwv"]
+script = ExtResource("2_euwyd")
+id = &"hunker"
+display_name = "Hunker"
+intent = 4
+intent_tooltip = "Gains 14 Block."
+effects = Array[ExtResource("3_3cu0u")]([SubResource("Resource_hw5fa")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_tvsj4"]
+script = ExtResource("4_hw5fa")
+damage_type = 0
+amount = 8
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_n0e6k"]
+script = ExtResource("5_repwv")
+amount = 15
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_152sp"]
+script = ExtResource("2_euwyd")
+id = &"pilfer"
+display_name = "Pilfer"
+intent = 3
+intent_tooltip = "Attacks for {dmg} and steals 15 gold."
+effects = Array[ExtResource("3_3cu0u")]([SubResource("Resource_tvsj4"), SubResource("Resource_n0e6k")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_k0230"]
+script = ExtResource("7_n0e6k")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_q878d"]
+script = ExtResource("2_euwyd")
+id = &"flee"
+display_name = "Flee"
+intent = 11
+intent_tooltip = "Escapes with your gold!"
+effects = Array[ExtResource("3_3cu0u")]([SubResource("Resource_k0230")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_jxc0x"]
+script = ExtResource("1_7m8ve")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 0
+moves = Array[ExtResource("2_euwyd")]([SubResource("Resource_3cu0u"), SubResource("Resource_repwv"), SubResource("Resource_152sp"), SubResource("Resource_q878d")])
+opening_moves = Array[ExtResource("2_euwyd")]([])
+on_enter_effects = Array[ExtResource("3_3cu0u")]([])
+passive_triggers = Array[ExtResource("8_152sp")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("9_k0230")
+id = &"coin_mimic"
+display_name = "Coin Mimic"
+tier = 0
+act = 2
+hp_min = 38
+hp_max = 42
+gimmick_text = "Thief: steals your gold, then flees. Kill it before it escapes to get your gold back."
+starting_statuses = Array[ExtResource("10_q878d")]([])
+phases = Array[ExtResource("1_7m8ve")]([SubResource("Resource_jxc0x")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

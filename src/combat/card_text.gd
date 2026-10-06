@@ -30,6 +30,7 @@ static func render(card: CardInstance, combat: CombatState = null, target: Comba
 	var values := {}
 	_collect(card.data.effects, ctx, card.upgraded, values)
 	_collect(card.data.on_discard_effects, ctx, card.upgraded, values)
+	_collect(card.data.end_of_turn_in_hand_effects, ctx, card.upgraded, values)
 	for key in values:
 		var shown: int = values[key][0]
 		var base: int = values[key][1]
@@ -73,6 +74,7 @@ static func collect_keys(card: CardData) -> PackedStringArray:
 	var keys: PackedStringArray = []
 	_collect_keys(card.effects, keys)
 	_collect_keys(card.on_discard_effects, keys)
+	_collect_keys(card.end_of_turn_in_hand_effects, keys)
 	return keys
 
 

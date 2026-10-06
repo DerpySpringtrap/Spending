@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_y20h3"]
+[ext_resource type="Resource" path="res://content/enemies/act2/crypt_hound.tres" id="2_pad8e"]
+[ext_resource type="Resource" path="res://content/enemies/act2/candle_acolyte.tres" id="3_3e4q7"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_y64aq"]
+
+[resource]
+script = ExtResource("4_y64aq")
+id = &"a2_pack"
+act = 2
+pool = 1
+enemies = Array[ExtResource("1_y20h3")]([ExtResource("2_pad8e"), ExtResource("2_pad8e"), ExtResource("3_3e4q7")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

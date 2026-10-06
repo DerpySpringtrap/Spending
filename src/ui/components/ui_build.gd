@@ -3,7 +3,7 @@ extends RefCounted
 ## Small helpers so every screen is assembled from the same parts and tokens.
 
 
-static func backdrop(parent: Control, dim: float = 0.35, act: int = 1) -> BiomeBackdrop:
+static func backdrop(parent: Control, dim: float = 0.35, act: int = 0) -> BiomeBackdrop:
 	var bd := BiomeBackdrop.new()
 	bd.act = act
 	bd.set_anchors_preset(Control.PRESET_FULL_RECT)

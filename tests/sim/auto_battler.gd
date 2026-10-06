@@ -1,11 +1,12 @@
 extends Node
-## Headless balance simulator: plays Act 1 encounters with the Pyre Warden's
+## Headless balance simulator: plays one act's encounters (--act=N) with a class's
 ## starting deck using GreedyPlayerAI and reports win rate, length and damage.
 ##
 ## godot --headless --path . res://tests/sim/auto_battler.tscn -- --fights=1000 --class=moonblade --ascension=0 --seed=1
 ## Exit code 1 if any fight hit an engine error (timeout or invalid state).
 
 var _class_id: StringName = &"pyre_warden"
+var _act := 1
 var _fights := 1000
 var _ascension := 0
 var _seed := 1
@@ -21,7 +22,7 @@ func _ready() -> void:
 	for pool_name in _pools.split(","):
 		var pool: int = EncounterData.Pool.keys().find(pool_name.to_upper())
 		if pool >= 0:
-			encounters.append_array(ContentDB.get_encounters(1, pool))
+			encounters.append_array(ContentDB.get_encounters(_act, pool))
 	encounters.sort_custom(func(a, b): return String(a.id) < String(b.id))
 	var per_encounter := maxi(1, _fights / encounters.size())
 	var ai := GreedyPlayerAI.new()
@@ -85,3 +86,4 @@ func _parse_args() -> void:
 			"pools": _pools = parts[1]
 			"extra": _extra_cards = int(parts[1])
 			"class": _class_id = StringName(parts[1])
+			"act": _act = int(parts[1])

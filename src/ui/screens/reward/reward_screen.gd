@@ -59,6 +59,9 @@ func _reward_row(reward: Dictionary) -> Button:
 			glyph = &"sun"
 			b.mouse_entered.connect(func(): EventBus.tooltip_requested.emit(b, reward.relic.display_name, reward.relic.description))
 			b.mouse_exited.connect(func(): EventBus.tooltip_cleared.emit(b))
+		"relic_choice":
+			b.text = "Choose a boss relic"
+			glyph = &"crown"
 		"potion":
 			b.text = "Potion: %s" % reward.potion.display_name
 			glyph = &"drop"
@@ -88,6 +91,9 @@ func _claim(row: Button) -> void:
 			AudioManager.play(&"potion")
 		"card":
 			_open_card_choice(row, reward.choices)
+			return
+		"relic_choice":
+			_open_relic_choice(row, reward.choices)
 			return
 	_remove_row(row)
 
@@ -187,6 +193,84 @@ func _pick_card(row: Button, view: CardView) -> void:
 		_remove_row(row))
 
 
+# --- Boss relic choice -------------------------------------------------------------
+
+func _open_relic_choice(row: Button, choices: Array) -> void:
+	_card_overlay = Control.new()
+	_card_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_card_overlay)
+	var dim := ColorRect.new()
+	dim.color = Color(UIStyle.BG_DEEP, 0.95)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_card_overlay.add_child(dim)
+	var column := UIBuild.center_column(_card_overlay, 30, 0)
+	column.add_child(UIBuild.title("Choose a Boss Relic", 48))
+	var row_box := HBoxContainer.new()
+	row_box.add_theme_constant_override("separation", 30)
+	row_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_child(row_box)
+	var buttons: Array = []
+	for relic: RelicData in choices:
+		var b := Button.new()
+		b.custom_minimum_size = Vector2(320, 300)
+		b.set_meta("relic", relic)
+		var box := VBoxContainer.new()
+		box.set_anchors_preset(Control.PRESET_FULL_RECT)
+		box.offset_left = 20
+		box.offset_right = -20
+		box.offset_top = 24
+		box.offset_bottom = -20
+		box.add_theme_constant_override("separation", 12)
+		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(box)
+		var icon_holder := CenterContainer.new()
+		icon_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(icon_holder)
+		var icon := RelicIcon.new()
+		icon.relic = relic
+		icon.scale = Vector2(1.6, 1.6)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_holder.add_child(icon)
+		var spacer := Control.new()
+		spacer.custom_minimum_size = Vector2(0, 26)
+		box.add_child(spacer)
+		var name_label := UIBuild.label(relic.display_name, &"HeadingLabel", 26, UIStyle.GOLD)
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		box.add_child(name_label)
+		var desc := UIBuild.rich("[center]%s[/center]" % relic.description, UIStyle.SIZE_BODY)
+		desc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(desc)
+		b.pressed.connect(_pick_relic.bind(row, b))
+		row_box.add_child(b)
+		buttons.append(b)
+	var skip := UIBuild.button("Skip", false, Vector2(220, 56))
+	skip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	skip.pressed.connect(func(): _close_card_choice())
+	column.add_child(skip)
+	_card_overlay.set_meta("relic_buttons", buttons)
+	UIBuild.stagger_in(buttons, 0.08)
+	if buttons.is_empty():
+		skip.grab_focus()
+	else:
+		(buttons[0] as Control).grab_focus()
+
+
+func _pick_relic(row: Button, button: Button) -> void:
+	if _card_overlay == null or _card_overlay.has_meta("picked"):
+		return
+	_card_overlay.set_meta("picked", true)
+	var relic: RelicData = button.get_meta("relic")
+	RunState.add_relic(relic)
+	AudioManager.play(&"relic", 0.0)
+	_top_bar.refresh()
+	var t := button.create_tween()
+	t.tween_property(button, "modulate", Color(1.6, 1.4, 0.8), UIStyle.dur(0.15))
+	t.tween_interval(UIStyle.dur(0.25))
+	t.tween_callback(func():
+		_close_card_choice()
+		_remove_row(row))
+
+
 func _close_card_choice() -> void:
 	if _card_overlay:
 		_card_overlay.queue_free()
@@ -196,6 +280,11 @@ func _close_card_choice() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _card_overlay == null:
+		return
+	if not _card_overlay.has_meta("views"):
+		if event.is_action_pressed("ui_cancel"):
+			_close_card_choice()
+			get_viewport().set_input_as_handled()
 		return
 	var views: Array = _card_overlay.get_meta("views")
 	var focus: int = _card_overlay.get_meta("focus")

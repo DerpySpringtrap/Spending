@@ -105,6 +105,11 @@ func _on_damage_dealt(info: DamageInfo) -> void:
 		run_stats["biggest_hit"] = maxi(int(run_stats.get("biggest_hit", 0)), info.hp_lost)
 
 
+## Floors climbed over the whole run (each act has FLOORS + the boss).
+func total_floor() -> int:
+	return (act - 1) * (MapGenerator.FLOORS + 1) + floor_number
+
+
 func current_map_node() -> Dictionary:
 	if map_data.is_empty() or current_node == "":
 		return {}

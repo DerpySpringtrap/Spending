@@ -10,6 +10,10 @@ var cooldowns: Dictionary = {}  # move id -> turns remaining
 var sequence_index: int = 0
 var opening_index: int = 0
 var turns_taken: int = 0
+## Gold taken from the player (Coin Mimic); returned if this enemy is killed.
+var stolen_gold: int = 0
+## Fled the fight (counts as gone, but not killed: no gold back).
+var escaped: bool = false
 
 
 func _init(p_data: EnemyData, p_hp: int) -> void:

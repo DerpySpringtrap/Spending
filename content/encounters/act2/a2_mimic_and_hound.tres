@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_8rktv"]
+[ext_resource type="Resource" path="res://content/enemies/act2/coin_mimic.tres" id="2_5tdyw"]
+[ext_resource type="Resource" path="res://content/enemies/act2/crypt_hound.tres" id="3_jspcc"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_mpt6n"]
+
+[resource]
+script = ExtResource("4_mpt6n")
+id = &"a2_mimic_and_hound"
+act = 2
+pool = 1
+enemies = Array[ExtResource("1_8rktv")]([ExtResource("2_5tdyw"), ExtResource("3_jspcc")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

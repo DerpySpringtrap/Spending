@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_urbqr"]
+[ext_resource type="Resource" path="res://content/enemies/act2/embalmer.tres" id="2_jvxsb"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="3_cir60"]
+
+[resource]
+script = ExtResource("3_cir60")
+id = &"a2_embalmer"
+act = 2
+pool = 0
+enemies = Array[ExtResource("1_urbqr")]([ExtResource("2_jvxsb")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

@@ -1,0 +1,132 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_envxp"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_vl70c"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_eyy47"]
+[ext_resource type="Resource" path="res://content/cards/status/bandaged.tres" id="4_eymcw"]
+[ext_resource type="Script" path="res://src/combat/effects/add_card_to_pile_effect.gd" id="5_clp2m"]
+[ext_resource type="Script" path="res://src/combat/effects/heal_effect.gd" id="6_b83p3"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="7_supqs"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="8_ktbm8"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="9_4brip"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="10_r6tym"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="11_2x26f"]
+
+[sub_resource type="Resource" id="Resource_envxp"]
+script = ExtResource("5_clp2m")
+card = ExtResource("4_eymcw")
+pile = 0
+upgraded = false
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_vl70c"]
+script = ExtResource("2_vl70c")
+id = &"wrap"
+display_name = "Wrap"
+intent = 7
+intent_tooltip = "Shuffles 2 Bandaged into your draw pile."
+effects = Array[ExtResource("3_eyy47")]([SubResource("Resource_envxp")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 2
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_eyy47"]
+script = ExtResource("6_b83p3")
+amount = 8
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_eymcw"]
+script = ExtResource("7_supqs")
+amount = 6
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_clp2m"]
+script = ExtResource("2_vl70c")
+id = &"embalm"
+display_name = "Embalm"
+intent = 5
+intent_tooltip = "Every enemy heals 8 HP; gains 6 Block."
+effects = Array[ExtResource("3_eyy47")]([SubResource("Resource_eyy47"), SubResource("Resource_eymcw")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_b83p3"]
+script = ExtResource("8_ktbm8")
+damage_type = 0
+amount = 6
+upgrade_delta = 0
+times = 2
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_supqs"]
+script = ExtResource("2_vl70c")
+id = &"scalpel"
+display_name = "Scalpel"
+intent = 0
+intent_tooltip = "Attacks for {dmg} twice."
+effects = Array[ExtResource("3_eyy47")]([SubResource("Resource_b83p3")])
+weight = 2.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_ktbm8"]
+script = ExtResource("1_envxp")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_vl70c")]([SubResource("Resource_vl70c"), SubResource("Resource_clp2m"), SubResource("Resource_supqs")])
+opening_moves = Array[ExtResource("2_vl70c")]([])
+on_enter_effects = Array[ExtResource("3_eyy47")]([])
+passive_triggers = Array[ExtResource("9_4brip")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("10_r6tym")
+id = &"embalmer"
+display_name = "Embalmer"
+tier = 0
+act = 2
+hp_min = 44
+hp_max = 48
+gimmick_text = "Clutters your deck with Bandaged cards and patches up its allies."
+starting_statuses = Array[ExtResource("11_2x26f")]([])
+phases = Array[ExtResource("1_envxp")]([SubResource("Resource_ktbm8")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

@@ -37,6 +37,9 @@ var round_number: int = 0
 var phase: Phase = Phase.NOT_STARTED
 var result: Result = Result.NONE
 var cards_played_this_turn: int = 0
+## The run's gold, mirrored so thieves know how much they can take. The combat
+## screen applies EventBus.gold_stolen to RunState as it happens.
+var player_gold: int = 0
 var stance_changes_this_turn: int = 0
 
 var queue := ActionQueue.new()
@@ -304,6 +307,7 @@ func _begin_turn(combatant: Combatant) -> void:
 	_flush()
 	if not combatant.is_dead:
 		_decay(combatant, StatusEffectData.Decay.DECREMENT_ON_TURN_START)
+		_decay(combatant, StatusEffectData.Decay.REMOVE_ON_TURN_START)
 
 
 func _end_turn_decay(combatant: Combatant) -> void:
@@ -623,7 +627,12 @@ func deal_damage(source: Combatant, target: Combatant, base: int, type: DamageIn
 	info.block_after = target.block
 	info.hp_after = target.hp
 	info.killed = target.hp <= 0
+	var revive := _revive_status(target) if info.killed else null
+	if revive:
+		info.killed = false
 	EventBus.damage_dealt.emit(info)
+	if revive:
+		_revive(target, revive)
 
 	if info.block_before > 0 and target.block == 0:
 		EventBus.block_broken.emit(target)
@@ -634,6 +643,10 @@ func deal_damage(source: Combatant, target: Combatant, base: int, type: DamageIn
 			fire(EffectTrigger.Timing.DEALT_ATTACK_DAMAGE, source, {"info": info})
 	if info.hp_lost > 0:
 		fire(EffectTrigger.Timing.HP_LOST, target, {"info": info})
+		for status_id in target.statuses.keys():
+			var data: StatusEffectData = target.status_data[status_id]
+			if data.lose_stack_on_hp_lost:
+				_set_stacks(target, data, target.get_stacks(status_id) - 1)
 
 	if info.killed:
 		_kill(target)
@@ -663,11 +676,63 @@ func heal(target: Combatant, amount: int) -> void:
 	EventBus.healed.emit(target, healed, target.hp)
 
 
+## A cheat-death status on [param target] that can fire now, or null.
+func _revive_status(target: Combatant) -> StatusEffectData:
+	if not target is EnemyCombatant:
+		return null
+	var others := living_enemies().filter(func(e): return e != target and e.hp > 0)
+	if others.is_empty():
+		return null
+	for status_id in target.statuses:
+		var data: StatusEffectData = target.status_data[status_id]
+		if data.revive_hp_percent > 0.0:
+			return data
+	return null
+
+
+func _revive(target: Combatant, status: StatusEffectData) -> void:
+	remove_status(target, status.id)
+	var amount := maxi(1, ceili(target.max_hp * status.revive_hp_percent))
+	target.hp = 0
+	heal(target, amount)
+	var stun := ContentDB.get_status(&"stun")
+	if stun:
+		apply_status(target, stun, 1)
+	if target is EnemyCombatant:
+		_emit_intent(target)
+
+
+## Thieves (Coin Mimic). Returns what was actually taken.
+func steal_gold(thief: EnemyCombatant, amount: int) -> int:
+	var taken := clampi(amount, 0, player_gold)
+	if taken <= 0:
+		return 0
+	player_gold -= taken
+	thief.stolen_gold += taken
+	EventBus.gold_stolen.emit(thief, taken)
+	return taken
+
+
+## The enemy flees: gone from the fight, but its stolen gold goes with it.
+func escape(enemy: EnemyCombatant) -> void:
+	if enemy.is_dead or is_over():
+		return
+	enemy.is_dead = true
+	enemy.escaped = true
+	enemy.block = 0
+	EventBus.combatant_escaped.emit(enemy)
+	_check_end()
+
+
 func _kill(target: Combatant) -> void:
 	target.hp = 0
 	target.block = 0
 	target.is_dead = true
 	EventBus.combatant_died.emit(target)
+	if target is EnemyCombatant and target.stolen_gold > 0:
+		player_gold += target.stolen_gold
+		EventBus.gold_stolen.emit(target, -target.stolen_gold)
+		target.stolen_gold = 0
 	fire(EffectTrigger.Timing.OWNER_DIED, target)
 	if target is EnemyCombatant:
 		fire(EffectTrigger.Timing.ENEMY_DIED, player, {"enemy": target})
@@ -764,7 +829,7 @@ func _decay(combatant: Combatant, kind: StatusEffectData.Decay) -> void:
 			continue
 		var stacks: int = combatant.statuses[status_id]
 		match kind:
-			StatusEffectData.Decay.REMOVE_ON_TURN_END:
+			StatusEffectData.Decay.REMOVE_ON_TURN_END, StatusEffectData.Decay.REMOVE_ON_TURN_START:
 				remove_status(combatant, status_id)
 			StatusEffectData.Decay.HALVE_ON_TURN_END:
 				_set_stacks(combatant, data, floori(stacks / 2.0))

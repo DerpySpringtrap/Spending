@@ -31,6 +31,13 @@ const STATUS_GLYPHS := {
 	&"starfall": &"star",
 	&"full_moon": &"sun",
 	&"moonlit_vigil": &"crescent_wane",
+	&"reassemble": &"skull",
+	&"pack_tactics": &"burst",
+	&"gilded_plate": &"shield",
+	&"en_garde": &"spikes",
+	&"soul_link": &"sparkle",
+	&"incense": &"drop",
+	&"golden_tithe": &"coin",
 }
 
 const INTENT_GLYPHS := {
@@ -129,6 +136,12 @@ static func _draw_unit(ci: CanvasItem, glyph: StringName, c: Color, shade: Color
 				var a := PI / 2 - PI * i / 24.0
 				outer.append(Vector2(cos(a) * 0.38 * flip, sin(a) * 0.9))
 			_poly(ci, outer, c)
+		&"crown":
+			_poly(ci, PackedVector2Array([Vector2(-0.9, 0.6), Vector2(-0.9, -0.5), Vector2(-0.45, 0.0), Vector2(0, -0.8),
+				Vector2(0.45, 0.0), Vector2(0.9, -0.5), Vector2(0.9, 0.6)]), c)
+			_poly(ci, _rect(-0.9, 0.45, 1.8, 0.3), shade)
+			for x in [-0.9, 0.0, 0.9]:
+				ci.draw_circle(Vector2(x, -0.62 if x != 0.0 else -0.9), 0.13, c.lightened(0.3))
 		&"eclipse":
 			ci.draw_circle(Vector2.ZERO, 0.95, c)
 			ci.draw_circle(Vector2(0.18, -0.08), 0.74, Color("#141A33"))

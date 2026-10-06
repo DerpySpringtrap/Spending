@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_8oxpb"]
+[ext_resource type="Resource" path="res://content/enemies/act2/candle_acolyte.tres" id="2_qytrg"]
+[ext_resource type="Resource" path="res://content/enemies/act2/embalmer.tres" id="3_yvbcd"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_k0kxo"]
+
+[resource]
+script = ExtResource("4_k0kxo")
+id = &"a2_acolyte_embalmer"
+act = 2
+pool = 1
+enemies = Array[ExtResource("1_8oxpb")]([ExtResource("2_qytrg"), ExtResource("3_yvbcd")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

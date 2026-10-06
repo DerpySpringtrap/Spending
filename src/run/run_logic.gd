@@ -13,6 +13,8 @@ const EASY_FIGHTS := 3
 const REST_HEAL := 0.3
 const REMOVAL_BASE_PRICE := 75
 const REMOVAL_STEP := 25
+## Between acts you recover this share of your missing HP.
+const ACT_HEAL := 0.75
 
 const CARD_PRICES := {CardData.Rarity.COMMON: 50, CardData.Rarity.UNCOMMON: 75, CardData.Rarity.RARE: 150}
 const RELIC_PRICES := {RelicData.Rarity.COMMON: 150, RelicData.Rarity.UNCOMMON: 250, RelicData.Rarity.RARE: 300, RelicData.Rarity.SHOP: 150}
@@ -114,6 +116,9 @@ static func combat_rewards(node_type: String, extra_relic: bool = false) -> Arra
 			rewards.append({"type": "card", "choices": roll_card_choices(3, CARD_ODDS_ELITE)})
 		MapGenerator.TYPE_BOSS:
 			rewards.append({"type": "gold", "amount": gold_amount(95, 105)})
+			var boss_relics := roll_boss_relics(3)
+			if not boss_relics.is_empty():
+				rewards.append({"type": "relic_choice", "choices": boss_relics})
 			rewards.append({"type": "card", "choices": roll_card_choices(3, [0.0, 0.0, 100.0])})
 		_:
 			rewards.append({"type": "gold", "amount": gold_amount(10, 20)})
@@ -127,6 +132,30 @@ static func combat_rewards(node_type: String, extra_relic: bool = false) -> Arra
 		if potion:
 			rewards.append({"type": "potion", "potion": potion})
 	return rewards
+
+
+## Up to [param count] distinct boss relics the player doesn't own.
+static func roll_boss_relics(count: int) -> Array[RelicData]:
+	var options: Array[RelicData] = []
+	for relic in ContentDB.get_relics_by_rarity(RelicData.Rarity.BOSS, RunState.class_id):
+		if not RunState.has_relic(relic.id):
+			options.append(relic)
+	RunState.rng.shuffle(options, &"rewards")
+	return options.slice(0, count)
+
+
+## Moves the run to the next act: heal part of the missing HP, new map, and
+## the easy-fight counter starts over.
+static func advance_act() -> void:
+	RunState.act += 1
+	RunState.heal(ceili((RunState.max_hp - RunState.hp) * ACT_HEAL))
+	RunState.monster_fights = 0
+	RunState.seen_encounters.clear()
+	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), RunState.act)
+	RunState.current_node = ""
+	RunState.visited_nodes.clear()
+	RunState.floor_number = 0
+	EventBus.act_started.emit(RunState.act)
 
 
 static func treasure_rewards() -> Array[Dictionary]:

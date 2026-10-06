@@ -134,6 +134,11 @@ func _claim_rewards(screen: Node) -> void:
 				e.pressed = true
 				views[0].pressed.emit(views[0], e)
 				await _wait(0.9)
+			elif String(reward.type) == "relic_choice" and screen._card_overlay:
+				await _screen_shot("boss_relic", 0.6)
+				var buttons: Array = screen._card_overlay.get_meta("relic_buttons")
+				_press(buttons[0])
+				await _wait(0.9)
 	await _wait(0.3)
 	_press(screen._proceed)
 

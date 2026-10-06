@@ -42,6 +42,8 @@ signal turn_started(combatant, is_player: bool)  ## Combatant
 signal turn_ended(combatant, is_player: bool)  ## Combatant
 signal player_input_enabled(enabled: bool)
 signal boss_phase_changed(boss, phase_index: int, phase: EnemyPhaseData)  ## Combatant
+signal gold_stolen(enemy, amount: int)  ## Negative = returned to the player.
+signal combatant_escaped(enemy)
 signal combatant_spawned(combatant)  ## Minions and player summons.
 signal combatant_died(combatant)
 

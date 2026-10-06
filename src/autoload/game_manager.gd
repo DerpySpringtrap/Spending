@@ -7,9 +7,8 @@ extends Node
 ## → boss → run summary.
 
 const MAX_ASCENSION := 15
-## Acts with content. The run is won after this act's boss (Acts 2–3 arrive
-## with the Milestone 4 content pass).
-const FINAL_ACT := 1
+## Acts with content. The run is won after this act's boss.
+const FINAL_ACT := 2
 
 const SCREENS := {
 	&"main_menu": "res://src/ui/screens/main_menu/main_menu.tscn",
@@ -73,13 +72,14 @@ func continue_run() -> void:
 
 ## Called when the player dies, beats the final boss, or abandons the run.
 func end_run(victory: bool) -> void:
-	var xp := RunState.floor_number * 5 + (100 if victory else 0) + RunState.ascension * 10
-	MetaProgress.record_run(RunState.class_id, victory, RunState.floor_number, RunState.ascension, xp)
+	var floors := RunState.total_floor()
+	var xp := floors * 5 + (100 if victory else 0) + RunState.ascension * 10
+	MetaProgress.record_run(RunState.class_id, victory, floors, RunState.ascension, xp)
 	MetaProgress.stats["enemies_killed"] += int(RunState.run_stats.get("enemies_killed", 0))
 	MetaProgress.save_meta()
 	last_run_summary = {
 		"victory": victory, "class_id": RunState.class_id, "ascension": RunState.ascension,
-		"act": RunState.act, "floor": RunState.floor_number, "xp": xp, "gold": RunState.gold,
+		"act": RunState.act, "floor": floors, "xp": xp, "gold": RunState.gold,
 		"hp": RunState.hp, "max_hp": RunState.max_hp,
 		"deck": RunState.deck.duplicate(), "relics": RunState.relics.duplicate(),
 		"stats": RunState.run_stats.duplicate(), "seed": RunState.rng.seed_value,
@@ -166,9 +166,12 @@ func show_rewards(rewards: Array[Dictionary], title: String) -> void:
 	go_to_screen(&"reward")
 
 
-## A node is finished: save and return to the map.
+## A node is finished: save and return to the map (the next act's map after
+## a boss).
 func complete_node() -> void:
 	pending_rewards = []
 	pending_event = null
+	if String(RunState.current_map_node().get("type", "")) == MapGenerator.TYPE_BOSS and RunState.act < FINAL_ACT:
+		RunLogic.advance_act()
 	RunState.save_run()
 	go_to_screen(&"map")

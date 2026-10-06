@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/relic_data.gd" id="1_uyaph"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_f4v15"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_1acv1"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_lbu8a"]
+
+[sub_resource type="Resource" id="Resource_uyaph"]
+script = ExtResource("4_lbu8a")
+damage_type = 4
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_f4v15"]
+script = ExtResource("2_f4v15")
+timing = 2
+condition = 0
+effects = Array[ExtResource("3_1acv1")]([SubResource("Resource_uyaph")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+
+[resource]
+script = ExtResource("1_uyaph")
+id = &"cracked_hourglass"
+display_name = "Cracked Hourglass"
+description = "+1 energy each turn. At the start of your turn, lose 1 HP."
+flavor = "Time leaks out, and so do you."
+rarity = 4
+class_restriction = &""
+triggers = Array[ExtResource("2_f4v15")]([SubResource("Resource_f4v15")])
+counter_max = 0
+max_energy_bonus = 1
+draw_per_turn_bonus = 0
+max_hp_bonus = 0
+potion_slot_bonus = 0
+gold_gain_multiplier = 1.0
+shop_price_multiplier = 1.0
+requires_unlock = false

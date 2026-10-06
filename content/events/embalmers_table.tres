@@ -1,0 +1,78 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_mx4ba"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_hqxan"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="3_0p04b"]
+
+[sub_resource type="Resource" id="Resource_mx4ba"]
+script = ExtResource("2_hqxan")
+type = 3
+amount = 6
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_hqxan"]
+script = ExtResource("2_hqxan")
+type = 8
+amount = 0
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_0p04b"]
+script = ExtResource("1_mx4ba")
+text = "Stitch yourself up (lose 6 HP)"
+result_text = "Painful, but you cut away something that was holding you back."
+outcomes = Array[ExtResource("2_hqxan")]([SubResource("Resource_mx4ba"), SubResource("Resource_hqxan")])
+min_gold = 0
+min_hp = 6
+
+[sub_resource type="Resource" id="Resource_w26ml"]
+script = ExtResource("2_hqxan")
+type = 1
+amount = 40
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_g26df"]
+script = ExtResource("2_hqxan")
+type = 9
+amount = 0
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_ffj2l"]
+script = ExtResource("1_mx4ba")
+text = "Borrow the resin (lose 40 gold)"
+result_text = "You leave coins in a jar and seal an edge onto your gear."
+outcomes = Array[ExtResource("2_hqxan")]([SubResource("Resource_w26ml"), SubResource("Resource_g26df")])
+min_gold = 40
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_ebwc3"]
+script = ExtResource("2_hqxan")
+type = 2
+amount = 25
+percent = true
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_14ci5"]
+script = ExtResource("1_mx4ba")
+text = "Rest on the slab"
+result_text = "Cold stone, but you sleep. You wake a little stronger."
+outcomes = Array[ExtResource("2_hqxan")]([SubResource("Resource_ebwc3")])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("3_0p04b")
+id = &"embalmers_table"
+title = "The Embalmer's Table"
+description = "Tools glint on a stone slab: needles, linen, jars of amber resin. The embalmer is nowhere to be seen."
+act = 2
+glyph = &"drop"
+choices = Array[ExtResource("1_mx4ba")]([SubResource("Resource_0p04b"), SubResource("Resource_ffj2l"), SubResource("Resource_14ci5")])

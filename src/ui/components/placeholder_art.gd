@@ -32,6 +32,28 @@ static func build(id: StringName, accent: Color = Color("#E8692C")) -> Node2D:
 			_witch(root)
 		&"toad_familiar":
 			_familiar(root)
+		&"gilded_skeleton":
+			_skeleton(root)
+		&"candle_acolyte":
+			_acolyte(root)
+		&"coin_mimic":
+			_mimic(root)
+		&"crypt_hound":
+			_hound(root)
+		&"embalmer":
+			_embalmer(root)
+		&"gilded_knight":
+			_knight(root)
+		&"reliquary_dawn":
+			_reliquary(root, Color("#F2C46B"))
+		&"reliquary_dusk":
+			_reliquary(root, Color("#9A86D8"))
+		&"plague_censer":
+			_censer(root)
+		&"gilded_hierophant":
+			_hierophant(root)
+		&"gold_idol":
+			_idol(root)
 		_:
 			_blob(root, id)
 	return root
@@ -305,3 +327,222 @@ static func _familiar(root: Node2D) -> void:
 	_toad(root)
 	root.scale = Vector2(0.7, 0.7)
 	_meta(root, 120, 90)
+
+
+# --- Act 2: The Gilded Catacombs ---------------------------------------------------
+
+const BONE := Color("#D9CFB4")
+const GOLD := Color("#E8B84A")
+
+
+static func _skeleton(root: Node2D) -> void:
+	var dark := Color("#2A241C")
+	# Legs and pelvis
+	_poly(root, rounded_rect(-26, -78, 12, 78, 5), BONE.darkened(0.1))
+	_poly(root, rounded_rect(12, -78, 12, 78, 5), BONE.darkened(0.1))
+	_poly(root, ellipse(Vector2(0, -84), 34, 14), BONE)
+	# Spine and ribs
+	_poly(root, rounded_rect(-6, -170, 12, 90, 5), BONE)
+	for i in 4:
+		var y := -160 + i * 18
+		_poly(root, ellipse(Vector2(0, y), 36 - i * 3, 7), BONE.darkened(0.05 * i))
+	_poly(root, rounded_rect(-44, -174, 88, 12, 5), GOLD)
+	# Arms with a gilded sword (forward = left)
+	_poly(root, PackedVector2Array([Vector2(-38, -168), Vector2(-30, -172), Vector2(-62, -118), Vector2(-70, -122)]), BONE)
+	_poly(root, PackedVector2Array([Vector2(-70, -118), Vector2(-62, -122), Vector2(-150, -190), Vector2(-156, -184)]), GOLD.lightened(0.15))
+	_poly(root, rounded_rect(-80, -128, 26, 8, 3), GOLD.darkened(0.2))
+	_poly(root, PackedVector2Array([Vector2(36, -168), Vector2(44, -164), Vector2(52, -100), Vector2(44, -98)]), BONE)
+	# Skull with a gold crown
+	_poly(root, ellipse(Vector2(0, -200), 26, 28), BONE)
+	_poly(root, rounded_rect(-14, -186, 28, 14, 4), BONE.darkened(0.1))
+	_poly(root, ellipse(Vector2(-10, -202), 7, 8), dark)
+	_poly(root, ellipse(Vector2(10, -202), 7, 8), dark)
+	_poly(root, PackedVector2Array([Vector2(-24, -222), Vector2(-24, -240), Vector2(-12, -228), Vector2(0, -246), Vector2(12, -228),
+		Vector2(24, -240), Vector2(24, -222)]), GOLD)
+	_meta(root, 150, 250)
+
+
+static func _acolyte(root: Node2D) -> void:
+	var robe := Color("#5A3A2A")
+	_poly(root, PackedVector2Array([Vector2(-50, 0), Vector2(50, 0), Vector2(26, -140), Vector2(-26, -140)]), robe)
+	_poly(root, rounded_rect(-8, -140, 16, 140, 4), GOLD.darkened(0.3))
+	# Hood with a dark face
+	_poly(root, ellipse(Vector2(0, -160), 30, 34), robe.darkened(0.2))
+	_poly(root, ellipse(Vector2(-4, -156), 18, 22), Color("#140E0A"))
+	_poly(root, ellipse(Vector2(-10, -160), 3, 3), Color("#FFD27A"))
+	_poly(root, ellipse(Vector2(2, -160), 3, 3), Color("#FFD27A"))
+	# Candle held forward with a glow
+	_poly(root, PackedVector2Array([Vector2(-20, -112), Vector2(-12, -118), Vector2(-56, -96), Vector2(-60, -88)]), robe.lightened(0.1))
+	_poly(root, rounded_rect(-70, -130, 12, 36, 3), Color("#EDE3C8"))
+	_poly(root, ellipse(Vector2(-64, -142), 26, 26), Color(1.0, 0.82, 0.4, 0.18))
+	_poly(root, VectorIcons._scaled(VectorIcons._flame_points(), 10, Vector2(-64, -140)), Color("#FFC24A"))
+	# Wax candles on the head
+	for x in [-14, 0, 14]:
+		_poly(root, rounded_rect(x - 3, -204, 6, 14, 2), Color("#EDE3C8"))
+		_poly(root, ellipse(Vector2(x, -208), 3, 4), Color("#FFC24A"))
+	_meta(root, 130, 210)
+
+
+static func _mimic(root: Node2D) -> void:
+	var wood := Color("#6B4A2E")
+	# Chest body
+	_poly(root, rounded_rect(-70, -80, 140, 80, 10), wood)
+	_poly(root, rounded_rect(-70, -80, 140, 12, 4), GOLD.darkened(0.2))
+	_poly(root, rounded_rect(-8, -80, 16, 80, 3), GOLD.darkened(0.2))
+	# Open lid with teeth and tongue
+	_poly(root, PackedVector2Array([Vector2(-74, -88), Vector2(70, -88), Vector2(60, -150), Vector2(-60, -162)]), wood.lightened(0.08))
+	_poly(root, PackedVector2Array([Vector2(-60, -100), Vector2(60, -100), Vector2(52, -138), Vector2(-52, -148)]), Color("#2A0E10"))
+	for i in 7:
+		var x := -54 + i * 18
+		_poly(root, PackedVector2Array([Vector2(x, -100), Vector2(x + 9, -116), Vector2(x + 18, -100)]), BONE)
+		_poly(root, PackedVector2Array([Vector2(x, -140 + i * 0.6), Vector2(x + 9, -126), Vector2(x + 18, -140 + i * 0.6)]), BONE)
+	_poly(root, ellipse(Vector2(-30, -98), 34, 10), Color("#C0465A"))
+	# Coins spilling
+	for c in [Vector2(-80, -8), Vector2(-62, -4), Vector2(78, -6), Vector2(-90, -2)]:
+		_poly(root, ellipse(c, 10, 6), GOLD)
+	# Eye on the lid
+	_poly(root, ellipse(Vector2(10, -150), 12, 9), Color("#F2E6A0"))
+	_poly(root, ellipse(Vector2(6, -150), 4, 7), Color.BLACK)
+	_meta(root, 160, 170)
+
+
+static func _hound(root: Node2D) -> void:
+	var fur := Color("#3A3430")
+	# Legs
+	for x in [-52, -30, 30, 50]:
+		_poly(root, rounded_rect(x - 7, -50, 14, 50, 5), fur.darkened(0.2))
+	# Body
+	_poly(root, ellipse(Vector2(0, -66), 74, 30), fur)
+	_poly(root, ellipse(Vector2(10, -56), 50, 16), fur.lightened(0.08))
+	# Ribs showing (undead)
+	for i in 3:
+		_poly(root, rounded_rect(-10 + i * 16, -80, 6, 26, 3), BONE.darkened(0.2))
+	# Tail
+	_poly(root, PackedVector2Array([Vector2(68, -74), Vector2(74, -66), Vector2(110, -100), Vector2(104, -106)]), fur)
+	# Head facing left, glowing eye, jaw
+	_poly(root, ellipse(Vector2(-78, -96), 30, 22), fur.lightened(0.05))
+	_poly(root, PackedVector2Array([Vector2(-100, -100), Vector2(-136, -92), Vector2(-132, -80), Vector2(-96, -84)]), fur.lightened(0.05))
+	_poly(root, PackedVector2Array([Vector2(-98, -82), Vector2(-130, -78), Vector2(-124, -68), Vector2(-96, -72)]), fur.darkened(0.15))
+	_poly(root, PackedVector2Array([Vector2(-70, -114), Vector2(-60, -138), Vector2(-56, -110)]), fur)
+	_poly(root, ellipse(Vector2(-88, -102), 5, 4), Color("#F2B84A"))
+	_poly(root, rounded_rect(-74, -84, 18, 8, 3), GOLD)
+	_meta(root, 210, 140)
+
+
+static func _embalmer(root: Node2D) -> void:
+	var linen := Color("#CFC3A3")
+	var dark := Color("#3A2E26")
+	# Long apron robe
+	_poly(root, PackedVector2Array([Vector2(-48, 0), Vector2(48, 0), Vector2(34, -170), Vector2(-34, -170)]), dark)
+	_poly(root, PackedVector2Array([Vector2(-30, -10), Vector2(30, -10), Vector2(22, -150), Vector2(-22, -150)]), linen.darkened(0.25))
+	for i in 5:
+		_poly(root, rounded_rect(-24, -140 + i * 26, 48, 5, 2), linen.darkened(0.4))
+	# Wrapped head
+	_poly(root, ellipse(Vector2(0, -196), 28, 32), linen)
+	for i in 4:
+		_poly(root, rounded_rect(-28, -218 + i * 12, 56, 4, 2), linen.darkened(0.15))
+	_poly(root, rounded_rect(-16, -200, 32, 7, 3), Color("#140E0A"))
+	_poly(root, ellipse(Vector2(-7, -197), 3, 3), Color("#9CCB6A"))
+	# Arms: scalpel forward, jar behind
+	_poly(root, PackedVector2Array([Vector2(-30, -158), Vector2(-22, -162), Vector2(-76, -118), Vector2(-82, -124)]), dark.lightened(0.1))
+	_poly(root, PackedVector2Array([Vector2(-80, -122), Vector2(-76, -118), Vector2(-112, -140), Vector2(-114, -144)]), Color("#C9D2E3"))
+	_poly(root, rounded_rect(44, -120, 26, 34, 6), Color(GOLD, 0.8))
+	_poly(root, rounded_rect(44, -126, 26, 8, 3), dark)
+	_meta(root, 150, 240)
+
+
+static func _knight(root: Node2D) -> void:
+	var plate := Color("#B8923A")
+	var dark := Color("#4A3A22")
+	# Legs
+	_poly(root, rounded_rect(-44, -84, 32, 84, 8), dark)
+	_poly(root, rounded_rect(14, -84, 32, 84, 8), dark)
+	_poly(root, rounded_rect(-48, -40, 40, 14, 4), plate)
+	_poly(root, rounded_rect(10, -40, 40, 14, 4), plate)
+	# Cuirass
+	_poly(root, PackedVector2Array([Vector2(-62, -80), Vector2(62, -80), Vector2(74, -190), Vector2(-74, -190)]), plate)
+	_poly(root, PackedVector2Array([Vector2(0, -80), Vector2(62, -80), Vector2(74, -190), Vector2(0, -190)]), plate.darkened(0.15))
+	_poly(root, VectorIcons._scaled(VectorIcons._star(4, 1.0, 0.4), 18, Vector2(0, -140)), Color("#FFF1B8"))
+	_poly(root, ellipse(Vector2(-74, -186), 32, 22), plate.lightened(0.1))
+	_poly(root, ellipse(Vector2(74, -186), 32, 22), plate.lightened(0.1))
+	# Great helm with plume
+	_poly(root, rounded_rect(-34, -262, 68, 78, 16), plate.lightened(0.05))
+	_poly(root, rounded_rect(-26, -232, 52, 8, 3), Color("#1A140C"))
+	_poly(root, rounded_rect(-3, -248, 6, 40, 2), Color("#1A140C"))
+	_poly(root, PackedVector2Array([Vector2(-6, -262), Vector2(6, -262), Vector2(40, -300), Vector2(20, -306)]), Color("#A3283A"))
+	# Greatsword held forward (left)
+	_poly(root, PackedVector2Array([Vector2(-80, -150), Vector2(-70, -146), Vector2(-150, -300), Vector2(-162, -296)]), Color("#E6E1D2"))
+	_poly(root, rounded_rect(-100, -160, 44, 12, 4), plate.darkened(0.3))
+	_meta(root, 210, 300)
+
+
+static func _reliquary(root: Node2D, glow: Color) -> void:
+	var stone := Color("#4A4036")
+	# Plinth
+	_poly(root, rounded_rect(-60, -40, 120, 40, 6), stone)
+	_poly(root, rounded_rect(-70, -52, 140, 14, 4), stone.lightened(0.1))
+	# Floating shrine box
+	var bob := -20.0
+	_poly(root, rounded_rect(-50, -170 + bob, 100, 100, 10), GOLD.darkened(0.25))
+	_poly(root, rounded_rect(-40, -160 + bob, 80, 80, 8), GOLD.darkened(0.05))
+	_poly(root, PackedVector2Array([Vector2(-58, -170 + bob), Vector2(58, -170 + bob), Vector2(0, -214 + bob)]), GOLD.darkened(0.3))
+	# Glowing relic heart
+	_poly(root, ellipse(Vector2(0, -120 + bob), 40, 40), Color(glow, 0.22))
+	_poly(root, ellipse(Vector2(0, -120 + bob), 18, 18), glow)
+	_poly(root, ellipse(Vector2(-4, -124 + bob), 7, 7), glow.lightened(0.5))
+	_meta(root, 150, 230)
+
+
+static func _censer(root: Node2D) -> void:
+	var robe := Color("#3A4A2A")
+	var brass := Color("#A88A4A")
+	# Hulking robed body
+	_poly(root, PackedVector2Array([Vector2(-70, 0), Vector2(70, 0), Vector2(50, -170), Vector2(-50, -170)]), robe)
+	_poly(root, ellipse(Vector2(0, -180), 56, 30), robe.darkened(0.15))
+	# Plague mask with beak (facing left)
+	_poly(root, ellipse(Vector2(0, -210), 30, 32), Color("#2A2A22"))
+	_poly(root, PackedVector2Array([Vector2(-20, -214), Vector2(-74, -196), Vector2(-20, -196)]), Color("#C9BFA0"))
+	_poly(root, ellipse(Vector2(-10, -218), 7, 7), Color("#9CCB6A"))
+	# Chain and swinging censer
+	_poly(root, PackedVector2Array([Vector2(-40, -130), Vector2(-36, -126), Vector2(-96, -60), Vector2(-100, -64)]), brass.darkened(0.3))
+	_poly(root, ellipse(Vector2(-104, -52), 24, 20), brass)
+	_poly(root, rounded_rect(-114, -76, 20, 10, 3), brass.darkened(0.2))
+	for k in 4:
+		_poly(root, ellipse(Vector2(-104 + k * 10, -90 - k * 22), 12 + k * 3, 10 + k * 2), Color(0.6, 0.8, 0.4, 0.22 - k * 0.04))
+	_meta(root, 190, 250)
+
+
+static func _hierophant(root: Node2D) -> void:
+	var robe := Color("#F2E3B8")
+	var trim := GOLD
+	# Halo
+	_poly(root, ellipse(Vector2(0, -280), 70, 70), Color(trim, 0.25))
+	_poly(root, ellipse(Vector2(0, -280), 56, 56), Color(trim, 0.12))
+	# Vast robes
+	_poly(root, PackedVector2Array([Vector2(-110, 0), Vector2(110, 0), Vector2(56, -230), Vector2(-56, -230)]), robe)
+	_poly(root, PackedVector2Array([Vector2(-20, 0), Vector2(20, 0), Vector2(14, -230), Vector2(-14, -230)]), trim)
+	for i in 4:
+		_poly(root, rounded_rect(-100 + i * 6, -30 - i * 50, 200 - i * 12, 8, 3), trim.darkened(0.15))
+	# Masked face and tall mitre
+	_poly(root, ellipse(Vector2(0, -256), 34, 38), trim.lightened(0.2))
+	_poly(root, ellipse(Vector2(-12, -258), 6, 4), Color("#1A140C"))
+	_poly(root, ellipse(Vector2(12, -258), 6, 4), Color("#1A140C"))
+	_poly(root, PackedVector2Array([Vector2(-40, -286), Vector2(40, -286), Vector2(22, -370), Vector2(0, -392), Vector2(-22, -370)]), robe)
+	_poly(root, rounded_rect(-4, -380, 8, 90, 3), trim)
+	# Sceptre (forward = left)
+	_poly(root, rounded_rect(-120, -300, 10, 300, 4), trim.darkened(0.2))
+	_poly(root, VectorIcons._scaled(VectorIcons._star(8, 1.0, 0.5), 30, Vector2(-115, -310)), trim)
+	_poly(root, ellipse(Vector2(-115, -310), 12, 12), Color("#FFF1B8"))
+	_meta(root, 240, 400)
+
+
+static func _idol(root: Node2D) -> void:
+	var g := GOLD
+	_poly(root, rounded_rect(-44, -30, 88, 30, 6), Color("#4A4036"))
+	_poly(root, PackedVector2Array([Vector2(-34, -30), Vector2(34, -30), Vector2(24, -130), Vector2(-24, -130)]), g.darkened(0.15))
+	_poly(root, ellipse(Vector2(0, -150), 30, 30), g)
+	_poly(root, ellipse(Vector2(-10, -152), 6, 4), Color("#5A3A10"))
+	_poly(root, ellipse(Vector2(10, -152), 6, 4), Color("#5A3A10"))
+	_poly(root, rounded_rect(-10, -138, 20, 4, 2), Color("#5A3A10"))
+	_poly(root, ellipse(Vector2(0, -150), 46, 46), Color(g, 0.15))
+	_meta(root, 110, 190)

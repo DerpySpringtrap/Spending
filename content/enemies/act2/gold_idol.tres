@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_3xofa"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_u6r8m"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_dg2jm"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_mlk0d"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="5_fo35f"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="6_5t7i3"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="7_by1jp"]
+
+[sub_resource type="Resource" id="Resource_3xofa"]
+script = ExtResource("4_mlk0d")
+amount = 5
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_u6r8m"]
+script = ExtResource("2_u6r8m")
+id = &"gild"
+display_name = "Gild"
+intent = 4
+intent_tooltip = "Every enemy gains 5 Block."
+effects = Array[ExtResource("3_dg2jm")]([SubResource("Resource_3xofa")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_dg2jm"]
+script = ExtResource("1_3xofa")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_u6r8m")]([SubResource("Resource_u6r8m")])
+opening_moves = Array[ExtResource("2_u6r8m")]([])
+on_enter_effects = Array[ExtResource("3_dg2jm")]([])
+passive_triggers = Array[ExtResource("5_fo35f")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("6_5t7i3")
+id = &"gold_idol"
+display_name = "Gold Idol"
+tier = 3
+act = 2
+hp_min = 24
+hp_max = 24
+gimmick_text = "Shields the Hierophant every turn. Break the Idols to break its defence."
+starting_statuses = Array[ExtResource("7_by1jp")]([])
+phases = Array[ExtResource("1_3xofa")]([SubResource("Resource_dg2jm")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

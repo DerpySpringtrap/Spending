@@ -29,6 +29,7 @@ enum Decay {
 	DECREMENT_ON_ROUND_END,
 	DECREMENT_ON_TRIGGER, ## Lose one stack each time a trigger fires.
 	REMOVE_ON_TRIGGER,
+	REMOVE_ON_TURN_START, ## Lasts until the owner's next turn (enemy "this turn" buffs).
 }
 
 @export var id: StringName
@@ -62,6 +63,12 @@ enum Decay {
 @export var retains_block: bool = false
 ## The owner skips its next action (Stun). Enemies show a "Stunned" intent.
 @export var skips_turn: bool = false
+## Cheat death once (Gilded Skeleton's Reassemble): on a lethal hit the owner
+## revives at this fraction of max HP, stunned for a turn, and loses the
+## status. Only while another enemy is still standing. 0 = off.
+@export_range(0.0, 1.0) var revive_hp_percent: float = 0.0
+## Loses 1 stack whenever the owner loses HP (Gilded Plate: hits strip it).
+@export var lose_stack_on_hp_lost: bool = false
 ## Extra/fewer cards drawn per turn (player only), per stack.
 @export var draw_per_turn_per_stack: int = 0
 ## Extra/less energy per turn (player only), per stack.

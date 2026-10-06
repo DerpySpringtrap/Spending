@@ -1,5 +1,5 @@
 extends Node
-## Headless full-run simulator: plays complete Act 1 runs with simple policies
+## Headless full-run simulator: plays complete runs (every act) with simple policies
 ## (GreedyPlayerAI in combat, heuristic choices elsewhere). Catches crashes in
 ## the run loop and gives a first read on difficulty.
 ##
@@ -35,7 +35,7 @@ func _ready() -> void:
 			deck_sizes += result.deck
 		else:
 			_deaths[result.killer] = _deaths.get(result.killer, 0) + 1
-	print("\nRun simulator: %d Act 1 runs, A%d, %.1fs" % [_runs, _ascension, (Time.get_ticks_msec() - started) / 1000.0])
+	print("\nRun simulator: %d runs, A%d, %.1fs" % [_runs, _ascension, (Time.get_ticks_msec() - started) / 1000.0])
 	print("Win rate: %.1f%%   Avg floor reached: %.1f   Avg HP left on wins: %.0f   Avg deck size on wins: %.1f" % [
 		100.0 * _wins / _runs, float(_floors) / _runs, float(final_hp_total) / maxi(_wins, 1), float(deck_sizes) / maxi(_wins, 1)])
 	var killers := _deaths.keys()
@@ -51,13 +51,13 @@ func _play_run(seed_value: int) -> Dictionary:
 	RunState.start(ContentDB.get_character_class(_class_id), _ascension, seed_value)
 	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), 1)
 	var guard := 0
-	while guard < 40:
+	while guard < 40 * GameManager.FINAL_ACT:
 		guard += 1
 		var options := MapGenerator.reachable(RunState.map_data, RunState.current_node)
 		if options.is_empty():
 			_errors += 1
 			push_error("run %d: no reachable nodes from %s" % [seed_value, RunState.current_node])
-			return {"won": false, "floor": RunState.floor_number, "killer": "<stuck>", "hp": 0, "deck": 0}
+			return {"won": false, "floor": RunState.total_floor(), "killer": "<stuck>", "hp": 0, "deck": 0}
 		var node_id := _choose_node(options)
 		RunState.current_node = node_id
 		var node := RunState.current_map_node()
@@ -67,9 +67,13 @@ func _play_run(seed_value: int) -> Dictionary:
 			MapGenerator.TYPE_MONSTER, MapGenerator.TYPE_ELITE, MapGenerator.TYPE_BOSS:
 				var enc := RunLogic.pick_encounter(type)
 				if not _fight(enc):
-					return {"won": false, "floor": RunState.floor_number, "killer": String(enc.id), "hp": 0, "deck": 0}
+					return {"won": false, "floor": RunState.total_floor(), "killer": String(enc.id), "hp": 0, "deck": 0}
 				if type == MapGenerator.TYPE_BOSS:
-					return {"won": true, "floor": RunState.floor_number, "killer": "", "hp": RunState.hp, "deck": RunState.deck.size()}
+					if RunState.act >= GameManager.FINAL_ACT:
+						return {"won": true, "floor": RunState.total_floor(), "killer": "", "hp": RunState.hp, "deck": RunState.deck.size()}
+					_take_rewards(RunLogic.combat_rewards(type))
+					RunLogic.advance_act()
+					continue
 				if type == MapGenerator.TYPE_MONSTER:
 					RunState.monster_fights += 1
 				_take_rewards(RunLogic.combat_rewards(type))
@@ -81,9 +85,9 @@ func _play_run(seed_value: int) -> Dictionary:
 				_take_rewards(RunLogic.treasure_rewards())
 			MapGenerator.TYPE_EVENT:
 				if not _event():
-					return {"won": false, "floor": RunState.floor_number, "killer": "event fight", "hp": 0, "deck": 0}
+					return {"won": false, "floor": RunState.total_floor(), "killer": "event fight", "hp": 0, "deck": 0}
 	_errors += 1
-	return {"won": false, "floor": RunState.floor_number, "killer": "<loop>", "hp": 0, "deck": 0}
+	return {"won": false, "floor": RunState.total_floor(), "killer": "<loop>", "hp": 0, "deck": 0}
 
 
 func _choose_node(options: Array[String]) -> String:
@@ -108,11 +112,13 @@ func _choose_node(options: Array[String]) -> String:
 func _fight(enc: EncounterData) -> bool:
 	var combat := CombatState.create(RunState.get_class_data(), RunState.deck, RunState.hp, RunState.max_hp,
 			RunState.relics, enc, RunState.ascension, RunState.rng)
+	combat.player_gold = RunState.gold
 	combat.start()
 	if enc.pool == EncounterData.Pool.ELITE or enc.pool == EncounterData.Pool.BOSS:
 		_ai.use_all_potions(combat, RunState.potions)
 	while not combat.is_over():
 		_ai.play_turn(combat)
+	RunState.add_gold(combat.player_gold - RunState.gold)
 	if combat.result == CombatState.Result.VICTORY:
 		RunState.set_hp(combat.player.hp)
 		return true
@@ -127,6 +133,7 @@ func _take_rewards(rewards: Array[Dictionary]) -> void:
 		match r.type:
 			"gold": RunState.add_gold(r.amount)
 			"relic": RunState.add_relic(r.relic)
+			"relic_choice": RunState.add_relic(r.choices[0])
 			"potion": RunState.add_potion(r.potion)
 			"card":
 				if RunState.deck.size() < 22 and not r.choices.is_empty():

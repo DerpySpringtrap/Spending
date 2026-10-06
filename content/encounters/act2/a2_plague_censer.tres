@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_ntlwf"]
+[ext_resource type="Resource" path="res://content/enemies/act2/plague_censer.tres" id="2_0hf0g"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="3_5wute"]
+
+[resource]
+script = ExtResource("3_5wute")
+id = &"a2_plague_censer"
+act = 2
+pool = 2
+enemies = Array[ExtResource("1_ntlwf")]([ExtResource("2_0hf0g")])
+weight = 1.0
+exclusive_with = Array[StringName]([])
