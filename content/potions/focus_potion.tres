@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_ivd1o"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_energy_effect.gd" id="2_v0m0w"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="3_2ujnd"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="4_rxupu"]
+
+[sub_resource type="Resource" id="Resource_bs2if"]
+script = ExtResource("2_v0m0w")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_fpw1v"]
+script = ExtResource("3_2ujnd")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_rxupu")
+id = &"focus_potion"
+display_name = "Focus Potion"
+description = "Gain 1 Energy and draw 2 cards."
+liquid_color = Color(0.72549, 0.65098, 0.909804, 1)
+rarity = 1
+class_restriction = &""
+target_mode = 0
+effects = Array[ExtResource("1_ivd1o")]([SubResource("Resource_bs2if"), SubResource("Resource_fpw1v")])
+usable_outside_combat = false

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_e74n2"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_l860d"]
+[ext_resource type="Resource" path="res://content/statuses/thorns.tres" id="3_a2uws"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="4_wfxq8"]
+
+[sub_resource type="Resource" id="Resource_h0rq3"]
+script = ExtResource("2_l860d")
+status = ExtResource("3_a2uws")
+amount = 6
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_wfxq8")
+id = &"thorn_tonic"
+display_name = "Thorn Tonic"
+description = "Gain 6 Thorns."
+liquid_color = Color(0.709804, 0.627451, 0.415686, 1)
+rarity = 1
+class_restriction = &""
+target_mode = 0
+effects = Array[ExtResource("1_e74n2")]([SubResource("Resource_h0rq3")])
+usable_outside_combat = false

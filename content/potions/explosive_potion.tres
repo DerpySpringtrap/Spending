@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_qopvo"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_hkix6"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="3_6721b"]
+
+[sub_resource type="Resource" id="Resource_ycrm3"]
+script = ExtResource("2_hkix6")
+damage_type = 5
+lifesteal = false
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 2
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("3_6721b")
+id = &"explosive_potion"
+display_name = "Explosive Potion"
+description = "Deal 10 damage to ALL enemies."
+liquid_color = Color(0.941176, 0.478431, 0.164706, 1)
+rarity = 0
+class_restriction = &""
+target_mode = 2
+effects = Array[ExtResource("1_qopvo")]([SubResource("Resource_ycrm3")])
+usable_outside_combat = false

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_lstnm"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_3mv54"]
+[ext_resource type="Resource" path="res://content/statuses/poison.tres" id="3_oihmk"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="4_j1kac"]
+
+[sub_resource type="Resource" id="Resource_lngty"]
+script = ExtResource("2_3mv54")
+status = ExtResource("3_oihmk")
+amount = 8
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_j1kac")
+id = &"poison_potion"
+display_name = "Poison Potion"
+description = "Apply 8 Poison to an enemy."
+liquid_color = Color(0.482353, 0.788235, 0.313726, 1)
+rarity = 0
+class_restriction = &""
+target_mode = 1
+effects = Array[ExtResource("1_lstnm")]([SubResource("Resource_lngty")])
+usable_outside_combat = false

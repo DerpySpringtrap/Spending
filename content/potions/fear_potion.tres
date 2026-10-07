@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="PotionData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_71m5m"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_cleke"]
+[ext_resource type="Resource" path="res://content/statuses/vulnerable.tres" id="3_dkt3a"]
+[ext_resource type="Script" path="res://src/data/potion_data.gd" id="4_srkhb"]
+
+[sub_resource type="Resource" id="Resource_8qyao"]
+script = ExtResource("2_cleke")
+status = ExtResource("3_dkt3a")
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_srkhb")
+id = &"fear_potion"
+display_name = "Fear Potion"
+description = "Apply 3 Vulnerable to an enemy."
+liquid_color = Color(0.878431, 0.627451, 0.25098, 1)
+rarity = 0
+class_restriction = &""
+target_mode = 1
+effects = Array[ExtResource("1_71m5m")]([SubResource("Resource_8qyao")])
+usable_outside_combat = false

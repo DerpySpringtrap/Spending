@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_nrycs"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_wjjy3"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="3_h7hcs"]
+
+[sub_resource type="Resource" id="Resource_b2v1x"]
+script = ExtResource("2_wjjy3")
+type = 7
+amount = 0
+percent = false
+rarity = 2
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_ryd0v"]
+script = ExtResource("2_wjjy3")
+type = 7
+amount = 0
+percent = false
+rarity = 2
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_lkibu"]
+script = ExtResource("1_nrycs")
+text = "Shout"
+result_text = "The echoes teach you something new."
+outcomes = Array[ExtResource("2_wjjy3")]([SubResource("Resource_b2v1x"), SubResource("Resource_ryd0v")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_0h262"]
+script = ExtResource("2_wjjy3")
+type = 3
+amount = 8
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_c1emi"]
+script = ExtResource("2_wjjy3")
+type = 7
+amount = 0
+percent = false
+rarity = 3
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_hwrgg"]
+script = ExtResource("1_nrycs")
+text = "Listen in silence (lose 8 HP)"
+result_text = "The silence cuts, but you hear a rare truth."
+outcomes = Array[ExtResource("2_wjjy3")]([SubResource("Resource_0h262"), SubResource("Resource_c1emi")])
+min_gold = 0
+min_hp = 8
+
+[sub_resource type="Resource" id="Resource_nc023"]
+script = ExtResource("1_nrycs")
+text = "Leave quietly"
+result_text = "Your footsteps follow you out."
+outcomes = Array[ExtResource("2_wjjy3")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("3_h7hcs")
+id = &"echoing_chamber"
+title = "The Echoing Chamber"
+description = "Every sound you make here returns twice, then three times, each echo a little different from the last."
+act = 3
+glyph = &"star"
+choices = Array[ExtResource("1_nrycs")]([SubResource("Resource_lkibu"), SubResource("Resource_hwrgg"), SubResource("Resource_nc023")])

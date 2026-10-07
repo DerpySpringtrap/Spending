@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_lio6t"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_vsomh"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="3_pqmo8"]
+
+[sub_resource type="Resource" id="Resource_pf602"]
+script = ExtResource("2_vsomh")
+type = 1
+amount = 50
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_ioykw"]
+script = ExtResource("2_vsomh")
+type = 8
+amount = 0
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_nad0e"]
+script = ExtResource("1_lio6t")
+text = "Confess (lose 50 gold)"
+result_text = "You leave lighter in more ways than one."
+outcomes = Array[ExtResource("2_vsomh")]([SubResource("Resource_pf602"), SubResource("Resource_ioykw")])
+min_gold = 50
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_6xs5m"]
+script = ExtResource("2_vsomh")
+type = 10
+amount = 2
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_k587m"]
+script = ExtResource("1_lio6t")
+text = "Ask for a blessing"
+result_text = "A hand passes two silver threads through the grille."
+outcomes = Array[ExtResource("2_vsomh")]([SubResource("Resource_6xs5m")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_kktt5"]
+script = ExtResource("1_lio6t")
+text = "Walk away"
+result_text = "The breathing stops."
+outcomes = Array[ExtResource("2_vsomh")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("3_pqmo8")
+id = &"confessional"
+title = "The Confessional"
+description = "A booth of carved black wood. Behind the grille, someone breathes and waits."
+act = 2
+glyph = &"skull"
+choices = Array[ExtResource("1_lio6t")]([SubResource("Resource_nad0e"), SubResource("Resource_k587m"), SubResource("Resource_kktt5")])

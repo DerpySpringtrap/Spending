@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/relic_data.gd" id="1_8qgbf"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_a4axx"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_l705s"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_7oq8h"]
+
+[sub_resource type="Resource" id="Resource_rn7j5"]
+script = ExtResource("4_7oq8h")
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ybq5e"]
+script = ExtResource("2_a4axx")
+timing = 3
+condition = 0
+effects = Array[ExtResource("3_l705s")]([SubResource("Resource_rn7j5")])
+amount_from_stacks = false
+every_nth = 2
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("1_8qgbf")
+id = &"oaken_buckler"
+display_name = "Oaken Buckler"
+description = "At the start of every 2nd turn in a combat, gain 10 Block."
+flavor = "Late to every fight, but never misses one."
+rarity = 1
+class_restriction = &""
+triggers = Array[ExtResource("2_a4axx")]([SubResource("Resource_ybq5e")])
+counter_max = 2
+max_energy_bonus = 0
+draw_per_turn_bonus = 0
+max_hp_bonus = 0
+potion_slot_bonus = 0
+gold_gain_multiplier = 1.0
+shop_price_multiplier = 1.0
+requires_unlock = false
+unlock_level = 1

@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_py4dm"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_cicpr"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="3_31qks"]
+
+[sub_resource type="Resource" id="Resource_qe718"]
+script = ExtResource("2_cicpr")
+type = 12
+amount = 2
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_qhgme"]
+script = ExtResource("1_py4dm")
+text = "Take the bottles"
+result_text = "Two of them survived the fall."
+outcomes = Array[ExtResource("2_cicpr")]([SubResource("Resource_qe718")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_42fu0"]
+script = ExtResource("2_cicpr")
+type = 3
+amount = 6
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_fatsl"]
+script = ExtResource("2_cicpr")
+type = 0
+amount = 70
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_ftgrn"]
+script = ExtResource("1_py4dm")
+text = "Break open the strongbox (lose 6 HP)"
+result_text = "Your hands bleed, but the box gives."
+outcomes = Array[ExtResource("2_cicpr")]([SubResource("Resource_42fu0"), SubResource("Resource_fatsl")])
+min_gold = 0
+min_hp = 6
+
+[sub_resource type="Resource" id="Resource_ggw8w"]
+script = ExtResource("1_py4dm")
+text = "Leave it"
+result_text = "Someone may come back for it."
+outcomes = Array[ExtResource("2_cicpr")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("3_31qks")
+id = &"lost_cart"
+title = "The Lost Cart"
+description = "A merchant's cart lies tipped in the mud, its owner long gone. Bottles clink inside; a strongbox is chained to the axle."
+act = 1
+glyph = &"coin"
+choices = Array[ExtResource("1_py4dm")]([SubResource("Resource_qhgme"), SubResource("Resource_ftgrn"), SubResource("Resource_ggw8w")])

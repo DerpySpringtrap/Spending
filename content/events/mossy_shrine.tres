@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_pl4r7"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_xjuyk"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="3_02wcf"]
+
+[sub_resource type="Resource" id="Resource_lm4n8"]
+script = ExtResource("2_xjuyk")
+type = 2
+amount = 20
+percent = true
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_c8ma3"]
+script = ExtResource("1_pl4r7")
+text = "Pray"
+result_text = "Warmth spreads through you."
+outcomes = Array[ExtResource("2_xjuyk")]([SubResource("Resource_lm4n8")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_7hvw1"]
+script = ExtResource("2_xjuyk")
+type = 1
+amount = 30
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_3dq3o"]
+script = ExtResource("2_xjuyk")
+type = 4
+amount = 6
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_q2opv"]
+script = ExtResource("1_pl4r7")
+text = "Offer 30 gold"
+result_text = "The moss glows. You feel sturdier."
+outcomes = Array[ExtResource("2_xjuyk")]([SubResource("Resource_7hvw1"), SubResource("Resource_3dq3o")])
+min_gold = 30
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_03r0x"]
+script = ExtResource("1_pl4r7")
+text = "Leave"
+result_text = "The shrine keeps its secrets."
+outcomes = Array[ExtResource("2_xjuyk")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("3_02wcf")
+id = &"mossy_shrine"
+title = "A Mossy Shrine"
+description = "A small stone shrine, half swallowed by moss. A bowl for offerings sits in front of it."
+act = 1
+glyph = &"sparkle"
+choices = Array[ExtResource("1_pl4r7")]([SubResource("Resource_c8ma3"), SubResource("Resource_q2opv"), SubResource("Resource_03r0x")])
