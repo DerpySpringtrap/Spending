@@ -59,7 +59,7 @@ func start_new_run(class_id: StringName, ascension: int = 0, run_seed: int = -1)
 	if run_seed < 0:
 		run_seed = randi()
 	RunState.start(class_data, clampi(ascension, 0, MAX_ASCENSION), run_seed)
-	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), 1, RunState.ascension)
+	RunState.map_data = MapGenerator.generate(RunState.shared_rng.get_stream(&"map"), 1, RunState.ascension)
 	MetaProgress.stats["runs_started"] += 1
 	MetaProgress.save_meta()
 	EventBus.run_started.emit(class_id, ascension, run_seed)
@@ -94,7 +94,7 @@ func end_run(victory: bool) -> void:
 		"act": RunState.act, "floor": floors, "xp": xp, "gold": RunState.gold,
 		"hp": RunState.hp, "max_hp": RunState.max_hp,
 		"deck": RunState.deck.duplicate(), "relics": RunState.relics.duplicate(),
-		"stats": RunState.run_stats.duplicate(), "seed": RunState.rng.seed_value,
+		"stats": RunState.run_stats.duplicate(), "seed": RunState.shared_rng.seed_value,
 		"meta": meta,
 	}
 	EventBus.run_ended.emit(victory)

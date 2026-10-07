@@ -106,7 +106,7 @@ func _start_fight() -> void:
 		enc = _random_encounter()
 	_encounter = enc
 	combat = CombatState.create(RunState.get_class_data(), RunState.deck, RunState.hp, RunState.max_hp,
-			RunState.relics, enc, RunState.ascension, RunState.rng)
+			RunState.relics, enc, RunState.ascension, RunState.shared_rng)
 	combat.player_gold = RunState.gold
 	combat.interactive = true
 	_top_bar.refresh()
@@ -229,7 +229,7 @@ func _random_encounter() -> EncounterData:
 	var options: Array[EncounterData] = []
 	options.append_array(ContentDB.get_encounters(1, EncounterData.Pool.EASY))
 	options.append_array(ContentDB.get_encounters(1, EncounterData.Pool.HARD))
-	return RunState.rng.pick(options, &"encounters")
+	return RunState.shared_rng.pick(options, &"encounters")
 
 
 func _listen(sig: Signal, callable: Callable) -> void:

@@ -113,7 +113,7 @@ func _choose_node(options: Array[String]) -> String:
 
 func _fight(enc: EncounterData) -> bool:
 	var combat := CombatState.create(RunState.get_class_data(), RunState.deck, RunState.hp, RunState.max_hp,
-			RunState.relics, enc, RunState.ascension, RunState.rng)
+			RunState.relics, enc, RunState.ascension, RunState.shared_rng)
 	combat.player_gold = RunState.gold
 	combat.start()
 	if enc.pool == EncounterData.Pool.ELITE or enc.pool == EncounterData.Pool.BOSS:

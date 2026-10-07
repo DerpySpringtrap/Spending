@@ -163,17 +163,18 @@ static func roll_boss_relics(count: int) -> Array[RelicData]:
 	return options.slice(0, count)
 
 
-## Moves the run to the next act: heal part of the missing HP, new map, and
-## the easy-fight counter starts over.
+## Moves the run to the next act: every player heals part of their missing HP,
+## new map, and the easy-fight counter starts over.
 static func advance_act() -> void:
 	RunState.act += 1
-	RunState.heal(ceili((RunState.max_hp - RunState.hp) * ACT_HEAL))
+	for s in RunState.seats:
+		RunState.with_seat(s.index, func(): RunState.heal(ceili((RunState.max_hp - RunState.hp) * ACT_HEAL)))
 	RunState.monster_fights = 0
 	RunState.seen_encounters.clear()
 	if RunState.act >= GameManager.SECRET_ACT:
 		RunState.map_data = MapGenerator.generate_final(RunState.act)
 	else:
-		RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), RunState.act, RunState.ascension)
+		RunState.map_data = MapGenerator.generate(RunState.shared_rng.get_stream(&"map"), RunState.act, RunState.ascension)
 	RunState.current_node = ""
 	RunState.visited_nodes.clear()
 	RunState.floor_number = 0
@@ -208,7 +209,7 @@ static func pick_encounter(node_type: String) -> EncounterData:
 	if fresh.is_empty():
 		fresh = options
 	var weights := fresh.map(func(e): return e.weight)
-	var enc: EncounterData = RunState.rng.pick_weighted(fresh, weights, &"encounters")
+	var enc: EncounterData = RunState.shared_rng.pick_weighted(fresh, weights, &"encounters")
 	RunState.seen_encounters.append(String(enc.id))
 	return enc
 
@@ -219,7 +220,7 @@ static func pick_event() -> EventData:
 		options = ContentDB.get_events(RunState.act)
 	if options.is_empty():
 		return null
-	var ev: EventData = RunState.rng.pick(options, &"events")
+	var ev: EventData = RunState.shared_rng.pick(options, &"events")
 	RunState.seen_events.append(String(ev.id))
 	return ev
 

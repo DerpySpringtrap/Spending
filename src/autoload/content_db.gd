@@ -160,3 +160,13 @@ func get_relics_by_rarity(rarity: RelicData.Rarity, class_id: StringName = &"") 
 				and MetaProgress.is_level_unlocked(class_id, relic.unlock_level):
 			result.append(relic)
 	return result
+
+
+## Fingerprint of the loaded content: co-op players must run the same build.
+func signature() -> String:
+	var parts: PackedStringArray = []
+	for table in [cards, statuses, relics, potions, enemies, encounters, classes, events]:
+		var ids: Array = table.keys()
+		ids.sort()
+		parts.append(str(hash(str(ids))))
+	return "-".join(parts)
