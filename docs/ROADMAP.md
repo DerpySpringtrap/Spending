@@ -91,3 +91,4 @@ Play-testing feedback on Act 2 difficulty is the most useful next input.
 
 ## Backlog (requested, not yet scheduled)
 - **Card art:** every card gets its own illustration. Art is themed per class, so the same kind of card (e.g. an attack) looks different for the Pyre Warden than for the Moonblade, and depicts what that specific card does. Hook: `CardData.art` already exists; `CardView` currently draws a placeholder type glyph when it's empty. Lower priority than sound, the second class and Act 2.
+- **Real audio to replace the synthesized placeholders:** source sound effects from free SFX sites and copyright-free music (CC0 preferred; anything CC-BY gets a line in `CREDITS.md`). If downloads are blocked in the build environment, send the user a list of links to download and hand back. The swap is data-only: drop files with the same names into `assets/audio/` or edit the tables in `src/audio/sound_bank.gd`. Requested for later, not now.
