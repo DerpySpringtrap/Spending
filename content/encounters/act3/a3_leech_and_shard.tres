@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_mq200"]
+[ext_resource type="Resource" path="res://content/enemies/act3/void_leech.tres" id="2_ivtqg"]
+[ext_resource type="Resource" path="res://content/enemies/act3/star_shard.tres" id="3_4l4to"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_1eof7"]
+
+[resource]
+script = ExtResource("4_1eof7")
+id = &"a3_leech_and_shard"
+act = 3
+pool = 1
+enemies = Array[ExtResource("1_mq200")]([ExtResource("2_ivtqg"), ExtResource("3_4l4to")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

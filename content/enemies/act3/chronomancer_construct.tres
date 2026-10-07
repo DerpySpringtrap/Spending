@@ -1,0 +1,139 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_b76wx"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_oktx5"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_phwyh"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_sp28n"]
+[ext_resource type="Resource" path="res://content/cards/status/stasis.tres" id="5_cr3nm"]
+[ext_resource type="Script" path="res://src/combat/effects/add_card_to_pile_effect.gd" id="6_u31yf"]
+[ext_resource type="Script" path="res://src/combat/effects/remove_debuffs_effect.gd" id="7_bc5x0"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="8_v2w0p"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="9_1escc"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="10_2jvck"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="11_cnobi"]
+[ext_resource type="Resource" path="res://content/statuses/clockwork_tick.tres" id="12_n88b3"]
+
+[sub_resource type="Resource" id="Resource_b76wx"]
+script = ExtResource("4_sp28n")
+damage_type = 0
+lifesteal = false
+amount = 10
+upgrade_delta = 0
+times = 2
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_oktx5"]
+script = ExtResource("2_oktx5")
+id = &"gear_grind"
+display_name = "Gear Grind"
+intent = 0
+intent_tooltip = "Attacks for {dmg} twice."
+effects = Array[ExtResource("3_phwyh")]([SubResource("Resource_b76wx")])
+weight = 2.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_phwyh"]
+script = ExtResource("6_u31yf")
+card = ExtResource("5_cr3nm")
+pile = 1
+upgraded = false
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_sp28n"]
+script = ExtResource("2_oktx5")
+id = &"stasis"
+display_name = "Stasis"
+intent = 8
+intent_tooltip = "Puts 2 Stasis into your hand."
+effects = Array[ExtResource("3_phwyh")]([SubResource("Resource_phwyh")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 2
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_cr3nm"]
+script = ExtResource("7_bc5x0")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_u31yf"]
+script = ExtResource("8_v2w0p")
+amount = 18
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_bc5x0"]
+script = ExtResource("2_oktx5")
+id = &"reset"
+display_name = "Reset"
+intent = 4
+intent_tooltip = "Removes its debuffs and gains 18 Block."
+effects = Array[ExtResource("3_phwyh")]([SubResource("Resource_cr3nm"), SubResource("Resource_u31yf")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 2
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_v2w0p"]
+script = ExtResource("1_b76wx")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_oktx5")]([SubResource("Resource_oktx5"), SubResource("Resource_sp28n"), SubResource("Resource_bc5x0")])
+opening_moves = Array[ExtResource("2_oktx5")]([])
+on_enter_effects = Array[ExtResource("3_phwyh")]([])
+passive_triggers = Array[ExtResource("9_1escc")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_1escc"]
+script = ExtResource("11_cnobi")
+status = ExtResource("12_n88b3")
+stacks = 1
+
+[resource]
+script = ExtResource("10_2jvck")
+id = &"chronomancer_construct"
+display_name = "Chronomancer Construct"
+tier = 1
+act = 3
+hp_min = 130
+hp_max = 136
+gimmick_text = "Tick: every 10 cards you play, it strikes for 12. Stasis clogs your next hand."
+starting_statuses = Array[ExtResource("11_cnobi")]([SubResource("Resource_1escc")])
+phases = Array[ExtResource("1_b76wx")]([SubResource("Resource_v2w0p")])
+gold_min = 30
+gold_max = 40
+has_intro_cinematic = false
+intro_title = ""

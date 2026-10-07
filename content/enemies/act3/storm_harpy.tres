@@ -1,0 +1,155 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_y38ye"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_a66gw"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_dp421"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_1b3y0"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_42447"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="6_u13uw"]
+[ext_resource type="Resource" path="res://content/statuses/airborne.tres" id="7_nmutc"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_x44uv"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_7amgq"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_kpp8t"]
+
+[sub_resource type="Resource" id="Resource_y38ye"]
+script = ExtResource("4_1b3y0")
+damage_type = 0
+lifesteal = false
+amount = 4
+upgrade_delta = 0
+times = 3
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_a66gw"]
+script = ExtResource("2_a66gw")
+id = &"gale"
+display_name = "Gale"
+intent = 0
+intent_tooltip = "Attacks for {dmg} 3 times."
+effects = Array[ExtResource("3_dp421")]([SubResource("Resource_y38ye")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_dp421"]
+script = ExtResource("5_42447")
+status = ExtResource("6_u13uw")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_1b3y0"]
+script = ExtResource("2_a66gw")
+id = &"shriek"
+display_name = "Shriek"
+intent = 7
+intent_tooltip = "Applies 2 Weak."
+effects = Array[ExtResource("3_dp421")]([SubResource("Resource_dp421")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_42447"]
+script = ExtResource("5_42447")
+status = ExtResource("7_nmutc")
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_u13uw"]
+script = ExtResource("2_a66gw")
+id = &"ascend"
+display_name = "Ascend"
+intent = 10
+intent_tooltip = "Takes to the air (Airborne 3). Dives next turn."
+effects = Array[ExtResource("3_dp421")]([SubResource("Resource_42447")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_nmutc"]
+script = ExtResource("4_1b3y0")
+damage_type = 0
+lifesteal = false
+amount = 13
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_x44uv"]
+script = ExtResource("2_a66gw")
+id = &"dive"
+display_name = "Dive"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_dp421")]([SubResource("Resource_nmutc")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_7amgq"]
+script = ExtResource("1_y38ye")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 0
+moves = Array[ExtResource("2_a66gw")]([SubResource("Resource_a66gw"), SubResource("Resource_1b3y0"), SubResource("Resource_u13uw"), SubResource("Resource_x44uv")])
+opening_moves = Array[ExtResource("2_a66gw")]([])
+on_enter_effects = Array[ExtResource("3_dp421")]([])
+passive_triggers = Array[ExtResource("8_x44uv")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_kpp8t"]
+script = ExtResource("10_kpp8t")
+status = ExtResource("7_nmutc")
+stacks = 3
+
+[resource]
+script = ExtResource("9_7amgq")
+id = &"storm_harpy"
+display_name = "Storm Harpy"
+tier = 0
+act = 3
+hp_min = 38
+hp_max = 42
+gimmick_text = "Airborne: takes half damage until hit 3 times. Multi-hit attacks bring it down."
+starting_statuses = Array[ExtResource("10_kpp8t")]([SubResource("Resource_kpp8t")])
+phases = Array[ExtResource("1_y38ye")]([SubResource("Resource_7amgq")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

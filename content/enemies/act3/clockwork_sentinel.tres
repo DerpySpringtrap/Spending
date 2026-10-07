@@ -1,0 +1,127 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_nylck"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_816le"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_bk7lx"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_6j7ux"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_3hfu0"]
+[ext_resource type="Resource" path="res://content/statuses/lock_on.tres" id="6_vsvup"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="7_wrfyf"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_0wy63"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_mny4c"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_fyhts"]
+[ext_resource type="Resource" path="res://content/statuses/overclock.tres" id="11_fxcvr"]
+
+[sub_resource type="Resource" id="Resource_nylck"]
+script = ExtResource("4_6j7ux")
+damage_type = 0
+lifesteal = false
+amount = 7
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_816le"]
+script = ExtResource("2_816le")
+id = &"pulse"
+display_name = "Pulse"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_bk7lx")]([SubResource("Resource_nylck")])
+weight = 2.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_bk7lx"]
+script = ExtResource("5_3hfu0")
+status = ExtResource("6_vsvup")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_6j7ux"]
+script = ExtResource("2_816le")
+id = &"lock_on"
+display_name = "Lock-On"
+intent = 6
+intent_tooltip = "Its next attack deals double damage."
+effects = Array[ExtResource("3_bk7lx")]([SubResource("Resource_bk7lx")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 2
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_3hfu0"]
+script = ExtResource("7_wrfyf")
+amount = 14
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_vsvup"]
+script = ExtResource("2_816le")
+id = &"purge"
+display_name = "Purge"
+intent = 4
+intent_tooltip = "Gains 14 Block."
+effects = Array[ExtResource("3_bk7lx")]([SubResource("Resource_3hfu0")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_wrfyf"]
+script = ExtResource("1_nylck")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_816le")]([SubResource("Resource_816le"), SubResource("Resource_6j7ux"), SubResource("Resource_vsvup")])
+opening_moves = Array[ExtResource("2_816le")]([])
+on_enter_effects = Array[ExtResource("3_bk7lx")]([])
+passive_triggers = Array[ExtResource("8_0wy63")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_0wy63"]
+script = ExtResource("10_fyhts")
+status = ExtResource("11_fxcvr")
+stacks = 2
+
+[resource]
+script = ExtResource("9_mny4c")
+id = &"clockwork_sentinel"
+display_name = "Clockwork Sentinel"
+tier = 0
+act = 3
+hp_min = 50
+hp_max = 55
+gimmick_text = "Overclock: grows stronger every turn. Kill it before it outpaces you."
+starting_statuses = Array[ExtResource("10_fyhts")]([SubResource("Resource_0wy63")])
+phases = Array[ExtResource("1_nylck")]([SubResource("Resource_wrfyf")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_rdhlf"]
+[ext_resource type="Resource" path="res://content/enemies/act3/storm_harpy.tres" id="2_gtb4u"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="3_yjn14"]
+
+[resource]
+script = ExtResource("3_yjn14")
+id = &"a3_harpy"
+act = 3
+pool = 0
+enemies = Array[ExtResource("1_rdhlf")]([ExtResource("2_gtb4u")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

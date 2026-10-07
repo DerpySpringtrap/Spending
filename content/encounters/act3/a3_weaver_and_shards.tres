@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_k4bax"]
+[ext_resource type="Resource" path="res://content/enemies/act3/astral_weaver.tres" id="2_036hp"]
+[ext_resource type="Resource" path="res://content/enemies/act3/star_shard.tres" id="3_agsgd"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_a6hnt"]
+
+[resource]
+script = ExtResource("4_a6hnt")
+id = &"a3_weaver_and_shards"
+act = 3
+pool = 1
+enemies = Array[ExtResource("1_k4bax")]([ExtResource("2_036hp"), ExtResource("3_agsgd"), ExtResource("3_agsgd")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

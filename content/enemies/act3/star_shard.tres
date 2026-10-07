@@ -1,0 +1,111 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_w82is"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_iwydk"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_pwvki"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_tiyro"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_c02jy"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="6_yeyhk"]
+[ext_resource type="Resource" path="res://content/statuses/vulnerable.tres" id="7_mje04"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_3h2qx"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_66k1e"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_k07t2"]
+[ext_resource type="Resource" path="res://content/statuses/constellation.tres" id="11_8p7ut"]
+
+[sub_resource type="Resource" id="Resource_w82is"]
+script = ExtResource("4_tiyro")
+damage_type = 0
+lifesteal = false
+amount = 5
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_iwydk"]
+script = ExtResource("2_iwydk")
+id = &"prism_ray"
+display_name = "Prism Ray"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_pwvki")]([SubResource("Resource_w82is")])
+weight = 2.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_pwvki"]
+script = ExtResource("5_c02jy")
+status = ExtResource("6_yeyhk")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_tiyro"]
+script = ExtResource("5_c02jy")
+status = ExtResource("7_mje04")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_c02jy"]
+script = ExtResource("2_iwydk")
+id = &"refract"
+display_name = "Refract"
+intent = 7
+intent_tooltip = "Applies 1 Weak and 1 Vulnerable."
+effects = Array[ExtResource("3_pwvki")]([SubResource("Resource_pwvki"), SubResource("Resource_tiyro")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_yeyhk"]
+script = ExtResource("1_w82is")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_iwydk")]([SubResource("Resource_iwydk"), SubResource("Resource_c02jy")])
+opening_moves = Array[ExtResource("2_iwydk")]([])
+on_enter_effects = Array[ExtResource("3_pwvki")]([])
+passive_triggers = Array[ExtResource("8_3h2qx")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_mje04"]
+script = ExtResource("10_k07t2")
+status = ExtResource("11_8p7ut")
+stacks = 1
+
+[resource]
+script = ExtResource("9_66k1e")
+id = &"star_shard"
+display_name = "Star Shard"
+tier = 0
+act = 3
+hp_min = 18
+hp_max = 22
+gimmick_text = "Constellation: when a shard dies, the others grow stronger. Kill them together or very fast."
+starting_statuses = Array[ExtResource("10_k07t2")]([SubResource("Resource_mje04")])
+phases = Array[ExtResource("1_w82is")]([SubResource("Resource_yeyhk")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

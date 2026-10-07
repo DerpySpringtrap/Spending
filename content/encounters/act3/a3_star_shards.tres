@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_mmny7"]
+[ext_resource type="Resource" path="res://content/enemies/act3/star_shard.tres" id="2_ta1pv"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="3_l5tlt"]
+
+[resource]
+script = ExtResource("3_l5tlt")
+id = &"a3_star_shards"
+act = 3
+pool = 0
+enemies = Array[ExtResource("1_mmny7")]([ExtResource("2_ta1pv"), ExtResource("2_ta1pv"), ExtResource("2_ta1pv")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

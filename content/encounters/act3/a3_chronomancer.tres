@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_eukaq"]
+[ext_resource type="Resource" path="res://content/enemies/act3/chronomancer_construct.tres" id="2_m8typ"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="3_nch8u"]
+
+[resource]
+script = ExtResource("3_nch8u")
+id = &"a3_chronomancer"
+act = 3
+pool = 2
+enemies = Array[ExtResource("1_eukaq")]([ExtResource("2_m8typ")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

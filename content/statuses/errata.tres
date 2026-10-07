@@ -8,6 +8,7 @@
 [sub_resource type="Resource" id="Resource_xqpdt"]
 script = ExtResource("4_lcam4")
 damage_type = 1
+lifesteal = false
 amount = 0
 upgrade_delta = 0
 times = 1

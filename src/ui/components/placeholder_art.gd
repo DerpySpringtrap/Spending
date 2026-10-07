@@ -56,6 +56,24 @@ static func build(id: StringName, accent: Color = Color("#E8692C")) -> Node2D:
 			_hierophant(root)
 		&"gold_idol":
 			_idol(root)
+		&"clockwork_sentinel":
+			_sentinel(root)
+		&"star_shard":
+			_shard(root)
+		&"storm_harpy":
+			_harpy(root)
+		&"void_leech":
+			_leech(root)
+		&"astral_weaver":
+			_weaver(root)
+		&"chronomancer_construct":
+			_chronomancer(root)
+		&"starfall_seraph":
+			_seraph(root)
+		&"halo_fragment":
+			_halo_fragment(root)
+		&"the_orrery":
+			_orrery(root)
 		_:
 			_blob(root, id)
 	return root
@@ -582,3 +600,178 @@ static func _scribe(root: Node2D) -> void:
 	for i in 3:
 		_poly(root, rounded_rect(-94, -156 + i * 8, 24, 2, 1), Color(ink, 0.6))
 	_meta(root, 200, 280)
+
+
+# --- Act 3: The Shattered Observatory ------------------------------------------------
+
+const BRASS := Color("#B8893E")
+const STARLIGHT := Color("#E9E4FF")
+
+
+static func _gear(root: Node2D, c: Vector2, r: float, teeth: int, color: Color) -> void:
+	var pts := PackedVector2Array()
+	for i in teeth * 2:
+		var a := PI * i / teeth
+		var rr := r if i % 2 == 0 else r * 0.78
+		pts.append(c + Vector2(cos(a), sin(a)) * rr)
+	_poly(root, pts, color)
+	_poly(root, ellipse(c, r * 0.35, r * 0.35), color.darkened(0.4))
+
+
+static func _sentinel(root: Node2D) -> void:
+	var steel := Color("#5A5F6E")
+	_poly(root, rounded_rect(-40, -60, 26, 60, 6), steel.darkened(0.2))
+	_poly(root, rounded_rect(14, -60, 26, 60, 6), steel.darkened(0.2))
+	_poly(root, rounded_rect(-56, -170, 112, 116, 14), steel)
+	_gear(root, Vector2(0, -114), 30, 10, BRASS)
+	_poly(root, rounded_rect(-34, -224, 68, 54, 12), steel.lightened(0.1))
+	_poly(root, ellipse(Vector2(-6, -198), 16, 10), Color("#FF5A3A"))
+	_poly(root, ellipse(Vector2(-8, -198), 6, 6), Color("#FFE0A0"))
+	# Arm cannon forward
+	_poly(root, rounded_rect(-112, -150, 70, 26, 8), steel.darkened(0.1))
+	_poly(root, ellipse(Vector2(-114, -137), 10, 13), Color("#FF8A3A"))
+	_meta(root, 180, 230)
+
+
+static func _shard(root: Node2D) -> void:
+	var c := Color("#9FB8FF")
+	_poly(root, ellipse(Vector2(0, -80), 46, 46), Color(c, 0.15))
+	_poly(root, PackedVector2Array([Vector2(0, -150), Vector2(30, -80), Vector2(0, -20), Vector2(-30, -80)]), c)
+	_poly(root, PackedVector2Array([Vector2(0, -150), Vector2(30, -80), Vector2(0, -80)]), c.lightened(0.4))
+	_poly(root, ellipse(Vector2(0, -80), 7, 7), STARLIGHT)
+	_meta(root, 90, 160)
+
+
+static func _harpy(root: Node2D) -> void:
+	var feather := Color("#4A5A7A")
+	# Wings spread
+	_poly(root, PackedVector2Array([Vector2(-10, -150), Vector2(-120, -210), Vector2(-150, -150), Vector2(-90, -130), Vector2(-120, -110), Vector2(-20, -110)]), feather.darkened(0.1))
+	_poly(root, PackedVector2Array([Vector2(10, -150), Vector2(120, -220), Vector2(150, -160), Vector2(90, -136), Vector2(120, -112), Vector2(20, -110)]), feather.darkened(0.2))
+	_poly(root, ellipse(Vector2(0, -130), 30, 44), feather)
+	_poly(root, ellipse(Vector2(0, -186), 20, 22), Color("#C9B8A0"))
+	_poly(root, PackedVector2Array([Vector2(-18, -184), Vector2(-36, -176), Vector2(-18, -176)]), Color("#E8B84A"))
+	_poly(root, ellipse(Vector2(-6, -190), 4, 3), Color("#9FD3F0"))
+	for x in [-14, 14]:
+		_poly(root, PackedVector2Array([Vector2(x - 6, -90), Vector2(x + 6, -90), Vector2(x, -62)]), Color("#E8B84A"))
+	_meta(root, 260, 230)
+
+
+static func _leech(root: Node2D) -> void:
+	var body := Color("#2A1A3A")
+	var pts := PackedVector2Array()
+	for i in 21:
+		var t := float(i) / 20.0
+		pts.append(Vector2(lerpf(90, -90, t), -40 - sin(t * PI) * 70 - sin(t * TAU * 2) * 6))
+	for i in 21:
+		var t := 1.0 - float(i) / 20.0
+		pts.append(Vector2(lerpf(90, -90, t), -10 - sin(t * PI) * 20))
+	_poly(root, pts, body)
+	for i in 5:
+		_poly(root, ellipse(Vector2(-60 + i * 30, -60 - sin((i + 0.5) / 5.0 * PI) * 50), 6, 4), Color("#B04AD0"))
+	# Round sucker mouth facing left
+	_poly(root, ellipse(Vector2(-92, -46), 22, 22), body.lightened(0.1))
+	_poly(root, ellipse(Vector2(-94, -46), 13, 13), Color("#7A1A3A"))
+	for k in 8:
+		var a := k * TAU / 8
+		_poly(root, ellipse(Vector2(-94, -46) + Vector2(cos(a), sin(a)) * 10, 2, 2), Color("#E8E0D0"))
+	_meta(root, 200, 130)
+
+
+static func _weaver(root: Node2D) -> void:
+	var robe := Color("#2A2F5E")
+	# Threads of light behind
+	for i in 6:
+		var x := -60 + i * 24
+		_poly(root, PackedVector2Array([Vector2(x, -260), Vector2(x + 2, -260), Vector2(x + 30, 0), Vector2(x + 28, 0)]), Color(STARLIGHT, 0.18))
+	_poly(root, PackedVector2Array([Vector2(-60, 0), Vector2(60, 0), Vector2(26, -180), Vector2(-26, -180)]), robe)
+	# Four arms holding a loom frame
+	for y in [-150, -120]:
+		_poly(root, PackedVector2Array([Vector2(-22, y), Vector2(-18, y + 6), Vector2(-80, y + 20), Vector2(-82, y + 12)]), robe.lightened(0.15))
+		_poly(root, PackedVector2Array([Vector2(22, y), Vector2(18, y + 6), Vector2(80, y + 20), Vector2(82, y + 12)]), robe.lightened(0.15))
+	_poly(root, rounded_rect(-96, -150, 8, 70, 3), BRASS)
+	_poly(root, rounded_rect(88, -150, 8, 70, 3), BRASS)
+	# Masked face with a clock
+	_poly(root, ellipse(Vector2(0, -204), 28, 30), STARLIGHT.darkened(0.1))
+	_poly(root, ellipse(Vector2(0, -204), 16, 16), robe.darkened(0.3))
+	_poly(root, rounded_rect(-1, -216, 2, 13, 1), BRASS)
+	_poly(root, rounded_rect(-1, -205, 10, 2, 1), BRASS)
+	_meta(root, 200, 260)
+
+
+static func _chronomancer(root: Node2D) -> void:
+	var iron := Color("#3E3A4A")
+	_poly(root, rounded_rect(-70, -70, 40, 70, 8), iron.darkened(0.2))
+	_poly(root, rounded_rect(30, -70, 40, 70, 8), iron.darkened(0.2))
+	_poly(root, rounded_rect(-90, -220, 180, 160, 20), iron)
+	_gear(root, Vector2(-30, -160), 34, 12, BRASS)
+	_gear(root, Vector2(36, -128), 26, 10, BRASS.darkened(0.2))
+	# Clock-face head
+	_poly(root, ellipse(Vector2(0, -260), 44, 44), STARLIGHT.darkened(0.15))
+	_poly(root, ellipse(Vector2(0, -260), 38, 38), Color("#1A1830"))
+	for k in 12:
+		var a := k * TAU / 12
+		_poly(root, ellipse(Vector2(0, -260) + Vector2(cos(a), sin(a)) * 32, 2.5, 2.5), BRASS)
+	_poly(root, rounded_rect(-2, -288, 4, 30, 2), Color("#FF8A3A"))
+	_poly(root, rounded_rect(-2, -262, 22, 4, 2), STARLIGHT)
+	# Pendulum arm
+	_poly(root, rounded_rect(-140, -190, 52, 22, 8), iron.lightened(0.1))
+	_poly(root, ellipse(Vector2(-142, -150), 18, 18), BRASS)
+	_poly(root, rounded_rect(-145, -178, 6, 28, 2), BRASS.darkened(0.3))
+	_meta(root, 260, 310)
+
+
+static func _seraph(root: Node2D) -> void:
+	var gold := Color("#F2D98A")
+	for i in 3:
+		var a := -PI / 2 + (i - 1) * 0.5
+		_poly(root, PackedVector2Array([Vector2(0, -170), Vector2(cos(a - 0.5) * 170, -170 + sin(a - 0.5) * 120),
+			Vector2(cos(a) * 200, -170 + sin(a) * 150)]), Color(STARLIGHT, 0.35 - i * 0.05))
+		_poly(root, PackedVector2Array([Vector2(0, -170), Vector2(-cos(a - 0.5) * 170, -170 + sin(a - 0.5) * 120),
+			Vector2(-cos(a) * 200, -170 + sin(a) * 150)]), Color(STARLIGHT, 0.35 - i * 0.05))
+	_poly(root, PackedVector2Array([Vector2(-40, -10), Vector2(40, -10), Vector2(24, -200), Vector2(-24, -200)]), STARLIGHT)
+	_poly(root, ellipse(Vector2(0, -224), 22, 26), gold.lightened(0.3))
+	_poly(root, rounded_rect(-14, -228, 28, 5, 2), Color("#3A3A6A"))
+	_poly(root, PackedVector2Array([Vector2(-60, -150), Vector2(-50, -146), Vector2(-150, -40), Vector2(-160, -46)]), gold)
+	_meta(root, 260, 290)
+
+
+static func _halo_fragment(root: Node2D) -> void:
+	var gold := Color("#F2D98A")
+	_poly(root, ellipse(Vector2(0, -90), 40, 40), Color(gold, 0.16))
+	var pts := PackedVector2Array()
+	for i in 13:
+		var a := PI + PI * 0.6 * i / 12.0
+		pts.append(Vector2(cos(a) * 34, -90 + sin(a) * 34))
+	for i in 13:
+		var a := PI + PI * 0.6 * (12 - i) / 12.0
+		pts.append(Vector2(cos(a) * 24, -90 + sin(a) * 24))
+	_poly(root, pts, gold)
+	_poly(root, ellipse(Vector2(-22, -112), 5, 5), STARLIGHT)
+	_meta(root, 90, 140)
+
+
+static func _orrery(root: Node2D) -> void:
+	# Pedestal
+	_poly(root, rounded_rect(-90, -40, 180, 40, 10), BRASS.darkened(0.4))
+	_poly(root, rounded_rect(-14, -200, 28, 160, 6), BRASS.darkened(0.2))
+	# Rings
+	for k in 3:
+		var r := 90.0 + k * 40.0
+		var pts := PackedVector2Array()
+		var inner := PackedVector2Array()
+		for i in 49:
+			var a := TAU * i / 48.0
+			pts.append(Vector2(cos(a) * r, -230 + sin(a) * r * 0.35))
+			inner.append(Vector2(cos(a) * (r - 6), -230 + sin(a) * (r - 6) * 0.35))
+		inner.reverse()
+		pts.append_array(inner)
+		_poly(root, pts, Color(BRASS, 0.8 - k * 0.15))
+	# Sun core and three planets
+	_poly(root, ellipse(Vector2(0, -230), 70, 70), Color("#FF8A3A", 0.2))
+	_poly(root, ellipse(Vector2(0, -230), 46, 46), Color("#FFB45A"))
+	_poly(root, ellipse(Vector2(-8, -238), 20, 20), Color("#FFE3A0"))
+	_poly(root, ellipse(Vector2(-90, -230), 18, 18), Color("#D9573A"))
+	_poly(root, ellipse(Vector2(124, -250), 16, 16), Color("#E8D9A6"))
+	_poly(root, ellipse(Vector2(40, -190), 22, 22), Color("#C9A86A"))
+	_poly(root, ellipse(Vector2(40, -190), 34, 8), Color("#C9A86A", 0.6))
+	_meta(root, 340, 340)

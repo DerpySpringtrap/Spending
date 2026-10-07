@@ -1,0 +1,142 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_33o0q"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_43uss"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_5b2gx"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_txuub"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_4tpxp"]
+[ext_resource type="Resource" path="res://content/statuses/frail.tres" id="6_ujw7q"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="7_nd6a2"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="8_b7nuv"]
+[ext_resource type="Script" path="res://src/combat/effects/rewind_effect.gd" id="9_ah8ew"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="10_u4yjs"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="11_4lmjj"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="12_60aoy"]
+
+[sub_resource type="Resource" id="Resource_33o0q"]
+script = ExtResource("4_txuub")
+damage_type = 0
+lifesteal = false
+amount = 9
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_43uss"]
+script = ExtResource("5_4tpxp")
+status = ExtResource("6_ujw7q")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_5b2gx"]
+script = ExtResource("2_43uss")
+id = &"thread"
+display_name = "Thread"
+intent = 3
+intent_tooltip = "Attacks for {dmg} and applies 1 Frail."
+effects = Array[ExtResource("3_5b2gx")]([SubResource("Resource_33o0q"), SubResource("Resource_43uss")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_txuub"]
+script = ExtResource("7_nd6a2")
+amount = 12
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_4tpxp"]
+script = ExtResource("5_4tpxp")
+status = ExtResource("8_b7nuv")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ujw7q"]
+script = ExtResource("2_43uss")
+id = &"loom"
+display_name = "Loom"
+intent = 5
+intent_tooltip = "Gains 12 Block and 2 Strength."
+effects = Array[ExtResource("3_5b2gx")]([SubResource("Resource_txuub"), SubResource("Resource_4tpxp")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_nd6a2"]
+script = ExtResource("9_ah8ew")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_b7nuv"]
+script = ExtResource("2_43uss")
+id = &"rewind"
+display_name = "Rewind"
+intent = 13
+intent_tooltip = "Restores its HP to what it was 2 turns ago."
+effects = Array[ExtResource("3_5b2gx")]([SubResource("Resource_nd6a2")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_ah8ew"]
+script = ExtResource("1_33o0q")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 0
+moves = Array[ExtResource("2_43uss")]([SubResource("Resource_5b2gx"), SubResource("Resource_ujw7q"), SubResource("Resource_b7nuv")])
+opening_moves = Array[ExtResource("2_43uss")]([])
+on_enter_effects = Array[ExtResource("3_5b2gx")]([])
+passive_triggers = Array[ExtResource("10_u4yjs")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("11_4lmjj")
+id = &"astral_weaver"
+display_name = "Astral Weaver"
+tier = 0
+act = 3
+hp_min = 56
+hp_max = 60
+gimmick_text = "Rewind: every third turn it restores its HP to what it was two turns earlier. Burst it down between rewinds."
+starting_statuses = Array[ExtResource("12_60aoy")]([])
+phases = Array[ExtResource("1_33o0q")]([SubResource("Resource_ah8ew")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

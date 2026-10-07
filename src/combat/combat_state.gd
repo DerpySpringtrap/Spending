@@ -284,6 +284,7 @@ func _run_enemy_phase() -> void:
 		if enemy.is_dead:
 			continue
 		enemy.turns_taken += 1
+		enemy.hp_history.append(enemy.hp)
 		if not enemy.skips_turn() and enemy.next_move != null:
 			_execute_move(enemy, enemy.next_move)
 		_flush()

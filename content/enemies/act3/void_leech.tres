@@ -1,0 +1,122 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_hcd0m"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_tq8d7"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_b5xm4"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_x0huj"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_3cxuy"]
+[ext_resource type="Resource" path="res://content/statuses/drained.tres" id="6_ghxw4"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="7_504o0"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="8_bepdf"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="9_j1y85"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="10_ksf1a"]
+
+[sub_resource type="Resource" id="Resource_hcd0m"]
+script = ExtResource("4_x0huj")
+damage_type = 0
+lifesteal = true
+amount = 9
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_tq8d7"]
+script = ExtResource("2_tq8d7")
+id = &"drain"
+display_name = "Drain"
+intent = 0
+intent_tooltip = "Attacks for {dmg} and heals for unblocked damage."
+effects = Array[ExtResource("3_b5xm4")]([SubResource("Resource_hcd0m")])
+weight = 2.0
+max_consecutive = 2
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_b5xm4"]
+script = ExtResource("5_3cxuy")
+status = ExtResource("6_ghxw4")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_x0huj"]
+script = ExtResource("2_tq8d7")
+id = &"latch"
+display_name = "Latch"
+intent = 7
+intent_tooltip = "You have 1 less energy next turn."
+effects = Array[ExtResource("3_b5xm4")]([SubResource("Resource_b5xm4")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 2
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_3cxuy"]
+script = ExtResource("5_3cxuy")
+status = ExtResource("7_504o0")
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ghxw4"]
+script = ExtResource("2_tq8d7")
+id = &"gorge"
+display_name = "Gorge"
+intent = 6
+intent_tooltip = "Gains 3 Strength."
+effects = Array[ExtResource("3_b5xm4")]([SubResource("Resource_3cxuy")])
+weight = 0.8
+max_consecutive = 1
+cooldown = 3
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_504o0"]
+script = ExtResource("1_hcd0m")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_tq8d7")]([SubResource("Resource_tq8d7"), SubResource("Resource_x0huj"), SubResource("Resource_ghxw4")])
+opening_moves = Array[ExtResource("2_tq8d7")]([])
+on_enter_effects = Array[ExtResource("3_b5xm4")]([])
+passive_triggers = Array[ExtResource("8_bepdf")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("9_j1y85")
+id = &"void_leech"
+display_name = "Void Leech"
+tier = 0
+act = 3
+hp_min = 46
+hp_max = 50
+gimmick_text = "Lifesteal: heals for the damage you fail to block. Block hard."
+starting_statuses = Array[ExtResource("10_ksf1a")]([])
+phases = Array[ExtResource("1_hcd0m")]([SubResource("Resource_504o0")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

@@ -1,0 +1,452 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=48 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_f4r83"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_0yrmq"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_cudrd"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_sxe7a"]
+[ext_resource type="Script" path="res://src/combat/effects/heal_effect.gd" id="5_315sw"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="6_fsenc"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="7_ujdqm"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="8_kyo2a"]
+[ext_resource type="Resource" path="res://content/statuses/frail.tres" id="9_biyom"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="10_n1yi0"]
+[ext_resource type="Resource" path="res://content/statuses/gravity.tres" id="11_x3a5s"]
+[ext_resource type="Script" path="res://src/combat/effects/remove_debuffs_effect.gd" id="12_ocakg"]
+[ext_resource type="Resource" path="res://content/statuses/supernova.tres" id="13_5i3x6"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="14_7ju8e"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="15_1f60f"]
+
+[sub_resource type="Resource" id="Resource_f4r83"]
+script = ExtResource("4_sxe7a")
+damage_type = 0
+lifesteal = false
+amount = 9
+upgrade_delta = 0
+times = 2
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_0yrmq"]
+script = ExtResource("2_0yrmq")
+id = &"starfire"
+display_name = "Starfire"
+intent = 0
+intent_tooltip = "Attacks for {dmg} twice."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_f4r83")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_cudrd"]
+script = ExtResource("5_315sw")
+amount = 10
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_sxe7a"]
+script = ExtResource("6_fsenc")
+status = ExtResource("7_ujdqm")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_315sw"]
+script = ExtResource("2_0yrmq")
+id = &"grace"
+display_name = "Grace"
+intent = 6
+intent_tooltip = "Heals 10 HP and gains 2 Strength."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_cudrd"), SubResource("Resource_sxe7a")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_fsenc"]
+script = ExtResource("8_kyo2a")
+amount = 14
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ujdqm"]
+script = ExtResource("6_fsenc")
+status = ExtResource("9_biyom")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_kyo2a"]
+script = ExtResource("2_0yrmq")
+id = &"ring_wall"
+display_name = "Ring Wall"
+intent = 4
+intent_tooltip = "Gains 14 Block and applies 2 Frail."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_fsenc"), SubResource("Resource_ujdqm")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_biyom"]
+script = ExtResource("1_f4r83")
+display_name = "Alignment"
+hp_threshold = 1.0
+selection = 0
+moves = Array[ExtResource("2_0yrmq")]([SubResource("Resource_0yrmq"), SubResource("Resource_315sw"), SubResource("Resource_kyo2a")])
+opening_moves = Array[ExtResource("2_0yrmq")]([])
+on_enter_effects = Array[ExtResource("3_cudrd")]([])
+passive_triggers = Array[ExtResource("10_n1yi0")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_n1yi0"]
+script = ExtResource("6_fsenc")
+status = ExtResource("11_x3a5s")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_x3a5s"]
+script = ExtResource("2_0yrmq")
+id = &"pull"
+display_name = "Pull"
+intent = 8
+intent_tooltip = "Applies 2 Gravity: draw more, but every card left in hand at end of turn costs 2 HP."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_n1yi0")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_ocakg"]
+script = ExtResource("4_sxe7a")
+damage_type = 0
+lifesteal = false
+amount = 16
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_5i3x6"]
+script = ExtResource("2_0yrmq")
+id = &"collapse"
+display_name = "Collapse"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_ocakg")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = true
+
+[sub_resource type="Resource" id="Resource_7ju8e"]
+script = ExtResource("4_sxe7a")
+damage_type = 0
+lifesteal = false
+amount = 9
+upgrade_delta = 0
+times = 2
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_1f60f"]
+script = ExtResource("2_0yrmq")
+id = &"starfire"
+display_name = "Starfire"
+intent = 0
+intent_tooltip = "Attacks for {dmg} twice."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_7ju8e")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_cr3nm"]
+script = ExtResource("12_ocakg")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_bcwti"]
+script = ExtResource("1_f4r83")
+display_name = "Gravity Well"
+hp_threshold = 0.66
+selection = 0
+moves = Array[ExtResource("2_0yrmq")]([SubResource("Resource_x3a5s"), SubResource("Resource_5i3x6"), SubResource("Resource_1f60f")])
+opening_moves = Array[ExtResource("2_0yrmq")]([])
+on_enter_effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_cr3nm")])
+passive_triggers = Array[ExtResource("10_n1yi0")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_xa75u"]
+script = ExtResource("4_sxe7a")
+damage_type = 0
+lifesteal = false
+amount = 10
+upgrade_delta = 0
+times = 2
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_qj4w5"]
+script = ExtResource("2_0yrmq")
+id = &"solar_flare"
+display_name = "Solar Flare"
+intent = 0
+intent_tooltip = "Attacks for {dmg} twice."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_xa75u")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_cla2p"]
+script = ExtResource("8_kyo2a")
+amount = 22
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_lj0r0"]
+script = ExtResource("2_0yrmq")
+id = &"corona_shield"
+display_name = "Corona Shield"
+intent = 4
+intent_tooltip = "Gains 22 Block."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_cla2p")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_hapdb"]
+script = ExtResource("4_sxe7a")
+damage_type = 0
+lifesteal = false
+amount = 10
+upgrade_delta = 0
+times = 2
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_6htfd"]
+script = ExtResource("2_0yrmq")
+id = &"solar_flare"
+display_name = "Solar Flare"
+intent = 0
+intent_tooltip = "Attacks for {dmg} twice."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_hapdb")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_y0g7y"]
+script = ExtResource("8_kyo2a")
+amount = 22
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_qiyxi"]
+script = ExtResource("2_0yrmq")
+id = &"corona_shield"
+display_name = "Corona Shield"
+intent = 4
+intent_tooltip = "Gains 22 Block."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_y0g7y")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_k0seu"]
+script = ExtResource("4_sxe7a")
+damage_type = 0
+lifesteal = false
+amount = 10
+upgrade_delta = 0
+times = 2
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_7dk5t"]
+script = ExtResource("2_0yrmq")
+id = &"solar_flare"
+display_name = "Solar Flare"
+intent = 0
+intent_tooltip = "Attacks for {dmg} twice."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_k0seu")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_4rjnl"]
+script = ExtResource("2_0yrmq")
+id = &"collapse_star"
+display_name = "Collapsing Star"
+intent = 10
+intent_tooltip = "Gathers itself. Supernova next turn!"
+effects = Array[ExtResource("3_cudrd")]([])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_i6nfv"]
+script = ExtResource("4_sxe7a")
+damage_type = 0
+lifesteal = false
+amount = 99
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_il44b"]
+script = ExtResource("2_0yrmq")
+id = &"supernova"
+display_name = "SUPERNOVA"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_i6nfv")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = true
+
+[sub_resource type="Resource" id="Resource_ajmnm"]
+script = ExtResource("6_fsenc")
+status = ExtResource("13_5i3x6")
+amount = 6
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_lahij"]
+script = ExtResource("1_f4r83")
+display_name = "Supernova"
+hp_threshold = 0.33
+selection = 0
+moves = Array[ExtResource("2_0yrmq")]([SubResource("Resource_qj4w5"), SubResource("Resource_lj0r0"), SubResource("Resource_6htfd"), SubResource("Resource_qiyxi"), SubResource("Resource_7dk5t"), SubResource("Resource_4rjnl"), SubResource("Resource_il44b")])
+opening_moves = Array[ExtResource("2_0yrmq")]([])
+on_enter_effects = Array[ExtResource("3_cudrd")]([SubResource("Resource_cr3nm"), SubResource("Resource_ajmnm")])
+passive_triggers = Array[ExtResource("10_n1yi0")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("14_7ju8e")
+id = &"the_orrery"
+display_name = "The Orrery"
+tier = 2
+act = 3
+hp_min = 250
+hp_max = 250
+gimmick_text = "Three phases: planetary alignment, a gravity well that punishes full hands, then a Supernova countdown. Kill it before it reaches 0."
+starting_statuses = Array[ExtResource("15_1f60f")]([])
+phases = Array[ExtResource("1_f4r83")]([SubResource("Resource_biyom"), SubResource("Resource_bcwti"), SubResource("Resource_lahij")])
+gold_min = 100
+gold_max = 110
+has_intro_cinematic = true
+intro_title = "Engine of the Fixed Stars"

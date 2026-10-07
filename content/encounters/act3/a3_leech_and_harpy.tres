@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_2iok6"]
+[ext_resource type="Resource" path="res://content/enemies/act3/void_leech.tres" id="2_o4q1r"]
+[ext_resource type="Resource" path="res://content/enemies/act3/storm_harpy.tres" id="3_wf3w4"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_xesxb"]
+
+[resource]
+script = ExtResource("4_xesxb")
+id = &"a3_leech_and_harpy"
+act = 3
+pool = 1
+enemies = Array[ExtResource("1_2iok6")]([ExtResource("2_o4q1r"), ExtResource("3_wf3w4")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

@@ -8,7 +8,7 @@ extends Node
 
 const MAX_ASCENSION := 15
 ## Acts with content. The run is won after this act's boss.
-const FINAL_ACT := 2
+const FINAL_ACT := 3
 
 const SCREENS := {
 	&"main_menu": "res://src/ui/screens/main_menu/main_menu.tscn",

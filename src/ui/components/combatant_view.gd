@@ -8,6 +8,8 @@ extends Control
 ## payloads. It never reads live combat state.
 
 const ENEMY_SIZE := Vector2(250, 400)
+## Minions (Gold Idols, Halo Fragments, Broodlings...) take a narrower slot.
+const MINION_SIZE := Vector2(180, 400)
 const PLAYER_SIZE := Vector2(300, 420)
 const DISSOLVE := preload("res://assets/shaders/dissolve.gdshader")
 
@@ -42,6 +44,8 @@ func setup(p_combatant: Combatant) -> CombatantView:
 
 func _ready() -> void:
 	var view_size := PLAYER_SIZE if is_player else ENEMY_SIZE
+	if combatant is EnemyCombatant and (combatant as EnemyCombatant).data.tier == EnemyData.Tier.MINION:
+		view_size = MINION_SIZE
 	custom_minimum_size = view_size
 	size = view_size
 	mouse_filter = Control.MOUSE_FILTER_STOP

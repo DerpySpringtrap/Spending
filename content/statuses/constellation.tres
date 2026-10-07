@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_y2km8"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_2g30p"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_1fuq1"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="4_aoewg"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="5_7qx7m"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="6_nbu5i"]
+
+[sub_resource type="Resource" id="Resource_y2km8"]
+script = ExtResource("4_aoewg")
+status = ExtResource("5_7qx7m")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_2g30p"]
+script = ExtResource("6_nbu5i")
+amount = 6
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_1fuq1"]
+script = ExtResource("2_2g30p")
+timing = 21
+condition = 0
+effects = Array[ExtResource("3_1fuq1")]([SubResource("Resource_y2km8"), SubResource("Resource_2g30p")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("1_y2km8")
+id = &"constellation"
+display_name = "Constellation"
+description = "When it dies, every other enemy gains 1 Strength and 6 Block."
+kind = 2
+stack_mode = 3
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+revive_hp_percent = 0.0
+lose_stack_on_hp_lost = false
+resource_cost_reduction_per_stack = 0
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_2g30p")]([SubResource("Resource_1fuq1")])
+tint = Color(0.788235, 0.847059, 1, 1)

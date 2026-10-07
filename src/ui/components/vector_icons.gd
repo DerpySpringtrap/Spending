@@ -42,6 +42,16 @@ const STATUS_GLYPHS := {
 	&"cross_reference": &"shield",
 	&"living_manuscript": &"cards",
 	&"cursed_lexicon": &"skull",
+	&"overclock": &"arrow_up",
+	&"lock_on": &"target",
+	&"constellation": &"star",
+	&"airborne": &"arrow_up",
+	&"drained": &"drop",
+	&"halo": &"sun",
+	&"fragment_bond": &"sparkle",
+	&"clockwork_tick": &"hourglass",
+	&"gravity": &"arrow_down",
+	&"supernova": &"burst",
 }
 
 const INTENT_GLYPHS := {

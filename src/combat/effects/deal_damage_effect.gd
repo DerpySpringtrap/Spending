@@ -5,6 +5,8 @@ extends GameEffect
 ## choosing a non-attack damage type.
 
 @export var damage_type: DamageInfo.Type = DamageInfo.Type.ATTACK
+## The source heals for the HP damage it deals (Void Leech).
+@export var lifesteal: bool = false
 
 
 func _base_amount(ctx: EffectContext) -> int:
@@ -26,7 +28,9 @@ func execute(ctx: EffectContext) -> void:
 	var base := _base_amount(ctx)
 	for i in times:
 		for target_combatant in ctx.resolve_targets(self):
-			ctx.combat.deal_damage(ctx.source, target_combatant, base, damage_type)
+			var info := ctx.combat.deal_damage(ctx.source, target_combatant, base, damage_type)
+			if lifesteal and info != null and info.hp_lost > 0:
+				ctx.combat.heal(ctx.source, info.hp_lost)
 		if ctx.combat.is_over():
 			return
 		if damage_type == DamageInfo.Type.ATTACK and ctx.source != null and ctx.source.is_dead:

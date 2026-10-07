@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_ka5o0"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_iovon"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_3dkql"]
+[ext_resource type="Script" path="res://src/combat/effects/heal_effect.gd" id="4_lubnk"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="5_fqcd5"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="6_gxewj"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="7_in3il"]
+[ext_resource type="Resource" path="res://content/statuses/fragment_bond.tres" id="8_01brw"]
+
+[sub_resource type="Resource" id="Resource_ka5o0"]
+script = ExtResource("4_lubnk")
+amount = 6
+upgrade_delta = 0
+times = 1
+target = 4
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_iovon"]
+script = ExtResource("2_iovon")
+id = &"mend"
+display_name = "Mend"
+intent = 6
+intent_tooltip = "Every enemy heals 6 HP."
+effects = Array[ExtResource("3_3dkql")]([SubResource("Resource_ka5o0")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_3dkql"]
+script = ExtResource("1_ka5o0")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_iovon")]([SubResource("Resource_iovon")])
+opening_moves = Array[ExtResource("2_iovon")]([])
+on_enter_effects = Array[ExtResource("3_3dkql")]([])
+passive_triggers = Array[ExtResource("5_fqcd5")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_lubnk"]
+script = ExtResource("7_in3il")
+status = ExtResource("8_01brw")
+stacks = 1
+
+[resource]
+script = ExtResource("6_gxewj")
+id = &"halo_fragment"
+display_name = "Halo Fragment"
+tier = 3
+act = 3
+hp_min = 14
+hp_max = 14
+gimmick_text = "While any fragment shines, the Seraph takes 75% less damage."
+starting_statuses = Array[ExtResource("7_in3il")]([SubResource("Resource_lubnk")])
+phases = Array[ExtResource("1_ka5o0")]([SubResource("Resource_3dkql")])
+gold_min = 12
+gold_max = 22
+has_intro_cinematic = false
+intro_title = ""

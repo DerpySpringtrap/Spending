@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_bd3cj"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_i2emn"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_myumo"]
+
+[sub_resource type="Resource" id="Resource_bd3cj"]
+script = ExtResource("2_i2emn")
+timing = 17
+condition = 0
+effects = Array[ExtResource("3_myumo")]([])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("1_bd3cj")
+id = &"lock_on"
+display_name = "Lock-On"
+description = "Its next attack deals double damage."
+kind = 0
+stack_mode = 3
+decay = 7
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 2.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+revive_hp_percent = 0.0
+lose_stack_on_hp_lost = false
+resource_cost_reduction_per_stack = 0
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_i2emn")]([SubResource("Resource_bd3cj")])
+tint = Color(0.878431, 0.352941, 0.278431, 1)

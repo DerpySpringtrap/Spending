@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_0qg8l"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_6hrxx"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_ahqsg"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="4_kcwam"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="5_oy223"]
+
+[sub_resource type="Resource" id="Resource_0qg8l"]
+script = ExtResource("4_kcwam")
+status = ExtResource("5_oy223")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_6hrxx"]
+script = ExtResource("2_6hrxx")
+timing = 4
+condition = 0
+effects = Array[ExtResource("3_ahqsg")]([SubResource("Resource_0qg8l")])
+amount_from_stacks = true
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("1_0qg8l")
+id = &"overclock"
+display_name = "Overclock"
+description = "At the end of its turn, gains {stacks} Strength. A race: kill it fast."
+kind = 2
+stack_mode = 0
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+revive_hp_percent = 0.0
+lose_stack_on_hp_lost = false
+resource_cost_reduction_per_stack = 0
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("2_6hrxx")]([SubResource("Resource_6hrxx")])
+tint = Color(0.85098, 0.643137, 0.254902, 1)

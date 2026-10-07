@@ -7,7 +7,8 @@
 [sub_resource type="Resource" id="Resource_bxywa"]
 script = ExtResource("2_1eyic")
 damage_type = 0
-amount = 4
+lifesteal = false
+amount = 5
 upgrade_delta = 1
 times = 1
 target = 0
@@ -18,7 +19,7 @@ scale = 3
 script = ExtResource("3_vhvnv")
 id = &"unwritten_ending"
 display_name = "Unwritten Ending"
-description = "Deal {dmg} damage (4 for each card in your Erased pile)."
+description = "Deal {dmg} damage (5 for each card in your Erased pile)."
 card_pool = &"hollow_scribe"
 type = 0
 rarity = 3
@@ -31,7 +32,7 @@ on_discard_effects = Array[ExtResource("1_bxywa")]([])
 end_of_turn_in_hand_effects = Array[ExtResource("1_bxywa")]([])
 can_upgrade = true
 upgraded_cost = -99
-upgraded_description = "Deal {dmg} damage (5 for each card in your Erased pile)."
+upgraded_description = "Deal {dmg} damage (6 for each card in your Erased pile)."
 upgrade_adds_keywords = Array[StringName]([])
 upgrade_removes_keywords = Array[StringName]([])
 plays_class_motif = true

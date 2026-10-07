@@ -8,6 +8,7 @@
 [sub_resource type="Resource" id="Resource_017kk"]
 script = ExtResource("2_7dpts")
 damage_type = 0
+lifesteal = false
 amount = 7
 upgrade_delta = 2
 times = 1
@@ -18,6 +19,7 @@ scale = 0
 [sub_resource type="Resource" id="Resource_7dpts"]
 script = ExtResource("2_7dpts")
 damage_type = 0
+lifesteal = false
 amount = 7
 upgrade_delta = 2
 times = 1

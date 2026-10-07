@@ -1,0 +1,80 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_56ej3"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_m77uj"]
+[ext_resource type="Resource" path="res://content/cards/curses/guilt.tres" id="3_4lwws"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="4_k0wyb"]
+
+[sub_resource type="Resource" id="Resource_56ej3"]
+script = ExtResource("2_m77uj")
+type = 3
+amount = 10
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_m77uj"]
+script = ExtResource("2_m77uj")
+type = 4
+amount = 7
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_4lwws"]
+script = ExtResource("1_56ej3")
+text = "Touch it (lose 10 HP)"
+result_text = "It burns, then settles into you. You feel larger than before."
+outcomes = Array[ExtResource("2_m77uj")]([SubResource("Resource_56ej3"), SubResource("Resource_m77uj")])
+min_gold = 0
+min_hp = 10
+
+[sub_resource type="Resource" id="Resource_k0wyb"]
+script = ExtResource("2_m77uj")
+type = 0
+amount = 120
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_bgvrl"]
+script = ExtResource("2_m77uj")
+type = 6
+amount = 0
+percent = false
+card = ExtResource("3_4lwws")
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_xg5c2"]
+script = ExtResource("1_56ej3")
+text = "Mine it"
+result_text = "You chip off a fortune. Something old watches you take it."
+outcomes = Array[ExtResource("2_m77uj")]([SubResource("Resource_k0wyb"), SubResource("Resource_bgvrl")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_7ebns"]
+script = ExtResource("2_m77uj")
+type = 2
+amount = 30
+percent = true
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_2mkun"]
+script = ExtResource("1_56ej3")
+text = "Bask in its light"
+result_text = "Warmth floods back into tired limbs."
+outcomes = Array[ExtResource("2_m77uj")]([SubResource("Resource_7ebns")])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("4_k0wyb")
+id = &"fallen_star"
+title = "A Fallen Star"
+description = "A shard of starlight lies in a crater, humming. The air around it tastes of iron and lightning."
+act = 3
+glyph = &"sparkle"
+choices = Array[ExtResource("1_56ej3")]([SubResource("Resource_4lwws"), SubResource("Resource_xg5c2"), SubResource("Resource_2mkun")])

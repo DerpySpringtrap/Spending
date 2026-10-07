@@ -14,6 +14,8 @@ var turns_taken: int = 0
 var stolen_gold: int = 0
 ## Fled the fight (counts as gone, but not killed: no gold back).
 var escaped: bool = false
+## HP at the start of each of its turns, newest last (Astral Weaver's Rewind).
+var hp_history: Array[int] = []
 
 
 func _init(p_data: EnemyData, p_hp: int) -> void:

@@ -1,0 +1,151 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_piawy"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_re4nj"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_djhy7"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_sxw8i"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_rhkw0"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="6_sfc5y"]
+[ext_resource type="Resource" path="res://content/enemies/act3/halo_fragment.tres" id="7_x173o"]
+[ext_resource type="Script" path="res://src/combat/effects/summon_enemy_effect.gd" id="8_kq2n4"]
+[ext_resource type="Resource" path="res://content/statuses/halo.tres" id="9_qy3v3"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="10_keos1"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="11_vqf00"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="12_6oelt"]
+
+[sub_resource type="Resource" id="Resource_piawy"]
+script = ExtResource("4_sxw8i")
+damage_type = 0
+lifesteal = false
+amount = 16
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_re4nj"]
+script = ExtResource("2_re4nj")
+id = &"judgement"
+display_name = "Judgement"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_djhy7")]([SubResource("Resource_piawy")])
+weight = 1.5
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_djhy7"]
+script = ExtResource("4_sxw8i")
+damage_type = 0
+lifesteal = false
+amount = 6
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_sxw8i"]
+script = ExtResource("5_rhkw0")
+status = ExtResource("6_sfc5y")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_rhkw0"]
+script = ExtResource("2_re4nj")
+id = &"radiance"
+display_name = "Radiance"
+intent = 3
+intent_tooltip = "Attacks for {dmg} and applies 1 Weak."
+effects = Array[ExtResource("3_djhy7")]([SubResource("Resource_djhy7"), SubResource("Resource_sxw8i")])
+weight = 1.5
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_sfc5y"]
+script = ExtResource("8_kq2n4")
+enemy = ExtResource("7_x173o")
+max_enemies = 4
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_x173o"]
+script = ExtResource("5_rhkw0")
+status = ExtResource("9_qy3v3")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_kq2n4"]
+script = ExtResource("2_re4nj")
+id = &"reform"
+display_name = "Reform"
+intent = 9
+intent_tooltip = "Summons a Halo Fragment and regains a stack of Halo."
+effects = Array[ExtResource("3_djhy7")]([SubResource("Resource_sfc5y"), SubResource("Resource_x173o")])
+weight = 1.2
+max_consecutive = 1
+cooldown = 3
+min_turn = 3
+max_living_allies = 2
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_qy3v3"]
+script = ExtResource("1_piawy")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_re4nj")]([SubResource("Resource_re4nj"), SubResource("Resource_rhkw0"), SubResource("Resource_kq2n4")])
+opening_moves = Array[ExtResource("2_re4nj")]([])
+on_enter_effects = Array[ExtResource("3_djhy7")]([])
+passive_triggers = Array[ExtResource("10_keos1")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_keos1"]
+script = ExtResource("12_6oelt")
+status = ExtResource("9_qy3v3")
+stacks = 3
+
+[resource]
+script = ExtResource("11_vqf00")
+id = &"starfall_seraph"
+display_name = "Starfall Seraph"
+tier = 1
+act = 3
+hp_min = 120
+hp_max = 120
+gimmick_text = "Halo: takes 75% less damage while its fragments live. They return one at a time. Area damage shines here."
+starting_statuses = Array[ExtResource("12_6oelt")]([SubResource("Resource_keos1")])
+phases = Array[ExtResource("1_piawy")]([SubResource("Resource_qy3v3")])
+gold_min = 30
+gold_max = 40
+has_intro_cinematic = false
+intro_title = ""

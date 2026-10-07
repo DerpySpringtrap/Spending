@@ -11,6 +11,9 @@ const PALETTES := {
 	2: {"sky_top": Color("#17120E"), "sky_bottom": Color("#3A2C1C"), "moon": Color("#F2C46B"),
 		"far": Color("#2A2018"), "mid": Color("#211912"), "near": Color("#16100B"), "ground": Color("#110C08"),
 		"fog": Color("#E8C27A")},
+	3: {"sky_top": Color("#0B0E24"), "sky_bottom": Color("#2A2F5E"), "moon": Color("#E9E4FF"),
+		"far": Color("#1E2248"), "mid": Color("#171A38"), "near": Color("#10122A"), "ground": Color("#0C0D1E"),
+		"fog": Color("#B8C4FF")},
 }
 
 ## 0 = the current run's act (1 outside a run).
@@ -39,6 +42,9 @@ func _draw() -> void:
 	var p: Dictionary = PALETTES.get(act, PALETTES[1])
 	if act == 2:
 		_draw_crypt(p)
+		return
+	if act == 3:
+		_draw_observatory(p)
 		return
 	var w := size.x
 	var h := size.y
@@ -141,3 +147,58 @@ func _arch(foot: Vector2, width: float, height: float, color: Color) -> void:
 		pts.append(foot + Vector2(r + cos(a) * r, -height + r + sin(a) * r))
 	pts.append(foot + Vector2(width, 0))
 	draw_polyline(pts, color, 14.0)
+
+
+## Act 3: floating clockwork ruins under a storm of stars.
+func _draw_observatory(p: Dictionary) -> void:
+	var w := size.x
+	var h := size.y
+	var bands := 28
+	for i in bands:
+		var c: Color = p.sky_top.lerp(p.sky_bottom, float(i) / bands)
+		draw_rect(Rect2(0, h * 0.75 * i / bands, w, h * 0.75 / bands + 1), c)
+	# Stars, twinkling
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 77
+	for i in 90:
+		var pos := Vector2(rng.randf() * w, rng.randf() * h * 0.6)
+		var tw := 0.55 + 0.45 * sin(_time * rng.randf_range(1.0, 3.0) + i)
+		draw_circle(pos, rng.randf_range(0.8, 2.2), Color(p.moon, 0.5 * tw))
+	# A cracked moon and a ring
+	var moon := Vector2(w * 0.74, h * 0.18)
+	draw_circle(moon, 110, Color(p.moon, 0.05))
+	draw_circle(moon, 46, p.moon)
+	draw_line(moon + Vector2(-20, -30), moon + Vector2(6, 4), p.sky_top, 3.0)
+	draw_line(moon + Vector2(6, 4), moon + Vector2(-4, 36), p.sky_top, 3.0)
+	draw_arc(moon, 78, -0.4, PI + 0.4, 48, Color(p.fog, 0.35), 3.0)
+	# Floating ruins: drifting brass platforms with broken arches
+	for i in 4:
+		var base := Vector2(w * (0.12 + i * 0.26), h * (0.42 + 0.06 * (i % 2)) + sin(_time * 0.6 + i) * 6.0)
+		var pw := 150.0 + 30.0 * (i % 3)
+		draw_colored_polygon(PackedVector2Array([base + Vector2(-pw / 2, 0), base + Vector2(pw / 2, 0),
+			base + Vector2(pw / 3, 40), base + Vector2(-pw / 3, 40)]), p.far)
+		draw_rect(Rect2(base.x - pw / 2, base.y - 8, pw, 8), Color("#8A6A3A").darkened(0.4))
+		draw_rect(Rect2(base.x - pw / 3, base.y - 70, 12, 70), p.far)
+		draw_arc(base + Vector2(-pw / 3 + 30, -70), 30, PI, TAU, 16, p.far, 10.0)
+	# Giant orrery rings in the distance, slowly turning
+	var center := Vector2(w * 0.5, h * 0.36)
+	for k in 3:
+		var r := 220.0 + k * 70.0
+		var a := _time * (0.05 + k * 0.02)
+		draw_arc(center, r, a, a + PI * 1.2, 64, Color("#8A6A3A", 0.18), 4.0)
+		var planet := center + Vector2(cos(a + PI * 1.2), sin(a + PI * 1.2)) * r
+		draw_circle(planet, 10 + k * 3, Color(p.moon, 0.25))
+	# Ground: shattered glass floor with gear silhouettes
+	draw_rect(Rect2(0, h * 0.66, w, h * 0.34), p.ground)
+	_hills(p.near, h * 0.66, 10.0, 0.02, 1.0)
+	for i in 5:
+		var gc := Vector2(w * (0.1 + i * 0.2), h * 0.7)
+		draw_arc(gc, 34, 0, TAU, 20, Color("#8A6A3A", 0.25), 4.0)
+		for t in 8:
+			var ang := t * TAU / 8 + _time * 0.2 * (1 if i % 2 == 0 else -1)
+			draw_line(gc + Vector2(cos(ang), sin(ang)) * 34, gc + Vector2(cos(ang), sin(ang)) * 44, Color("#8A6A3A", 0.25), 5.0)
+	# Drifting star motes
+	for i in 30:
+		var x := fmod(i * 0.381966 * w + _time * (10.0 + i % 7), w)
+		var y := h * (0.15 + fmod(i * 0.53, 0.6)) + sin(_time + i) * 10.0
+		draw_circle(Vector2(x, y), 1.4 + (i % 3) * 0.5, Color(p.fog, 0.25))

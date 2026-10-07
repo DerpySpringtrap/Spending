@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_dc8fe"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_kxmg7"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="3_kbkma"]
+
+[sub_resource type="Resource" id="Resource_dc8fe"]
+script = ExtResource("2_kxmg7")
+type = 10
+amount = 2
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_kxmg7"]
+script = ExtResource("1_dc8fe")
+text = "Look through it"
+result_text = "You see a few moments ahead, and fight a little better for it."
+outcomes = Array[ExtResource("2_kxmg7")]([SubResource("Resource_dc8fe")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_kbkma"]
+script = ExtResource("2_kxmg7")
+type = 1
+amount = 50
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_dy0td"]
+script = ExtResource("2_kxmg7")
+type = 7
+amount = 0
+percent = false
+rarity = 3
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_7ujdb"]
+script = ExtResource("1_dc8fe")
+text = "Repair it (lose 50 gold)"
+result_text = "The lens clicks into place. You glimpse a technique no one has written down."
+outcomes = Array[ExtResource("2_kxmg7")]([SubResource("Resource_kbkma"), SubResource("Resource_dy0td")])
+min_gold = 50
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_nlfac"]
+script = ExtResource("1_dc8fe")
+text = "Leave it"
+result_text = "Some futures are better left unseen."
+outcomes = Array[ExtResource("2_kxmg7")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("3_kbkma")
+id = &"broken_telescope"
+title = "The Broken Telescope"
+description = "A brass telescope the size of a cannon points at a sky that is falling apart. Its lens is cracked but still turning."
+act = 3
+glyph = &"star"
+choices = Array[ExtResource("1_dc8fe")]([SubResource("Resource_kxmg7"), SubResource("Resource_7ujdb"), SubResource("Resource_nlfac")])

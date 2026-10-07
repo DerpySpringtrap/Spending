@@ -152,10 +152,26 @@ func _spawn_view(c: Combatant, parent: Control) -> void:
 		if _potion_slot >= 0 and event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not c.is_dead:
 			_use_potion(_potion_slot, c))
 	if parent == _enemy_row:
+		_fit_enemy_row()
 		view.modulate.a = 0.0
 		var t := view.create_tween()
 		t.tween_interval(UIStyle.dur(0.1 * _views.size()))
 		t.tween_property(view, "modulate:a", 1.0, UIStyle.dur(0.35))
+
+
+## Tightens the spacing when a crowded row would spill off the screen.
+func _fit_enemy_row() -> void:
+	var widths := 0.0
+	var count := 0
+	for child in _enemy_row.get_children():
+		if child is CombatantView:
+			widths += child.custom_minimum_size.x
+			count += 1
+	var room := _enemy_row.size.x if _enemy_row.size.x > 0 else get_viewport_rect().size.x * 0.5
+	var gap := 40.0
+	if count > 1 and widths + gap * (count - 1) > room:
+		gap = maxf(0.0, (room - widths) / (count - 1))
+	_enemy_row.add_theme_constant_override("separation", int(gap))
 
 
 ## Summons take over a defeated enemy's slot (e.g. Broodlings reappear beside

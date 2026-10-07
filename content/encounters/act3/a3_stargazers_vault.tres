@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_8qdwj"]
+[ext_resource type="Resource" path="res://content/enemies/act3/star_shard.tres" id="2_k2un8"]
+[ext_resource type="Resource" path="res://content/enemies/act3/clockwork_sentinel.tres" id="3_xs6ml"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_8hpgo"]
+
+[resource]
+script = ExtResource("4_8hpgo")
+id = &"a3_stargazers_vault"
+act = 3
+pool = 4
+enemies = Array[ExtResource("1_8qdwj")]([ExtResource("2_k2un8"), ExtResource("2_k2un8"), ExtResource("3_xs6ml")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

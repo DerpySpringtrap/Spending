@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/event_choice.gd" id="1_8mutw"]
+[ext_resource type="Script" path="res://src/data/event_outcome.gd" id="2_nhr8n"]
+[ext_resource type="Resource" path="res://content/encounters/act3/a3_stargazers_vault.tres" id="3_injp6"]
+[ext_resource type="Script" path="res://src/data/event_data.gd" id="4_jsapb"]
+
+[sub_resource type="Resource" id="Resource_8mutw"]
+script = ExtResource("2_nhr8n")
+type = 13
+amount = 0
+percent = false
+rarity = 1
+relic_rarity = 1
+encounter = ExtResource("3_injp6")
+
+[sub_resource type="Resource" id="Resource_nhr8n"]
+script = ExtResource("1_8mutw")
+text = "Break the seal"
+result_text = "The shards turn toward you."
+outcomes = Array[ExtResource("2_nhr8n")]([SubResource("Resource_8mutw")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_injp6"]
+script = ExtResource("2_nhr8n")
+type = 12
+amount = 2
+percent = false
+rarity = 1
+relic_rarity = 1
+
+[sub_resource type="Resource" id="Resource_jsapb"]
+script = ExtResource("1_8mutw")
+text = "Take the dropped potions"
+result_text = "Someone left in a hurry."
+outcomes = Array[ExtResource("2_nhr8n")]([SubResource("Resource_injp6")])
+min_gold = 0
+min_hp = 0
+
+[sub_resource type="Resource" id="Resource_vhpie"]
+script = ExtResource("1_8mutw")
+text = "Move on"
+result_text = "The shards keep circling, patient as clockwork."
+outcomes = Array[ExtResource("2_nhr8n")]([])
+min_gold = 0
+min_hp = 0
+
+[resource]
+script = ExtResource("4_jsapb")
+id = &"stargazers_vault"
+title = "The Stargazer's Vault"
+description = "A sealed vault hangs from chains over nothing. Star shards circle its door like guard dogs."
+act = 3
+glyph = &"skull"
+choices = Array[ExtResource("1_8mutw")]([SubResource("Resource_nhr8n"), SubResource("Resource_jsapb"), SubResource("Resource_vhpie")])

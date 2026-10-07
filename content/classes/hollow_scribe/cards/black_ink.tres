@@ -8,6 +8,7 @@
 [sub_resource type="Resource" id="Resource_ngy5h"]
 script = ExtResource("2_7dtul")
 damage_type = 0
+lifesteal = false
 amount = 9
 upgrade_delta = 3
 times = 1
@@ -18,6 +19,7 @@ scale = 0
 [sub_resource type="Resource" id="Resource_7dtul"]
 script = ExtResource("2_7dtul")
 damage_type = 0
+lifesteal = false
 amount = 9
 upgrade_delta = 3
 times = 1
@@ -29,7 +31,7 @@ scale = 0
 script = ExtResource("3_abwly")
 spend_all = false
 bonus_effects = Array[ExtResource("1_ngy5h")]([SubResource("Resource_7dtul")])
-amount = 3
+amount = 2
 upgrade_delta = 0
 times = 1
 target = 0

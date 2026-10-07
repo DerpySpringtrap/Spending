@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_pxbo2"]
+[ext_resource type="Resource" path="res://content/enemies/act3/clockwork_sentinel.tres" id="2_7uyyg"]
+[ext_resource type="Resource" path="res://content/enemies/act3/storm_harpy.tres" id="3_nlhx3"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_i1l72"]
+
+[resource]
+script = ExtResource("4_i1l72")
+id = &"a3_sentinel_and_harpy"
+act = 3
+pool = 1
+enemies = Array[ExtResource("1_pxbo2")]([ExtResource("2_7uyyg"), ExtResource("3_nlhx3")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

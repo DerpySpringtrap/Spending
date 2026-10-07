@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_67pcc"]
+[ext_resource type="Resource" path="res://content/enemies/act3/starfall_seraph.tres" id="2_4yuc0"]
+[ext_resource type="Resource" path="res://content/enemies/act3/halo_fragment.tres" id="3_xoh67"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="4_4ymf7"]
+
+[resource]
+script = ExtResource("4_4ymf7")
+id = &"a3_starfall_seraph"
+act = 3
+pool = 2
+enemies = Array[ExtResource("1_67pcc")]([ExtResource("2_4yuc0"), ExtResource("3_xoh67"), ExtResource("3_xoh67"), ExtResource("3_xoh67")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

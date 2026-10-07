@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="1_s20bw"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_4muej"]
+
+[resource]
+script = ExtResource("1_s20bw")
+id = &"drained"
+display_name = "Drained"
+description = "Has 1 less energy per stack next turn."
+kind = 1
+stack_mode = 1
+decay = 5
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+revive_hp_percent = 0.0
+lose_stack_on_hp_lost = false
+resource_cost_reduction_per_stack = 0
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = -1
+triggers = Array[ExtResource("2_4muej")]([])
+tint = Color(0.478431, 0.227451, 0.541176, 1)
