@@ -190,7 +190,7 @@ Deck manipulation as the identity from turn 1: you always open with the card you
 
 **Fantasy:** An ancient druid whose body is a living forest. They grow sapling allies that fight and shield for them, and fill the air with rot spores. The summoner class.
 
-**Stats:** 64 HP · 99 gold · unlocked by defeating the Act 2 boss.
+**Stats:** 60 HP · 99 gold · unlocked by defeating the Act 2 boss.
 
 ### Mechanic: Summons + Sap
 - **Summons** stand in front of the Rootmother, max 3. Each is a small `Combatant` with HP, its own status tray and a visible intent. Summons act at the end of your turn, before enemies.

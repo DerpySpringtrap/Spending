@@ -62,7 +62,7 @@ func _ready() -> void:
 	(entries[0] as Button).grab_focus.call_deferred()
 
 	_build_options()
-	var version := UIBuild.label("Play-test build 3 · Acts 1–3 · Pyre Warden, Moonblade & Hollow Scribe", &"DimLabel")
+	var version := UIBuild.label("Play-test build 4 · Acts 1–4 · four classes", &"DimLabel")
 	version.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	version.position = Vector2(24, -40)
 	version.anchor_top = 1.0

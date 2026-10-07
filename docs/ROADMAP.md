@@ -107,6 +107,25 @@ Play-testing feedback on Act 2 difficulty is the most useful next input.
 
 Most simulated runs still end at the Act 1 boss; a person should get much further. Next up: Rootmother, Act 4, more relics/potions/events, the remaining ascension levels.
 
+## Milestone 4 progress: test build 4
+
+**Rootmother:** 32 cards, 6 summons, Sap/Graft, Seed of the First Tree + 3 class relics. Summons are player-side combatants built from `EnemyData` (tier `SUMMON`): they take single-target enemy attacks (Taunt first; leftover damage carries through when one dies) and act at the end of your turn. First sims had her at 79% wins; summon stats, Sproutling cost and HP were brought down to ~18%.
+
+**Act 4 (The Umbral Core):** unlocks after the first Act 3 win. Rest → shop → elite (Umbral Herald) → the Umbral Sovereign: an Umbra meter fed by your class resource (Total Darkness at 12), Void Rend / Mimicry, and a Corona phase that destroys summons. About half the simulated runs that reach it win.
+
+**Content:** +12 relics, +6 potions, +4 events. **Ascension:** all 15 levels now work (A8 elite affixes, A12 upgraded-reward odds, A15 boss tricks).
+
+**Simulator numbers** (simple AI, A0, 400 runs, base unlocks):
+
+| Class | Acts 1–3 | Acts 1–4 |
+|---|---|---|
+| Pyre Warden | ~10% | ~7% |
+| Moonblade | ~8% | ~8% |
+| Hollow Scribe | ~16% | ~9% |
+| Rootmother | ~18% | ~12% |
+
+Next: the Astromancer, card art, real audio, and the polish milestones (juice, accessibility, mid-combat save).
+
 ## Backlog (requested, not yet scheduled)
 - **Card art:** every card gets its own illustration. Art is themed per class, so the same kind of card (e.g. an attack) looks different for the Pyre Warden than for the Moonblade, and depicts what that specific card does. Hook: `CardData.art` already exists; `CardView` currently draws a placeholder type glyph when it's empty. Lower priority than sound, the second class and Act 2.
 - **New class: the Astromancer** (working name). A female star-mage with a galaxy-purple look whose gimmick revolves around **Orbit**: Launched cards circle her and swing back with a stronger effect each time they complete an orbit. Inspired by Act 3's astronomy theme. Concept in `docs/design/CLASSES.md` §5. Requested for later, after the current roadmap items.
