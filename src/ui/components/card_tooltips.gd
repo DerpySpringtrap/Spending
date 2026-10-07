@@ -6,7 +6,7 @@ const GLOSSARY := {
 	"Block": "Prevents damage until the start of your next turn.",
 	"Stoke": "Gain Heat.",
 	"Vent": "If you have enough Heat, spend it to get the bonus. Otherwise the card plays without it.",
-	"Overheat": "End your turn at max Heat: deal 12 damage to ALL enemies, lose 3 HP, reset Heat.",
+	"Overheat": "End your turn at max Heat: deal 15 damage to ALL enemies, lose 2 HP, reset Heat.",
 	"Wax": "Enter the Waxing phase. Changing phase grants 1 Lunar Charge.",
 	"Wane": "Enter the Waning phase. Changing phase grants 1 Lunar Charge.",
 	"Shift": "Change to the other phase (Waxing if you have none). Changing phase grants 1 Lunar Charge.",

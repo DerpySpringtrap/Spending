@@ -36,12 +36,12 @@ Each class resource is a `ClassResourceData` with its own gauge next to the ener
 
 **Fantasy:** An exiled knight whose armor is a furnace housing the last ember of a dead sun-god. Slow, heavy, and dangerous when stoked. Every swing risks setting themselves alight.
 
-**Stats:** 80 HP · 99 gold · unlocked by default (the "learn the game" class).
+**Stats:** 85 HP · 99 gold · unlocked by default (the "learn the game" class).
 
 ### Resource: Heat (0–10, persists between turns)
 - **Stoke X:** gain X Heat.
 - **Vent X:** a bonus clause. If you have X Heat, spend it and get the bracketed bonus. Otherwise the card still plays without the bonus. (The UI lights the bonus text when you can afford it.)
-- **Overheat:** if you **end your turn at 10 Heat**, deal 12 damage to ALL enemies, lose 3 HP and reset Heat to 0. This rewards planning: stoke up and choose whether to Vent for value or ride to an Overheat.
+- **Overheat:** if you **end your turn at 10 Heat**, deal 15 damage to ALL enemies, lose 2 HP and reset Heat to 0. This rewards planning: stoke up and choose whether to Vent for value or ride to an Overheat.
 
 ### Archetypes
 1. **Overheat engine:** fast Stoke and cards that trigger on Overheat. Aim to Overheat every 2 turns.
@@ -53,9 +53,9 @@ Each class resource is a `ClassResourceData` with its own gauge next to the ener
 
 | Starting card | Cost | Type | Effect | Upgraded |
 |---|---|---|---|---|
-| **Kindle** | 1 | Attack | Deal 7 damage. Stoke 2. | 9 dmg, Stoke 3 |
-| **Vent Flame** | 1 | Attack | Deal 5 damage to ALL enemies. *Vent 3:* apply 3 Burn to ALL enemies. | 7 dmg, 4 Burn |
-| **Smoldering Guard** | 1 | Skill | Gain 7 Block. Stoke 1. | 10 Block |
+| **Kindle** | 1 | Attack | Deal 8 damage. Stoke 2. | 10 dmg, Stoke 3 |
+| **Vent Flame** | 1 | Attack | Deal 6 damage to ALL enemies. *Vent 3:* apply 3 Burn to ALL enemies. | 8 dmg, 4 Burn |
+| **Smoldering Guard** | 1 | Skill | Gain 8 Block. Stoke 1. | 11 Block |
 
 ### Higher-rarity examples
 | Card | Rarity | Cost | Type | Effect | Upgraded |

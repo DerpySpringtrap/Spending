@@ -8,7 +8,7 @@
 [sub_resource type="Resource" id="Resource_qm7yq"]
 script = ExtResource("2_okksk")
 damage_type = 0
-amount = 7
+amount = 8
 upgrade_delta = 2
 times = 1
 target = 0

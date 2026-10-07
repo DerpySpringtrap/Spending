@@ -21,7 +21,7 @@ script = ExtResource("4_k8abd")
 damage_type = 0
 amount = 2
 upgrade_delta = 1
-times = 6
+times = 5
 target = 0
 value_key = &"dmg"
 scale = 0
@@ -31,7 +31,7 @@ script = ExtResource("5_hgtw1")
 id = &"silver_tempest"
 display_name = "Silver Tempest"
 description = "Wax.
-Deal {dmg} damage 6 times."
+Deal {dmg} damage 5 times."
 card_pool = &"moonblade"
 type = 0
 rarity = 3

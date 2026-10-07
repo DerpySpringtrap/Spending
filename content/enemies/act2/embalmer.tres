@@ -43,7 +43,7 @@ is_heavy = false
 
 [sub_resource type="Resource" id="Resource_eyy47"]
 script = ExtResource("6_b83p3")
-amount = 8
+amount = 6
 upgrade_delta = 0
 times = 1
 target = 4
@@ -64,7 +64,7 @@ script = ExtResource("2_vl70c")
 id = &"embalm"
 display_name = "Embalm"
 intent = 5
-intent_tooltip = "Every enemy heals 8 HP; gains 6 Block."
+intent_tooltip = "Every enemy heals 6 HP; gains 6 Block."
 effects = Array[ExtResource("3_eyy47")]([SubResource("Resource_eyy47"), SubResource("Resource_eymcw")])
 weight = 1.0
 max_consecutive = 1

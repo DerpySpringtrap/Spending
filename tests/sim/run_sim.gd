@@ -23,6 +23,7 @@ func _ready() -> void:
 				"runs": _runs = int(parts[1])
 				"ascension": _ascension = int(parts[1])
 				"class": _class_id = StringName(parts[1])
+				"unlock-all": MetaProgress.unlock_all = parts[1] == "1"
 	var started := Time.get_ticks_msec()
 	var final_hp_total := 0
 	var deck_sizes := 0

@@ -6,7 +6,7 @@ func test_kindle_stokes() -> void:
 	combat.start()
 	combat.play_card(Fixtures.give(combat, &"kindle"), combat.enemies[0])
 	check_eq(combat.player.resource_value, 2, "Stoke 2")
-	check_eq(combat.enemies[0].hp, 93, "7 damage")
+	check_eq(combat.enemies[0].hp, 92, "8 damage")
 
 
 func test_vent_pays_for_bonus_only_when_affordable() -> void:
@@ -16,7 +16,7 @@ func test_vent_pays_for_bonus_only_when_affordable() -> void:
 	combat.play_card(Fixtures.give(combat, &"vent_flame"))
 	check_eq(combat.player.resource_value, 2, "can't afford Vent 3: heat kept")
 	check(not combat.enemies[0].has_status(&"burn"), "no bonus")
-	check_eq(combat.enemies[1].hp, 95, "base AoE still hits")
+	check_eq(combat.enemies[1].hp, 94, "base AoE still hits")
 	combat.set_class_resource(3)
 	combat.play_card(Fixtures.give(combat, &"vent_flame"))
 	check_eq(combat.player.resource_value, 0, "Vent spent 3")
@@ -29,8 +29,8 @@ func test_overheat_at_end_of_turn() -> void:
 	combat.start()
 	combat.set_class_resource(10)
 	combat.end_player_turn()
-	check_eq(combat.enemies[0].hp, 88, "Overheat blasts 12")
-	check_eq(combat.player.hp, 77, "3 recoil")
+	check_eq(combat.enemies[0].hp, 85, "Overheat blasts 15")
+	check_eq(combat.player.hp, 78, "2 recoil")
 	check_eq(combat.player.resource_value, 0, "heat reset")
 
 

@@ -100,7 +100,7 @@ func test_event_outcomes() -> void:
 	heal.amount = 25
 	heal.percent = true
 	RunLogic.apply_outcome(heal)
-	check_eq(RunState.hp, 60, "25% of 80 max HP")
+	check_eq(RunState.hp, 61, "25% of 85 max HP")
 	var lose := EventOutcome.new()
 	lose.type = EventOutcome.Type.LOSE_GOLD
 	lose.amount = 500

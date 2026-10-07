@@ -110,7 +110,13 @@ func _evaluate(effects: Array[GameEffect], ctx: EffectContext, totals: Dictionar
 				_:
 					totals.other += stacks * 3.0
 		elif effect is GainClassResourceEffect:
-			totals.other += ctx.amount_for(effect) * 1.0
+			var gain := ctx.amount_for(effect)
+			totals.other += gain * 1.0
+			# Reaching max with a payoff (Overheat) is worth roughly the blast.
+			var res := combat.player.get_resource_data()
+			if res and not res.on_reach_max_effects.is_empty() and combat.player.resource_value < res.max_value \
+					and combat.player.resource_value + gain >= res.max_value:
+				totals.other += 8.0 * combat.living_enemies().size()
 		elif effect is SpendClassResourceEffect:
 			if effect.is_affordable(ctx):
 				var sub: EffectContext = effect.make_preview_context(ctx)

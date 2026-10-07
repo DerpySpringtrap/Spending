@@ -86,4 +86,5 @@ func _parse_args() -> void:
 			"pools": _pools = parts[1]
 			"extra": _extra_cards = int(parts[1])
 			"class": _class_id = StringName(parts[1])
+			"unlock-all": MetaProgress.unlock_all = parts[1] == "1"
 			"act": _act = int(parts[1])

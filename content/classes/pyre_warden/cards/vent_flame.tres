@@ -10,7 +10,7 @@
 [sub_resource type="Resource" id="Resource_ihu1f"]
 script = ExtResource("2_ejko8")
 damage_type = 0
-amount = 5
+amount = 6
 upgrade_delta = 2
 times = 1
 target = 2
