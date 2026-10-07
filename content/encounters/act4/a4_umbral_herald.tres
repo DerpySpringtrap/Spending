@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="1_xppaa"]
+[ext_resource type="Resource" path="res://content/enemies/act4/umbral_herald.tres" id="2_1olop"]
+[ext_resource type="Script" path="res://src/data/encounter_data.gd" id="3_lww7e"]
+
+[resource]
+script = ExtResource("3_lww7e")
+id = &"a4_umbral_herald"
+act = 4
+pool = 2
+enemies = Array[ExtResource("1_xppaa")]([ExtResource("2_1olop")])
+weight = 1.0
+exclusive_with = Array[StringName]([])

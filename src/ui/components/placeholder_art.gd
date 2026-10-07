@@ -86,6 +86,10 @@ static func build(id: StringName, accent: Color = Color("#E8692C")) -> Node2D:
 			_halo_fragment(root)
 		&"the_orrery":
 			_orrery(root)
+		&"umbral_herald":
+			_herald(root)
+		&"umbral_sovereign":
+			_sovereign(root)
 		_:
 			_blob(root, id)
 	return root
@@ -879,3 +883,45 @@ static func _elder_treant(root: Node2D) -> void:
 	_poly(root, ellipse(Vector2(10, -96), 5, 6), GLOW)
 	_poly(root, PackedVector2Array([Vector2(26, -90), Vector2(34, -86), Vector2(66, -40), Vector2(58, -36)]), BARK.lightened(0.1))
 	_meta(root, 120, 210)
+
+
+
+# --- Act 4: The Umbral Core ----------------------------------------------------------
+
+const UMBRA := Color("#1A0D26")
+const CORONA := Color("#FFD9A0")
+
+
+static func _herald(root: Node2D) -> void:
+	var cloak := Color("#2A1A3A")
+	_poly(root, PackedVector2Array([Vector2(-70, 0), Vector2(70, 0), Vector2(40, -200), Vector2(-40, -200)]), cloak)
+	_poly(root, PackedVector2Array([Vector2(-40, -200), Vector2(40, -200), Vector2(0, -280)]), cloak.darkened(0.2))
+	_poly(root, ellipse(Vector2(0, -214), 22, 26), Color("#05020A"))
+	_poly(root, ellipse(Vector2(-8, -216), 4, 4), Color("#B04AD0"))
+	_poly(root, ellipse(Vector2(8, -216), 4, 4), Color("#B04AD0"))
+	# Horn of shadows held forward
+	_poly(root, PackedVector2Array([Vector2(-40, -150), Vector2(-34, -144), Vector2(-120, -170), Vector2(-150, -200), Vector2(-120, -186)]), CORONA.darkened(0.5))
+	for p in [Vector2(-160, -210), Vector2(-176, -230), Vector2(-150, -240)]:
+		_poly(root, ellipse(p, 8, 8), Color("#7A3AAA", 0.5))
+	_meta(root, 200, 290)
+
+
+static func _sovereign(root: Node2D) -> void:
+	# Eclipse halo
+	_poly(root, ellipse(Vector2(0, -300), 120, 120), Color(CORONA, 0.15))
+	_poly(root, ellipse(Vector2(0, -300), 92, 92), CORONA)
+	_poly(root, ellipse(Vector2(0, -300), 84, 84), Color("#020104"))
+	# Towering robed body of night
+	_poly(root, PackedVector2Array([Vector2(-120, 0), Vector2(120, 0), Vector2(60, -260), Vector2(-60, -260)]), UMBRA)
+	_poly(root, PackedVector2Array([Vector2(-60, -260), Vector2(60, -260), Vector2(40, -330), Vector2(-40, -330)]), UMBRA.lightened(0.05))
+	# Crown of black spikes
+	for i in 5:
+		var x := -40 + i * 20
+		_poly(root, PackedVector2Array([Vector2(x - 8, -330), Vector2(x, -380 - (10 if i == 2 else 0)), Vector2(x + 8, -330)]), Color("#05020A"))
+	# Face: a burning ring for eyes
+	_poly(root, ellipse(Vector2(-16, -296), 7, 5), CORONA)
+	_poly(root, ellipse(Vector2(16, -296), 7, 5), CORONA)
+	# Arms of shadow reaching forward
+	_poly(root, PackedVector2Array([Vector2(-60, -220), Vector2(-50, -210), Vector2(-170, -140), Vector2(-180, -150)]), UMBRA.lightened(0.08))
+	_poly(root, ellipse(Vector2(-182, -146), 16, 16), Color("#7A3AAA"))
+	_meta(root, 300, 420)

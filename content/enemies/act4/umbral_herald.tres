@@ -1,0 +1,149 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=24 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_75vvr"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_goqlr"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_v5w0e"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_e4m14"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_6gqr8"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="6_brfgn"]
+[ext_resource type="Resource" path="res://content/statuses/darkened.tres" id="7_e54ba"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="8_aewmx"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="9_e3nk8"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="10_m7jhn"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="11_fppdj"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="12_epfjy"]
+[ext_resource type="Resource" path="res://content/statuses/dark_pact.tres" id="13_ivkak"]
+
+[sub_resource type="Resource" id="Resource_75vvr"]
+script = ExtResource("4_e4m14")
+damage_type = 0
+lifesteal = false
+amount = 15
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_goqlr"]
+script = ExtResource("2_goqlr")
+id = &"shadow_strike"
+display_name = "Shadow Strike"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_v5w0e")]([SubResource("Resource_75vvr")])
+weight = 2.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_v5w0e"]
+script = ExtResource("5_6gqr8")
+status = ExtResource("6_brfgn")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_e4m14"]
+script = ExtResource("5_6gqr8")
+status = ExtResource("7_e54ba")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_6gqr8"]
+script = ExtResource("2_goqlr")
+id = &"snuff"
+display_name = "Snuff"
+intent = 8
+intent_tooltip = "Applies 2 Weak and 1 Darkened (draw 1 fewer card)."
+effects = Array[ExtResource("3_v5w0e")]([SubResource("Resource_v5w0e"), SubResource("Resource_e4m14")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 2
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_brfgn"]
+script = ExtResource("8_aewmx")
+amount = 18
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_e54ba"]
+script = ExtResource("5_6gqr8")
+status = ExtResource("9_e3nk8")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_aewmx"]
+script = ExtResource("2_goqlr")
+id = &"gloom_shield"
+display_name = "Gloom Shield"
+intent = 5
+intent_tooltip = "Gains 18 Block and 2 Strength."
+effects = Array[ExtResource("3_v5w0e")]([SubResource("Resource_brfgn"), SubResource("Resource_e54ba")])
+weight = 1.0
+max_consecutive = 1
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_e3nk8"]
+script = ExtResource("1_75vvr")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_goqlr")]([SubResource("Resource_goqlr"), SubResource("Resource_6gqr8"), SubResource("Resource_aewmx")])
+opening_moves = Array[ExtResource("2_goqlr")]([])
+on_enter_effects = Array[ExtResource("3_v5w0e")]([])
+passive_triggers = Array[ExtResource("10_m7jhn")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_m7jhn"]
+script = ExtResource("12_epfjy")
+status = ExtResource("13_ivkak")
+stacks = 2
+
+[resource]
+script = ExtResource("11_fppdj")
+id = &"umbral_herald"
+display_name = "Umbral Herald"
+tier = 1
+act = 4
+hp_min = 150
+hp_max = 156
+gimmick_text = "Dark Pact: grows stronger whenever you play a Power. Its Snuff makes you draw fewer cards."
+starting_statuses = Array[ExtResource("12_epfjy")]([SubResource("Resource_m7jhn")])
+phases = Array[ExtResource("1_75vvr")]([SubResource("Resource_e3nk8")])
+gold_min = 30
+gold_max = 40
+has_intro_cinematic = false
+intro_title = ""

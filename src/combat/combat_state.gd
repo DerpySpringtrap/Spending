@@ -160,7 +160,7 @@ func summon_ally(data: EnemyData) -> SummonCombatant:
 	EventBus.combatant_spawned.emit(s)
 	_apply_starting_statuses(s)
 	_roll_intent(s)
-	fire(EffectTrigger.Timing.SUMMON_CREATED, player, {"summon": s, "target": s})
+	_fire_all(EffectTrigger.Timing.SUMMON_CREATED, {"summon": s, "target": s})
 	return s
 
 
@@ -602,12 +602,12 @@ func change_class_resource(delta: int) -> int:
 		return 0
 	EventBus.class_resource_changed.emit(res.id, old, player.resource_value, res.max_value)
 	if actual > 0:
-		fire(EffectTrigger.Timing.CLASS_RESOURCE_GAINED, player, {"amount": actual})
+		_fire_all(EffectTrigger.Timing.CLASS_RESOURCE_GAINED, {"amount": actual})
 		if player.resource_value >= res.max_value and not res.max_triggers_at_turn_end \
 				and not res.on_reach_max_effects.is_empty():
 			_trigger_resource_max()
 	else:
-		fire(EffectTrigger.Timing.CLASS_RESOURCE_SPENT, player, {"amount": -actual})
+		_fire_all(EffectTrigger.Timing.CLASS_RESOURCE_SPENT, {"amount": -actual})
 	return actual
 
 
@@ -653,7 +653,7 @@ func change_stance(target: StatusEffectData = null) -> void:
 		else:
 			change_class_resource(1)
 	_apply_stance_cost_reductions()
-	fire(EffectTrigger.Timing.STANCE_CHANGED, player, {"stance": player.stance})
+	_fire_all(EffectTrigger.Timing.STANCE_CHANGED, {"stance": player.stance})
 
 
 ## True if [param combatant] has the status, or (player only) the status is a
@@ -910,9 +910,23 @@ func _set_stacks(target: Combatant, data: StatusEffectData, value: int) -> void:
 	target.statuses[data.id] = value
 	target.status_data[data.id] = data
 	EventBus.status_applied.emit(target, data, value - old, value)
+	if not data.max_stack_effects.is_empty() and value > old:
+		var cap := data.a15_max_stacks if ascension >= 15 and data.a15_max_stacks > 0 else data.max_stacks
+		if value >= cap:
+			queue.push(_burst_status.bind(target, data))
 	if data.skips_turn and target is EnemyCombatant:
 		_emit_intent(target)
 	_refresh_intents()
+
+
+## A meter status reached its cap: unleash its effects and reset it.
+func _burst_status(target: Combatant, data: StatusEffectData) -> void:
+	if target.is_dead or is_over() or not target.has_status(data.id):
+		return
+	EventBus.status_triggered.emit(target, data)
+	_run_effects(data.max_stack_effects, EffectContext.new(self, target, player))
+	if not target.is_dead:
+		_set_stacks(target, data, 0)
 
 
 func _decay(combatant: Combatant, kind: StatusEffectData.Decay) -> void:

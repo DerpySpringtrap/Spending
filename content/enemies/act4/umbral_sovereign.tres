@@ -1,0 +1,369 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=44 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_vbqi0"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_8f0dj"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_7m036"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_k8cp5"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="5_3ekfe"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="6_kpaau"]
+[ext_resource type="Resource" path="res://content/statuses/frail.tres" id="7_6kme6"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="8_78y4v"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="9_6rdm7"]
+[ext_resource type="Resource" path="res://content/statuses/strength.tres" id="10_j3rxn"]
+[ext_resource type="Script" path="res://src/combat/effects/remove_debuffs_effect.gd" id="11_w40c0"]
+[ext_resource type="Resource" path="res://content/statuses/burn.tres" id="12_0kiub"]
+[ext_resource type="Script" path="res://src/combat/effects/sacrifice_summons_effect.gd" id="13_ko3p4"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="14_earr3"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="15_5y0lt"]
+[ext_resource type="Resource" path="res://content/statuses/umbral_hunger.tres" id="16_68a82"]
+
+[sub_resource type="Resource" id="Resource_vbqi0"]
+script = ExtResource("4_k8cp5")
+damage_type = 0
+lifesteal = false
+amount = 15
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_8f0dj"]
+script = ExtResource("2_8f0dj")
+id = &"night_lash"
+display_name = "Night Lash"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_7m036")]([SubResource("Resource_vbqi0")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_7m036"]
+script = ExtResource("5_3ekfe")
+status = ExtResource("6_kpaau")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_k8cp5"]
+script = ExtResource("5_3ekfe")
+status = ExtResource("7_6kme6")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_3ekfe"]
+script = ExtResource("2_8f0dj")
+id = &"dim"
+display_name = "Dim"
+intent = 8
+intent_tooltip = "Applies 2 Weak and 2 Frail."
+effects = Array[ExtResource("3_7m036")]([SubResource("Resource_7m036"), SubResource("Resource_k8cp5")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_kpaau"]
+script = ExtResource("8_78y4v")
+amount = 16
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_6kme6"]
+script = ExtResource("2_8f0dj")
+id = &"shade_ward"
+display_name = "Shade Ward"
+intent = 4
+intent_tooltip = "Gains 16 Block."
+effects = Array[ExtResource("3_7m036")]([SubResource("Resource_kpaau")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_78y4v"]
+script = ExtResource("1_vbqi0")
+display_name = "Penumbra"
+hp_threshold = 1.0
+selection = 0
+moves = Array[ExtResource("2_8f0dj")]([SubResource("Resource_8f0dj"), SubResource("Resource_3ekfe"), SubResource("Resource_6kme6")])
+opening_moves = Array[ExtResource("2_8f0dj")]([])
+on_enter_effects = Array[ExtResource("3_7m036")]([])
+passive_triggers = Array[ExtResource("9_6rdm7")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_6rdm7"]
+script = ExtResource("4_k8cp5")
+damage_type = 0
+lifesteal = false
+amount = 7
+upgrade_delta = 0
+times = 4
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_j3rxn"]
+script = ExtResource("2_8f0dj")
+id = &"void_rend"
+display_name = "Void Rend"
+intent = 0
+intent_tooltip = "Attacks for {dmg} 4 times."
+effects = Array[ExtResource("3_7m036")]([SubResource("Resource_6rdm7")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_w40c0"]
+script = ExtResource("5_3ekfe")
+status = ExtResource("10_j3rxn")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_0kiub"]
+script = ExtResource("8_78y4v")
+amount = 8
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_ko3p4"]
+script = ExtResource("2_8f0dj")
+id = &"mimicry"
+display_name = "Mimicry"
+intent = 6
+intent_tooltip = "Gains 2 Strength and 8 Block."
+effects = Array[ExtResource("3_7m036")]([SubResource("Resource_w40c0"), SubResource("Resource_0kiub")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_earr3"]
+script = ExtResource("4_k8cp5")
+damage_type = 0
+lifesteal = false
+amount = 15
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_5y0lt"]
+script = ExtResource("2_8f0dj")
+id = &"night_lash"
+display_name = "Night Lash"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_7m036")]([SubResource("Resource_earr3")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_68a82"]
+script = ExtResource("11_w40c0")
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_wjypf"]
+script = ExtResource("1_vbqi0")
+display_name = "Umbra"
+hp_threshold = 0.6
+selection = 0
+moves = Array[ExtResource("2_8f0dj")]([SubResource("Resource_j3rxn"), SubResource("Resource_ko3p4"), SubResource("Resource_5y0lt")])
+opening_moves = Array[ExtResource("2_8f0dj")]([])
+on_enter_effects = Array[ExtResource("3_7m036")]([SubResource("Resource_68a82")])
+passive_triggers = Array[ExtResource("9_6rdm7")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_jm2b2"]
+script = ExtResource("4_k8cp5")
+damage_type = 0
+lifesteal = false
+amount = 22
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_d2m6s"]
+script = ExtResource("5_3ekfe")
+status = ExtResource("12_0kiub")
+amount = 5
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_u0u4s"]
+script = ExtResource("2_8f0dj")
+id = &"dying_light"
+display_name = "Dying Light"
+intent = 3
+intent_tooltip = "Attacks for {dmg} and applies 5 Burn."
+effects = Array[ExtResource("3_7m036")]([SubResource("Resource_jm2b2"), SubResource("Resource_d2m6s")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_5wbi0"]
+script = ExtResource("8_78y4v")
+amount = 12
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_sycta"]
+script = ExtResource("2_8f0dj")
+id = &"last_eclipse_charge"
+display_name = "Last Eclipse"
+intent = 10
+intent_tooltip = "Gathers the last of the light. A devastating blow comes next."
+effects = Array[ExtResource("3_7m036")]([SubResource("Resource_5wbi0")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_g5ti3"]
+script = ExtResource("4_k8cp5")
+damage_type = 0
+lifesteal = false
+amount = 50
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_rego8"]
+script = ExtResource("2_8f0dj")
+id = &"last_eclipse"
+display_name = "LAST ECLIPSE"
+intent = 0
+intent_tooltip = "Attacks for {dmg}."
+effects = Array[ExtResource("3_7m036")]([SubResource("Resource_g5ti3")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 15
+ascension_amount_bonus = 2
+animation = &"attack"
+is_heavy = true
+
+[sub_resource type="Resource" id="Resource_c0q1u"]
+script = ExtResource("13_ko3p4")
+then_effects = Array[ExtResource("3_7m036")]([])
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_q35py"]
+script = ExtResource("1_vbqi0")
+display_name = "Corona"
+hp_threshold = 0.25
+selection = 0
+moves = Array[ExtResource("2_8f0dj")]([SubResource("Resource_u0u4s"), SubResource("Resource_sycta"), SubResource("Resource_rego8")])
+opening_moves = Array[ExtResource("2_8f0dj")]([])
+on_enter_effects = Array[ExtResource("3_7m036")]([SubResource("Resource_68a82"), SubResource("Resource_c0q1u")])
+passive_triggers = Array[ExtResource("9_6rdm7")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_e31o6"]
+script = ExtResource("15_5y0lt")
+status = ExtResource("16_68a82")
+stacks = 1
+
+[resource]
+script = ExtResource("14_earr3")
+id = &"umbral_sovereign"
+display_name = "The Umbral Sovereign"
+tier = 2
+act = 4
+hp_min = 260
+hp_max = 260
+gimmick_text = "Umbral Hunger: every time you use your class engine it gains Umbra; at 12 it unleashes Total Darkness. Below 60% it turns your strength against you; below 25% it burns out in a final eclipse."
+starting_statuses = Array[ExtResource("15_5y0lt")]([SubResource("Resource_e31o6")])
+phases = Array[ExtResource("1_vbqi0")]([SubResource("Resource_78y4v"), SubResource("Resource_wjypf"), SubResource("Resource_q35py")])
+gold_min = 100
+gold_max = 110
+has_intro_cinematic = true
+intro_title = "The Eclipse Made Flesh"

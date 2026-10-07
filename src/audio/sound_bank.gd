@@ -38,13 +38,13 @@ const GAIN_DB := {
 }
 
 const MUSIC := {
-	&"menu": "menu", &"map_act1": "map_act1", &"map_act2": "map_act2", &"map_act3": "map_act3",
+	&"menu": "menu", &"map_act1": "map_act1", &"map_act2": "map_act2", &"map_act3": "map_act3", &"map_act4": "map_act4",
 	&"combat": "combat", &"elite": "elite", &"boss": "boss",
 }
 
-const AMBIENCE := {&"swamp": "swamp", &"crypt": "crypt", &"observatory": "observatory"}
+const AMBIENCE := {&"swamp": "swamp", &"crypt": "crypt", &"observatory": "observatory", &"void": "void"}
 ## Background ambience per act.
-const ACT_AMBIENCE := {1: &"swamp", 2: &"crypt", 3: &"observatory"}
+const ACT_AMBIENCE := {1: &"swamp", 2: &"crypt", 3: &"observatory", 4: &"void"}
 
 static var _cache: Dictionary = {}
 

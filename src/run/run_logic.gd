@@ -151,7 +151,10 @@ static func advance_act() -> void:
 	RunState.heal(ceili((RunState.max_hp - RunState.hp) * ACT_HEAL))
 	RunState.monster_fights = 0
 	RunState.seen_encounters.clear()
-	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), RunState.act, RunState.ascension)
+	if RunState.act >= GameManager.SECRET_ACT:
+		RunState.map_data = MapGenerator.generate_final(RunState.act)
+	else:
+		RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), RunState.act, RunState.ascension)
 	RunState.current_node = ""
 	RunState.visited_nodes.clear()
 	RunState.floor_number = 0

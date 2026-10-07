@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_vycw6"]
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="2_f751j"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="3_k53oo"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="4_tvsj1"]
+[ext_resource type="Resource" path="res://content/statuses/umbra.tres" id="5_vsfw7"]
+
+[sub_resource type="Resource" id="Resource_vycw6"]
+script = ExtResource("4_tvsj1")
+status = ExtResource("5_vsfw7")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_f751j"]
+script = ExtResource("3_k53oo")
+timing = 22
+condition = 0
+effects = Array[ExtResource("1_vycw6")]([SubResource("Resource_vycw6")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[sub_resource type="Resource" id="Resource_k53oo"]
+script = ExtResource("4_tvsj1")
+status = ExtResource("5_vsfw7")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_tvsj1"]
+script = ExtResource("3_k53oo")
+timing = 23
+condition = 0
+effects = Array[ExtResource("1_vycw6")]([SubResource("Resource_k53oo")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("2_f751j")
+id = &"umbral_hunger"
+display_name = "Umbral Hunger"
+description = "Feeds on your engine: each time you gain or spend your class resource (Heat, Lunar Charge, Ink, Sap), it gains 1 Umbra."
+kind = 2
+stack_mode = 3
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+revive_hp_percent = 0.0
+lose_stack_on_hp_lost = false
+resource_cost_reduction_per_stack = 0
+max_stack_effects = Array[ExtResource("1_vycw6")]([])
+a15_max_stacks = 0
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("3_k53oo")]([SubResource("Resource_f751j"), SubResource("Resource_tvsj1")])
+tint = Color(0.478431, 0.227451, 0.666667, 1)

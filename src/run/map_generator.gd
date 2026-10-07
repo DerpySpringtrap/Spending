@@ -73,6 +73,19 @@ static func generate(rng: RandomNumberGenerator, act: int = 1, ascension: int = 
 	return {"act": act, "floors": FLOORS, "columns": COLUMNS, "nodes": nodes, "boss": boss_id}
 
 
+## The short final act: rest → shop → elite → boss, one path.
+static func generate_final(act: int) -> Dictionary:
+	var nodes := {}
+	var col := COLUMNS / 2
+	var types := [TYPE_REST, TYPE_SHOP, TYPE_ELITE]
+	for f in types.size():
+		var id := node_id(f, col)
+		nodes[id] = {"id": id, "floor": f, "col": col, "type": types[f], "next": [node_id(f + 1, col)]}
+	var boss_id := node_id(types.size(), col)
+	nodes[boss_id] = {"id": boss_id, "floor": types.size(), "col": col, "type": TYPE_BOSS, "next": []}
+	return {"act": act, "floors": types.size(), "columns": COLUMNS, "nodes": nodes, "boss": boss_id}
+
+
 static func _has_edge(edges: Dictionary, from: String, to: String) -> bool:
 	return edges.has(from) and edges[from].has(to)
 

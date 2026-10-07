@@ -39,6 +39,11 @@ var stats: Dictionary = {
 var seen_enemies: Array[StringName] = []
 ## Debug / play-testing: every class, card and relic is available (F8).
 var unlock_all := false
+## Act 4 (the Umbral Core) appears after the player's first Act 3 victory.
+var act4_won_once := false
+var act4_unlocked: bool:
+	get:
+		return act4_won_once or unlock_all
 
 
 func _ready() -> void:
@@ -112,7 +117,7 @@ func is_level_unlocked(pool_id: StringName, level: int) -> bool:
 ## Called by GameManager when a run ends. Returns what happened for the
 ## summary: {"xp", "old_xp", "new_xp", "old_level", "new_level", "unlocks": [String]}.
 func record_run(class_id: StringName, victory: bool, floor_reached: int, ascension: int, xp: int,
-		reached_act2_boss: bool = false, beat_act2_boss: bool = false) -> Dictionary:
+		reached_act2_boss: bool = false, beat_act2_boss: bool = false, beat_act3_boss: bool = false) -> Dictionary:
 	stats["runs_won"] += 1 if victory else 0
 	stats["highest_floor"] = maxi(stats["highest_floor"], floor_reached)
 	var old_xp := get_class_xp(class_id)
@@ -136,6 +141,9 @@ func record_run(class_id: StringName, victory: bool, floor_reached: int, ascensi
 			unlock(&"class", unlock_id)
 			var data: CharacterClassData = ContentDB.get_character_class(unlock_id)
 			unlocks.append("New class unlocked: %s" % (data.display_name if data else String(unlock_id)))
+	if beat_act3_boss and not act4_won_once:
+		act4_won_once = true
+		unlocks.append("Act 4 unlocked: The Umbral Core awaits beyond the Orrery")
 	if victory and ascension >= int(max_ascension.get(class_id, 0)) and ascension < GameManager.MAX_ASCENSION:
 		max_ascension[class_id] = ascension + 1
 		unlocks.append("Ascension %d unlocked for %s" % [ascension + 1, cls_name])
@@ -154,6 +162,7 @@ func to_dict() -> Dictionary:
 		"stats": stats,
 		"seen_enemies": _to_strings(seen_enemies),
 		"unlock_all": unlock_all,
+		"act4_unlocked": act4_won_once,
 	}
 
 
@@ -163,6 +172,7 @@ func from_dict(data: Dictionary) -> void:
 	unlocked_relics = _to_string_names(data.get("unlocked_relics", []))
 	seen_enemies = _to_string_names(data.get("seen_enemies", []))
 	unlock_all = bool(data.get("unlock_all", false))
+	act4_won_once = bool(data.get("act4_unlocked", false))
 	max_ascension.clear()
 	for key in data.get("max_ascension", {}):
 		max_ascension[StringName(key)] = int(data["max_ascension"][key])

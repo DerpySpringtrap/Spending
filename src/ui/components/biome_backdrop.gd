@@ -14,6 +14,9 @@ const PALETTES := {
 	3: {"sky_top": Color("#0B0E24"), "sky_bottom": Color("#2A2F5E"), "moon": Color("#E9E4FF"),
 		"far": Color("#1E2248"), "mid": Color("#171A38"), "near": Color("#10122A"), "ground": Color("#0C0D1E"),
 		"fog": Color("#B8C4FF")},
+	4: {"sky_top": Color("#07040C"), "sky_bottom": Color("#1E0F2E"), "moon": Color("#FFD9A0"),
+		"far": Color("#1A0D26"), "mid": Color("#12091C"), "near": Color("#0B0612"), "ground": Color("#08040D"),
+		"fog": Color("#9A6AD0")},
 }
 
 ## 0 = the current run's act (1 outside a run).
@@ -45,6 +48,9 @@ func _draw() -> void:
 		return
 	if act == 3:
 		_draw_observatory(p)
+		return
+	if act == 4:
+		_draw_void(p)
 		return
 	var w := size.x
 	var h := size.y
@@ -202,3 +208,36 @@ func _draw_observatory(p: Dictionary) -> void:
 		var x := fmod(i * 0.381966 * w + _time * (10.0 + i % 7), w)
 		var y := h * (0.15 + fmod(i * 0.53, 0.6)) + sin(_time + i) * 10.0
 		draw_circle(Vector2(x, y), 1.4 + (i % 3) * 0.5, Color(p.fog, 0.25))
+
+
+## Act 4: inside the eclipse. A black sun with a burning corona over a void.
+func _draw_void(p: Dictionary) -> void:
+	var w := size.x
+	var h := size.y
+	var bands := 28
+	for i in bands:
+		var c: Color = p.sky_top.lerp(p.sky_bottom, float(i) / bands)
+		draw_rect(Rect2(0, h * i / bands, w, h / bands + 1), c)
+	var sun := Vector2(w * 0.4, h * 0.22)
+	var pulse := 0.85 + 0.15 * sin(_time * 1.3)
+	for k in 6:
+		draw_circle(sun, (190 - k * 22) * pulse, Color(p.moon, 0.03 + k * 0.015))
+	# Corona rays
+	for i in 24:
+		var a := TAU * i / 24.0 + _time * 0.05
+		var len := 150.0 + 40.0 * sin(_time * 2.0 + i)
+		draw_line(sun + Vector2(cos(a), sin(a)) * 92, sun + Vector2(cos(a), sin(a)) * len, Color(p.moon, 0.18), 3.0)
+	draw_circle(sun, 96, Color(p.moon, 0.9))
+	draw_circle(sun, 88, Color("#020104"))
+	# Floating shards of shadow
+	for i in 7:
+		var c := Vector2(w * (0.08 + i * 0.14), h * (0.5 + 0.08 * sin(_time * 0.5 + i)))
+		var r := 18.0 + (i % 3) * 10.0
+		draw_colored_polygon(PackedVector2Array([c + Vector2(0, -r), c + Vector2(r * 0.6, 0), c + Vector2(0, r * 1.4), c + Vector2(-r * 0.6, 0)]), p.far)
+	# Ground of black glass
+	draw_rect(Rect2(0, h * 0.66, w, h * 0.34), p.ground)
+	_hills(p.near, h * 0.66, 8.0, 0.015, 0.5)
+	for i in 40:
+		var x := fmod(i * 0.618 * w + _time * (4.0 + i % 5), w)
+		var y := h * (0.1 + fmod(i * 0.37, 0.8)) - fmod(_time * 6.0 + i * 13.0, h * 0.2)
+		draw_circle(Vector2(x, y), 1.3 + (i % 3) * 0.6, Color(p.fog, 0.22))

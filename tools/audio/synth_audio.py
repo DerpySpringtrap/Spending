@@ -417,6 +417,8 @@ def music_menu():
 def music_map(act=1):
     if act == 3:
         return music_map_act3()
+    if act == 4:
+        return music_map_act4()
     if act == 1:
         tr = Track(80, 8)
         prog = [(note("A2"), "m"), (note("F2"), ""), (note("C3"), ""), (note("G2"), ""), (note("A2"), "m"), (note("F2"), ""), (note("D3"), "m"), (note("E3"), "")]
@@ -511,6 +513,20 @@ def music_map_act3():
     return tr.render(0.35)
 
 
+def music_map_act4():
+    """The Umbral Core: a dark drone, a heartbeat and distant, wrong-sounding bells."""
+    tr = Track(60, 8)
+    drone = pad([midi(26), midi(33), midi(39)], tr.length + 1, cutoff=380, attack=2.5, release=2.5)
+    tr.add(0, drone, 0.9)
+    for bar in range(8):
+        b = bar * 4
+        tr.add(b, kick(low=40) * 0.9, 0.5)
+        tr.add(b + 0.35, kick(low=36) * 0.6, 0.35)
+        if bar % 2 == 1:
+            tr.add(b + 2, bell(midi([74, 75, 73, 74][bar // 2]), 3.0, decay=1.8) * 0.5, 0.3, verb=0.8)
+    return tr.render(0.4)
+
+
 def stinger_free_ambience(kind):
     dur = 32.0
     n = int(dur * MSR)
@@ -531,6 +547,11 @@ def stinger_free_ambience(kind):
             st = RNG.uniform(0, dur)
             d = sweep(RNG.uniform(1400, 2200), 600, 0.06, MSR) * env_exp(int(0.06 * MSR), 0.02, MSR)
             place(out, d * RNG.uniform(0.05, 0.12), int(st * MSR))
+    elif kind == "void":
+        out += sine(41, dur, MSR) * 0.35 + sine(41.6, dur, MSR) * 0.3
+        out += lp(noise(n), 220, MSR) * 0.3
+        for k in range(int(dur / 1.1)):
+            place(out, kick(MSR, low=38) * 0.35, int(k * 1.1 * MSR))
     elif kind == "observatory":
         # High wind through broken glass, a slow mechanical tick, distant chimes.
         wind = hp(lp(noise(n), 1800, MSR), 300, MSR)
@@ -571,6 +592,7 @@ def main():
         "map_act1": lambda: music_map(1),
         "map_act2": lambda: music_map(2),
         "map_act3": lambda: music_map(3),
+        "map_act4": lambda: music_map(4),
         "combat": lambda: music_combat("normal"),
         "elite": lambda: music_combat("elite"),
         "boss": lambda: music_combat("boss"),
@@ -578,7 +600,7 @@ def main():
     for name, make in tracks.items():
         if want(name):
             write_ogg(os.path.join(MUSIC_DIR, name + ".ogg"), make(), MSR, peak=0.8, quality=3)
-    for name in ("swamp", "crypt", "observatory"):
+    for name in ("swamp", "crypt", "observatory", "void"):
         if want(name):
             write_ogg(os.path.join(AMB_DIR, name + ".ogg"), stinger_free_ambience(name), MSR, peak=0.6, quality=2)
     print("Audio written to assets/audio/")

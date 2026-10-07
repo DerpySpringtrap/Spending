@@ -10,7 +10,8 @@ func _ready() -> void:
 	title.add_theme_color_override("font_color", UIStyle.GOLD if victory else UIStyle.DAMAGE)
 	column.add_child(title)
 	var stats: Dictionary = s.get("stats", {})
-	var subtitle := "The Orrery is silent. The stars are yours!" if victory \
+	var won_text := "The Umbral Sovereign is unmade. Dawn returns!" if s.get("act", 3) >= 4 else "The Orrery is silent. The stars are yours!"
+	var subtitle := won_text if victory \
 			else "Fell in Act %d, floor %d%s." % [s.get("act", 1), s.get("floor", 0),
 				(" to " + str(stats.get("killed_by"))) if stats.has("killed_by") else ""]
 	var sub := UIBuild.label(subtitle, &"", UIStyle.SIZE_H2)

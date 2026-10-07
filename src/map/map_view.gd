@@ -23,7 +23,7 @@ func build(p_map: Dictionary, p_current: String, p_visited: Array) -> void:
 	current = p_current
 	visited = p_visited
 	_reachable = MapGenerator.reachable(map, current)
-	custom_minimum_size = Vector2(WIDTH, MARGIN_BOTTOM + MARGIN_TOP + FLOOR_SPACING * MapGenerator.FLOORS)
+	custom_minimum_size = Vector2(WIDTH, MARGIN_BOTTOM + MARGIN_TOP + FLOOR_SPACING * int(map.get("floors", MapGenerator.FLOORS)))
 	size = custom_minimum_size
 	var current_floor := -1 if current == "" else int(map.nodes[current].floor)
 	for id in map.nodes:

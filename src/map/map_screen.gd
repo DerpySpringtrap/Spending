@@ -2,7 +2,7 @@ extends Control
 ## The act map: pick the next room. Scrolls to your position; keyboard and
 ## gamepad cycle through the reachable rooms.
 
-const ACT_NAMES := {1: "The Drowned Thicket", 2: "The Gilded Catacombs", 3: "The Shattered Observatory"}
+const ACT_NAMES := {1: "The Drowned Thicket", 2: "The Gilded Catacombs", 3: "The Shattered Observatory", 4: "The Umbral Core"}
 
 var _scroll: ScrollContainer
 var _view: MapView

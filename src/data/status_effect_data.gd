@@ -72,6 +72,11 @@ enum Decay {
 ## Bonus clauses paid with the class resource (Vent/Inscribe/Graft) cost this
 ## much less, per stack (Living Manuscript).
 @export var resource_cost_reduction_per_stack: int = 0
+## Run when the stacks reach [member max_stacks]; then the stacks reset to 0
+## (the Umbral Sovereign's Umbra meter → Total Darkness).
+@export var max_stack_effects: Array[GameEffect] = []
+## At Ascension 15, the cap used for [member max_stack_effects] (0 = unchanged).
+@export var a15_max_stacks: int = 0
 ## Extra/fewer cards drawn per turn (player only), per stack.
 @export var draw_per_turn_per_stack: int = 0
 ## Extra/less energy per turn (player only), per stack.

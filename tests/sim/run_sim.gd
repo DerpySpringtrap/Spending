@@ -24,6 +24,7 @@ func _ready() -> void:
 				"ascension": _ascension = int(parts[1])
 				"class": _class_id = StringName(parts[1])
 				"unlock-all": MetaProgress.unlock_all = parts[1] == "1"
+				"act4": MetaProgress.act4_won_once = parts[1] == "1"
 	var started := Time.get_ticks_msec()
 	var final_hp_total := 0
 	var deck_sizes := 0
@@ -52,7 +53,7 @@ func _play_run(seed_value: int) -> Dictionary:
 	RunState.start(ContentDB.get_character_class(_class_id), _ascension, seed_value)
 	RunState.map_data = MapGenerator.generate(RunState.rng.get_stream(&"map"), 1, _ascension)
 	var guard := 0
-	while guard < 40 * GameManager.FINAL_ACT:
+	while guard < 40 * RunState.final_act:
 		guard += 1
 		var options := MapGenerator.reachable(RunState.map_data, RunState.current_node)
 		if options.is_empty():
@@ -70,7 +71,7 @@ func _play_run(seed_value: int) -> Dictionary:
 				if not _fight(enc):
 					return {"won": false, "floor": RunState.total_floor(), "killer": String(enc.id), "hp": 0, "deck": 0}
 				if type == MapGenerator.TYPE_BOSS:
-					if RunState.act >= GameManager.FINAL_ACT:
+					if RunState.act >= RunState.final_act:
 						return {"won": true, "floor": RunState.total_floor(), "killer": "", "hp": RunState.hp, "deck": RunState.deck.size()}
 					_take_rewards(RunLogic.combat_rewards(type))
 					RunLogic.advance_act()

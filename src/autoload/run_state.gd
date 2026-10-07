@@ -27,6 +27,8 @@ var relic_counters: Dictionary = {}
 var potions: Array = []
 
 var act: int = 1
+## The act whose boss wins the run, fixed when the run starts.
+var final_act: int = 3
 var floor_number: int = 0
 ## Map is generated per act from the "map" stream; we persist the generated
 ## layout plus the visited path. Shape filled in by MapGenerator (Milestone 3).
@@ -62,6 +64,7 @@ func start(class_data: CharacterClassData, ascension_level: int, run_seed: int) 
 	potions.clear()
 	potions.resize(get_potion_slot_count())
 	act = 1
+	final_act = GameManager.final_act() if is_inside_tree() else GameManager.FINAL_ACT
 	floor_number = 0
 	map_data = {}
 	visited_nodes = []
@@ -110,7 +113,7 @@ func _on_damage_dealt(info: DamageInfo) -> void:
 
 ## Floors climbed over the whole run (each act has FLOORS + the boss).
 func total_floor() -> int:
-	return (act - 1) * (MapGenerator.FLOORS + 1) + floor_number
+	return (mini(act, 4) - 1) * (MapGenerator.FLOORS + 1) + floor_number
 
 
 func current_map_node() -> Dictionary:
@@ -235,7 +238,7 @@ func to_dict() -> Dictionary:
 		"class_id": String(class_id), "ascension": ascension, "rng": rng.to_dict(),
 		"max_hp": max_hp, "hp": hp, "gold": gold,
 		"deck": deck_entries, "relics": relic_ids, "relic_counters": relic_counters,
-		"potions": potion_ids, "act": act, "floor": floor_number,
+		"potions": potion_ids, "act": act, "final_act": final_act, "floor": floor_number,
 		"map": map_data, "visited": visited_nodes, "stats": run_stats,
 		"current_node": current_node, "monster_fights": monster_fights,
 		"seen_encounters": seen_encounters, "seen_events": seen_events, "removals": removals,
@@ -264,6 +267,7 @@ func from_dict(data: Dictionary) -> void:
 	for id in data.get("potions", []):
 		potions.append(ContentDB.get_potion(StringName(id)) if id != "" else null)
 	act = int(data.get("act", 1))
+	final_act = int(data.get("final_act", GameManager.FINAL_ACT))
 	floor_number = int(data.get("floor", 0))
 	map_data = data.get("map", {})
 	visited_nodes = data.get("visited", [])

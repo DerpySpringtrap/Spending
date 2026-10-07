@@ -7,8 +7,15 @@ extends Node
 ## → boss → run summary.
 
 const MAX_ASCENSION := 15
-## Acts with content. The run is won after this act's boss.
+## The run is won after this act's boss. Act 4 (the Umbral Core) joins once
+## the player has beaten Act 3 at least once (see final_act()).
 const FINAL_ACT := 3
+const SECRET_ACT := 4
+
+
+## The last act of a run started now.
+func final_act() -> int:
+	return SECRET_ACT if MetaProgress.act4_unlocked else FINAL_ACT
 
 const SCREENS := {
 	&"main_menu": "res://src/ui/screens/main_menu/main_menu.tscn",
@@ -78,7 +85,8 @@ func end_run(victory: bool) -> void:
 	var at_boss := String(RunState.current_map_node().get("type", "")) == MapGenerator.TYPE_BOSS
 	var reached_act2_boss := victory or RunState.act > 2 or (RunState.act == 2 and at_boss)
 	var beat_act2_boss := victory or RunState.act > 2
-	var meta := MetaProgress.record_run(RunState.class_id, victory, floors, RunState.ascension, xp, reached_act2_boss, beat_act2_boss)
+	var meta := MetaProgress.record_run(RunState.class_id, victory, floors, RunState.ascension, xp, reached_act2_boss, beat_act2_boss,
+			victory and RunState.act >= FINAL_ACT)
 	MetaProgress.stats["enemies_killed"] += int(RunState.run_stats.get("enemies_killed", 0))
 	MetaProgress.save_meta()
 	last_run_summary = {
@@ -149,7 +157,7 @@ func on_combat_won(final_hp: int) -> void:
 		RunState.monster_fights += 1
 	if node_type == MapGenerator.TYPE_BOSS:
 		MetaProgress.stats["bosses_killed"] += 1
-		if RunState.act >= FINAL_ACT:
+		if RunState.act >= RunState.final_act:
 			end_run(true)
 			return
 	var title := "Victory!"
@@ -176,7 +184,7 @@ func show_rewards(rewards: Array[Dictionary], title: String) -> void:
 func complete_node() -> void:
 	pending_rewards = []
 	pending_event = null
-	if String(RunState.current_map_node().get("type", "")) == MapGenerator.TYPE_BOSS and RunState.act < FINAL_ACT:
+	if String(RunState.current_map_node().get("type", "")) == MapGenerator.TYPE_BOSS and RunState.act < RunState.final_act:
 		RunLogic.advance_act()
 	RunState.save_run()
 	go_to_screen(&"map")
