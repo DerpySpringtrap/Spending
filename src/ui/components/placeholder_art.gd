@@ -1,7 +1,8 @@
 class_name PlaceholderArt
 extends RefCounted
 ## Flat vector stand-in bodies built from Polygon2Ds, until real art exists.
-## Origin = feet; bodies extend upward (negative y). Enemies face left.
+## Origin = feet; bodies extend upward (negative y). Enemies face left; heroes and
+## their summons are drawn in three-quarter profile facing right, toward the enemies.
 ## Replace by assigning EnemyData.visual_scene / CharacterClassData.combat_scene.
 
 ## Builds the body for [param id]. Sets meta "height" and "width" on the root.
@@ -129,69 +130,89 @@ static func _meta(root: Node2D, width: float, height: float) -> void:
 
 
 static func _warden(root: Node2D, accent: Color) -> void:
+	# Three-quarter profile facing right, toward the enemies.
 	var iron := Color("#4A403A")
 	var dark := Color("#2E2724")
 	var gold := Color("#F6B43C")
-	# Mace (behind)
-	_poly(root, PackedVector2Array([Vector2(-72, -112), Vector2(-62, -116), Vector2(-92, -212), Vector2(-102, -208)]), Color("#6B4A33"))
-	_poly(root, VectorIcons._scaled(VectorIcons._star(8, 1.0, 0.7), 26, Vector2(-100, -222)), iron.darkened(0.2))
-	_poly(root, ellipse(Vector2(-100, -222), 17, 17), iron.lightened(0.1))
-	# Legs
-	_poly(root, rounded_rect(-44, -74, 30, 74, 8), dark)
-	_poly(root, rounded_rect(12, -74, 30, 74, 8), dark)
-	# Torso with ember core
-	_poly(root, PackedVector2Array([Vector2(-58, -64), Vector2(58, -64), Vector2(72, -168), Vector2(-72, -168)]), iron)
-	_poly(root, PackedVector2Array([Vector2(-26, -96), Vector2(26, -96), Vector2(18, -146), Vector2(-18, -146)]), accent)
-	_poly(root, ellipse(Vector2(0, -122), 10, 14), gold)
-	_poly(root, rounded_rect(-60, -76, 120, 14, 4), gold.darkened(0.25))
-	# Shoulders
-	_poly(root, ellipse(Vector2(-70, -166), 34, 22), iron.lightened(0.12))
-	_poly(root, ellipse(Vector2(70, -166), 34, 22), iron.lightened(0.12))
-	# Helm, visor glow and chimney plume
-	_poly(root, rounded_rect(-34, -240, 68, 72, 14), iron.lightened(0.06))
-	_poly(root, rounded_rect(-24, -212, 48, 9, 4), gold)
-	_poly(root, rounded_rect(-8, -266, 16, 30, 4), dark)
-	_poly(root, ellipse(Vector2(0, -272), 11, 11), accent)
-	_poly(root, ellipse(Vector2(0, -274), 6, 6), gold)
-	# Tower shield (front, facing right)
-	_poly(root, rounded_rect(30, -186, 76, 158, 14), Color("#5A4A40"))
-	_poly(root, rounded_rect(38, -178, 60, 142, 10), Color("#6B584C"))
-	_poly(root, VectorIcons._scaled(VectorIcons._flame_points(), 24, Vector2(68, -108)), accent)
-	_poly(root, VectorIcons._scaled(VectorIcons._flame_points(), 12, Vector2(68, -100)), gold)
+	# Mace raised over the back shoulder
+	_poly(root, PackedVector2Array([Vector2(-50, -112), Vector2(-40, -116), Vector2(-80, -212), Vector2(-90, -208)]), Color("#6B4A33"))
+	_poly(root, VectorIcons._scaled(VectorIcons._star(8, 1.0, 0.7), 26, Vector2(-88, -222)), iron.darkened(0.2))
+	_poly(root, ellipse(Vector2(-88, -222), 17, 17), iron.lightened(0.1))
+	# Back leg, front leg stepping forward, boots pointing right
+	_poly(root, rounded_rect(-36, -74, 28, 70, 8), dark.darkened(0.25))
+	_poly(root, PackedVector2Array([Vector2(4, -74), Vector2(32, -74), Vector2(46, -6), Vector2(18, -6)]), dark)
+	_poly(root, rounded_rect(-40, -14, 42, 14, 5), dark.darkened(0.35))
+	_poly(root, rounded_rect(14, -14, 46, 14, 5), dark.darkened(0.15))
+	# Far shoulder, behind the torso
+	_poly(root, ellipse(Vector2(-40, -164), 26, 18), iron.darkened(0.2))
+	# Torso seen from the side, chest pushed forward, furnace grille on the front
+	_poly(root, PackedVector2Array([Vector2(-44, -64), Vector2(40, -64), Vector2(54, -120), Vector2(46, -168), Vector2(-48, -168),
+		Vector2(-54, -120)]), iron)
+	_poly(root, PackedVector2Array([Vector2(8, -96), Vector2(42, -96), Vector2(46, -146), Vector2(12, -146)]), accent)
+	_poly(root, ellipse(Vector2(28, -122), 9, 14), gold)
+	for i in 3:
+		_poly(root, rounded_rect(16 + i * 9, -144, 3, 46, 1), Color(dark, 0.7))
+	_poly(root, rounded_rect(-50, -76, 100, 14, 4), gold.darkened(0.25))
+	# Near shoulder
+	_poly(root, ellipse(Vector2(24, -166), 34, 22), iron.lightened(0.12))
+	# Helm in profile: faceplate juts forward with the visor slit facing the enemy
+	_poly(root, rounded_rect(-14, -266, 16, 30, 4), dark)
+	_poly(root, ellipse(Vector2(-6, -272), 11, 11), accent)
+	_poly(root, ellipse(Vector2(-10, -276), 6, 6), gold)
+	_poly(root, ellipse(Vector2(-22, -290), 5, 5), Color(accent, 0.5))
+	_poly(root, rounded_rect(-32, -240, 62, 72, 14), iron.lightened(0.06))
+	_poly(root, PackedVector2Array([Vector2(18, -236), Vector2(44, -224), Vector2(48, -184), Vector2(22, -170)]), iron.lightened(0.14))
+	_poly(root, rounded_rect(20, -214, 28, 8, 3), gold)
+	_poly(root, ellipse(Vector2(-12, -200), 7, 7), iron.lightened(0.2))
+	_poly(root, ellipse(Vector2(-12, -200), 3, 3), gold.darkened(0.3))
+	# Tower shield held forward, angled toward the enemy
+	_poly(root, PackedVector2Array([Vector2(50, -190), Vector2(104, -180), Vector2(104, -34), Vector2(50, -24)]), Color("#5A4A40"))
+	_poly(root, PackedVector2Array([Vector2(58, -180), Vector2(96, -173), Vector2(96, -41), Vector2(58, -34)]), Color("#6B584C"))
+	_poly(root, VectorIcons._scaled(VectorIcons._flame_points(), 22, Vector2(77, -108)), accent)
+	_poly(root, VectorIcons._scaled(VectorIcons._flame_points(), 11, Vector2(77, -100)), gold)
 	_meta(root, 210, 280)
 
 
 static func _moonblade(root: Node2D, accent: Color) -> void:
+	# Three-quarter profile facing right, in a fencer's lunge toward the enemies.
 	var navy := Color("#1E2547")
 	var dark := Color("#141A33")
 	var silver := Color("#C9D2E3")
 	var gold := Color("#E9D8A6")
 	var violet := Color("#7A5CC7")
+	var skin := Color("#D9C6B0")
 	# Crescent halo (behind the head)
-	var halo := ellipse(Vector2(0, -232), 46, 46, 32, -PI * 0.15, PI * 1.15)
-	var inner := ellipse(Vector2(10, -238), 38, 38, 32, PI * 1.15, -PI * 0.15)
+	var halo := ellipse(Vector2(-4, -232), 46, 46, 32, -PI * 0.15, PI * 1.15)
+	var inner := ellipse(Vector2(6, -238), 38, 38, 32, PI * 1.15, -PI * 0.15)
 	halo.append_array(inner)
 	_poly(root, halo, Color(gold, 0.85))
-	# Long cape flowing to the left
-	_poly(root, PackedVector2Array([Vector2(-30, -176), Vector2(26, -176), Vector2(30, -40), Vector2(-20, -8), Vector2(-96, -4),
-		Vector2(-70, -60)]), violet.darkened(0.35))
-	# Legs (slim, fencer's stance)
-	_poly(root, PackedVector2Array([Vector2(-28, -80), Vector2(-12, -80), Vector2(-30, 0), Vector2(-48, 0)]), dark)
-	_poly(root, PackedVector2Array([Vector2(6, -80), Vector2(22, -80), Vector2(44, 0), Vector2(26, 0)]), dark)
-	# Torso: slender doublet with a silver sash
-	_poly(root, PackedVector2Array([Vector2(-30, -78), Vector2(30, -78), Vector2(36, -170), Vector2(-36, -170)]), navy)
-	_poly(root, PackedVector2Array([Vector2(-34, -160), Vector2(-24, -168), Vector2(32, -90), Vector2(22, -84)]), silver)
-	_poly(root, ellipse(Vector2(0, -124), 7, 7), accent.lightened(0.3))
-	# Sword arm reaching forward (right) with a rapier
-	_poly(root, PackedVector2Array([Vector2(24, -160), Vector2(36, -166), Vector2(78, -128), Vector2(70, -118)]), navy.lightened(0.1))
-	_poly(root, ellipse(Vector2(76, -122), 9, 9), Color("#D9C6B0"))
+	# Long cape streaming back to the left
+	_poly(root, PackedVector2Array([Vector2(-26, -176), Vector2(20, -176), Vector2(22, -40), Vector2(-24, -8), Vector2(-104, -4),
+		Vector2(-76, -64)]), violet.darkened(0.35))
+	# Back arm raised behind for balance
+	_poly(root, PackedVector2Array([Vector2(-12, -160), Vector2(-2, -166), Vector2(-44, -200), Vector2(-52, -192)]), navy.darkened(0.2))
+	_poly(root, ellipse(Vector2(-50, -198), 7, 7), skin.darkened(0.1))
+	# Legs: back leg braced, front leg lunging forward, boots pointing right
+	_poly(root, PackedVector2Array([Vector2(-24, -80), Vector2(-8, -80), Vector2(-28, -4), Vector2(-46, -4)]), dark.darkened(0.2))
+	_poly(root, PackedVector2Array([Vector2(6, -80), Vector2(22, -80), Vector2(58, -4), Vector2(40, -4)]), dark)
+	_poly(root, rounded_rect(-50, -10, 30, 10, 4), silver.darkened(0.3))
+	_poly(root, rounded_rect(38, -10, 32, 10, 4), silver.darkened(0.15))
+	# Torso in profile: slender doublet with a silver sash
+	_poly(root, PackedVector2Array([Vector2(-24, -78), Vector2(22, -78), Vector2(30, -170), Vector2(-26, -170)]), navy)
+	_poly(root, PackedVector2Array([Vector2(-24, -160), Vector2(-14, -168), Vector2(26, -90), Vector2(16, -84)]), silver)
+	_poly(root, ellipse(Vector2(14, -124), 7, 7), accent.lightened(0.3))
+	# Sword arm reaching forward with a rapier
+	_poly(root, PackedVector2Array([Vector2(16, -160), Vector2(28, -166), Vector2(78, -128), Vector2(70, -118)]), navy.lightened(0.1))
+	_poly(root, ellipse(Vector2(76, -122), 9, 9), skin)
 	_poly(root, PackedVector2Array([Vector2(80, -126), Vector2(84, -122), Vector2(176, -176), Vector2(174, -180)]), silver.lightened(0.2))
 	_poly(root, ellipse(Vector2(80, -124), 12, 5, 16), gold)
-	# Head with a hood-like cowl
-	_poly(root, ellipse(Vector2(0, -196), 22, 26), Color("#D9C6B0"))
-	_poly(root, PackedVector2Array([Vector2(-26, -186), Vector2(-24, -218), Vector2(0, -232), Vector2(24, -218), Vector2(26, -186),
-		Vector2(16, -204), Vector2(-16, -204)]), dark)
-	_poly(root, rounded_rect(4, -200, 12, 4, 2), violet.lightened(0.4))
+	# Head in profile: face toward the enemy, cowl and hair swept back
+	_poly(root, ellipse(Vector2(6, -196), 19, 25), skin)
+	_poly(root, PackedVector2Array([Vector2(22, -202), Vector2(31, -190), Vector2(22, -187)]), skin)
+	_poly(root, PackedVector2Array([Vector2(-22, -178), Vector2(-26, -214), Vector2(-4, -232), Vector2(18, -226), Vector2(26, -212),
+		Vector2(8, -212), Vector2(-2, -198), Vector2(-6, -178)]), dark)
+	_poly(root, PackedVector2Array([Vector2(-20, -212), Vector2(-64, -196), Vector2(-22, -188)]), dark)
+	_poly(root, rounded_rect(12, -204, 10, 4, 2), violet.lightened(0.4))
 	_meta(root, 200, 280)
 
 
@@ -586,35 +607,37 @@ static func _idol(root: Node2D) -> void:
 
 
 static func _scribe(root: Node2D) -> void:
+	# Three-quarter profile facing right: the hood opens toward the enemies and the tome reads at them.
 	var ink := Color("#1C2230")
 	var parchment := Color("#E9DFC7")
 	var crimson := Color("#A3283A")
 	# Loose pages orbiting behind
-	for p in [Vector2(-70, -230), Vector2(60, -250), Vector2(-90, -150)]:
+	for p in [Vector2(-74, -230), Vector2(40, -262), Vector2(-92, -150)]:
 		var page := PackedVector2Array([p + Vector2(-12, -16), p + Vector2(12, -12), p + Vector2(10, 14), p + Vector2(-14, 10)])
 		_poly(root, page, Color(parchment, 0.8))
-	# Long robe
-	_poly(root, PackedVector2Array([Vector2(-52, 0), Vector2(52, 0), Vector2(30, -176), Vector2(-30, -176)]), ink)
-	_poly(root, PackedVector2Array([Vector2(-8, 0), Vector2(8, 0), Vector2(6, -170), Vector2(-6, -170)]), crimson.darkened(0.2))
+	# Quill-staff held behind
+	_poly(root, rounded_rect(-62, -230, 8, 230, 3), Color("#5A4030"))
+	_poly(root, PackedVector2Array([Vector2(-58, -230), Vector2(-38, -300), Vector2(-50, -236)]), parchment)
+	# Long robe, leaning slightly forward
+	_poly(root, PackedVector2Array([Vector2(-50, 0), Vector2(52, 0), Vector2(34, -176), Vector2(-26, -176)]), ink)
+	_poly(root, PackedVector2Array([Vector2(16, 0), Vector2(30, 0), Vector2(24, -170), Vector2(12, -170)]), crimson.darkened(0.2))
 	# Ink-stained hem
-	for x in [-40, -18, 14, 36]:
+	for x in [-40, -18, 14, 38]:
 		_poly(root, ellipse(Vector2(x, -6), 10, 8), Color("#0E1018"))
-	# Hood with an empty, glowing face
-	_poly(root, ellipse(Vector2(0, -200), 32, 36), ink.lightened(0.08))
-	_poly(root, PackedVector2Array([Vector2(-30, -196), Vector2(0, -246), Vector2(30, -196)]), ink.lightened(0.08))
-	_poly(root, ellipse(Vector2(2, -194), 18, 22), Color("#07080C"))
-	_poly(root, ellipse(Vector2(-6, -196), 3, 4), Color("#8FB4E8"))
-	_poly(root, ellipse(Vector2(8, -196), 3, 4), Color("#8FB4E8"))
-	# Quill-staff (front)
-	_poly(root, rounded_rect(54, -230, 8, 230, 3), Color("#5A4030"))
-	_poly(root, PackedVector2Array([Vector2(58, -230), Vector2(86, -300), Vector2(66, -236)]), parchment)
-	# Floating tome at the shoulder, open, with a crimson ribbon
-	_poly(root, PackedVector2Array([Vector2(-100, -170), Vector2(-64, -162), Vector2(-64, -128), Vector2(-100, -136)]), parchment)
-	_poly(root, PackedVector2Array([Vector2(-64, -162), Vector2(-28, -170), Vector2(-28, -136), Vector2(-64, -128)]), parchment.darkened(0.08))
-	_poly(root, rounded_rect(-66, -164, 4, 40, 1), Color("#5A4030"))
-	_poly(root, rounded_rect(-50, -132, 4, 28, 1), crimson)
+	# Hood in profile: point falls back, empty face turned right
+	_poly(root, PackedVector2Array([Vector2(-28, -206), Vector2(-44, -248), Vector2(2, -230)]), ink.lightened(0.08))
+	_poly(root, ellipse(Vector2(-2, -200), 32, 36), ink.lightened(0.08))
+	_poly(root, ellipse(Vector2(13, -194), 15, 21), Color("#07080C"))
+	_poly(root, ellipse(Vector2(10, -196), 3, 4), Color("#8FB4E8"))
+	_poly(root, ellipse(Vector2(20, -196), 2.4, 3.6), Color("#8FB4E8"))
+	# Reaching arm and the floating tome, open toward the enemy, with a crimson ribbon
+	_poly(root, PackedVector2Array([Vector2(14, -164), Vector2(26, -170), Vector2(52, -144), Vector2(44, -136)]), ink.lightened(0.05))
+	_poly(root, PackedVector2Array([Vector2(44, -172), Vector2(76, -162), Vector2(76, -128), Vector2(44, -138)]), parchment.darkened(0.08))
+	_poly(root, PackedVector2Array([Vector2(76, -162), Vector2(108, -172), Vector2(108, -138), Vector2(76, -128)]), parchment)
+	_poly(root, rounded_rect(74, -164, 4, 40, 1), Color("#5A4030"))
+	_poly(root, rounded_rect(88, -132, 4, 28, 1), crimson)
 	for i in 3:
-		_poly(root, rounded_rect(-94, -156 + i * 8, 24, 2, 1), Color(ink, 0.6))
+		_poly(root, rounded_rect(82, -158 + i * 8, 20, 2, 1), Color(ink, 0.6))
 	_meta(root, 200, 280)
 
 
@@ -803,28 +826,37 @@ const SPORE := Color("#E58FB0")
 
 
 static func _rootmother(root: Node2D) -> void:
+	# Three-quarter profile facing right, staff held out toward the enemies.
 	# Antler-branch crown behind the head
 	for side in [-1, 1]:
-		_poly(root, PackedVector2Array([Vector2(side * 10, -230), Vector2(side * 16, -232), Vector2(side * 56, -300), Vector2(side * 50, -304)]), BARK)
-		_poly(root, PackedVector2Array([Vector2(side * 36, -268), Vector2(side * 40, -270), Vector2(side * 70, -270), Vector2(side * 68, -264)]), BARK)
-		_poly(root, ellipse(Vector2(side * 56, -304), 7, 7), GLOW)
+		var cx: float = -4.0 + side * 2.0
+		_poly(root, PackedVector2Array([Vector2(cx + side * 10, -230), Vector2(cx + side * 16, -232), Vector2(cx + side * 56, -300),
+			Vector2(cx + side * 50, -304)]), BARK.darkened(0.15 if side < 0 else 0.0))
+		_poly(root, PackedVector2Array([Vector2(cx + side * 36, -268), Vector2(cx + side * 40, -270), Vector2(cx + side * 70, -270),
+			Vector2(cx + side * 68, -264)]), BARK.darkened(0.15 if side < 0 else 0.0))
+		_poly(root, ellipse(Vector2(cx + side * 56, -304), 7, 7), GLOW)
+	# Moss hair hanging down the back
+	_poly(root, PackedVector2Array([Vector2(-24, -226), Vector2(-34, -150), Vector2(-12, -168), Vector2(-4, -222)]), MOSS.darkened(0.35))
 	# Robe of leaves
-	_poly(root, PackedVector2Array([Vector2(-66, 0), Vector2(66, 0), Vector2(34, -180), Vector2(-34, -180)]), MOSS.darkened(0.2))
+	_poly(root, PackedVector2Array([Vector2(-64, 0), Vector2(68, 0), Vector2(36, -180), Vector2(-32, -180)]), MOSS.darkened(0.2))
 	for i in 6:
 		var y := -30 - i * 26
-		_poly(root, ellipse(Vector2(-30 + (i % 2) * 22, y), 18, 9), MOSS.lightened(0.05 * (i % 3)))
-		_poly(root, ellipse(Vector2(24 - (i % 2) * 18, y - 10), 16, 8), MOSS.darkened(0.05))
-	# Bark face with glowing eyes
-	_poly(root, ellipse(Vector2(0, -206), 26, 30), BARK.lightened(0.1))
-	_poly(root, ellipse(Vector2(-9, -208), 4, 5), GLOW)
-	_poly(root, ellipse(Vector2(9, -208), 4, 5), GLOW)
-	_poly(root, rounded_rect(-12, -190, 24, 3, 1), BARK.darkened(0.4))
-	# Staff with a glowing seed (forward = right)
+		_poly(root, ellipse(Vector2(-28 + (i % 2) * 22, y), 18, 9), MOSS.lightened(0.05 * (i % 3)))
+		_poly(root, ellipse(Vector2(26 - (i % 2) * 18, y - 10), 16, 8), MOSS.darkened(0.05))
+	# Bark face turned right, far eye smaller
+	_poly(root, ellipse(Vector2(6, -206), 24, 30), BARK.lightened(0.1))
+	_poly(root, PackedVector2Array([Vector2(28, -210), Vector2(36, -198), Vector2(27, -195)]), BARK.lightened(0.1))
+	_poly(root, ellipse(Vector2(8, -208), 3, 4.5), GLOW)
+	_poly(root, ellipse(Vector2(21, -208), 4, 5), GLOW)
+	_poly(root, rounded_rect(8, -190, 18, 3, 1), BARK.darkened(0.4))
+	# Staff with a glowing seed, held out in front
 	_poly(root, rounded_rect(60, -250, 9, 250, 3), BARK)
 	_poly(root, ellipse(Vector2(64, -262), 20, 20), Color(GLOW, 0.25))
 	_poly(root, ellipse(Vector2(64, -262), 10, 12), GLOW.lightened(0.2))
+	_poly(root, PackedVector2Array([Vector2(14, -172), Vector2(26, -176), Vector2(64, -150), Vector2(58, -140)]), MOSS.darkened(0.1))
+	_poly(root, ellipse(Vector2(64, -146), 8, 7), BARK.lightened(0.1))
 	# Spore motes
-	for p in [Vector2(-70, -120), Vector2(-86, -200), Vector2(84, -160)]:
+	for p in [Vector2(-70, -120), Vector2(-86, -200), Vector2(90, -190)]:
 		_poly(root, ellipse(p, 4, 4), Color(SPORE, 0.8))
 	_meta(root, 200, 300)
 
@@ -834,8 +866,8 @@ static func _sproutling(root: Node2D) -> void:
 	_poly(root, PackedVector2Array([Vector2(-2, -48), Vector2(2, -48), Vector2(4, -70), Vector2(-2, -70)]), MOSS.darkened(0.2))
 	_poly(root, ellipse(Vector2(-10, -72), 10, 5), MOSS.lightened(0.3))
 	_poly(root, ellipse(Vector2(10, -74), 10, 5), MOSS.lightened(0.25))
-	_poly(root, ellipse(Vector2(-7, -28), 3, 4), Color("#1A2010"))
-	_poly(root, ellipse(Vector2(7, -28), 3, 4), Color("#1A2010"))
+	_poly(root, ellipse(Vector2(3, -28), 2.4, 3.6), Color("#1A2010"))
+	_poly(root, ellipse(Vector2(14, -28), 3, 4), Color("#1A2010"))
 	_meta(root, 60, 80)
 
 
@@ -858,8 +890,8 @@ static func _sporecap(root: Node2D) -> void:
 	_poly(root, rounded_rect(-34, -46, 68, 6, 3), SPORE.darkened(0.3))
 	for p in [Vector2(-16, -54), Vector2(4, -60), Vector2(18, -50)]:
 		_poly(root, ellipse(p, 5, 4), Color("#F6E0EA"))
-	_poly(root, ellipse(Vector2(-4, -26), 3, 3), Color("#3A2A20"))
-	_poly(root, ellipse(Vector2(5, -26), 3, 3), Color("#3A2A20"))
+	_poly(root, ellipse(Vector2(1, -26), 2.4, 3), Color("#3A2A20"))
+	_poly(root, ellipse(Vector2(8, -26), 3, 3), Color("#3A2A20"))
 	_meta(root, 70, 70)
 
 
@@ -868,8 +900,8 @@ static func _barkguard(root: Node2D) -> void:
 	for i in 4:
 		_poly(root, rounded_rect(-28, -86 + i * 22, 56, 4, 2), BARK.darkened(0.25))
 	_poly(root, ellipse(Vector2(0, -104), 30, 14), MOSS)
-	_poly(root, ellipse(Vector2(-10, -64), 4, 5), GLOW)
-	_poly(root, ellipse(Vector2(10, -64), 4, 5), GLOW)
+	_poly(root, ellipse(Vector2(2, -64), 3, 4.5), GLOW)
+	_poly(root, ellipse(Vector2(18, -64), 4, 5), GLOW)
 	_poly(root, rounded_rect(30, -80, 20, 54, 6), BARK.lightened(0.15))
 	_meta(root, 90, 120)
 
@@ -879,8 +911,8 @@ static func _elder_treant(root: Node2D) -> void:
 	_poly(root, ellipse(Vector2(0, -160), 60, 46), MOSS)
 	_poly(root, ellipse(Vector2(-24, -176), 30, 22), MOSS.lightened(0.1))
 	_poly(root, ellipse(Vector2(26, -170), 28, 20), MOSS.darkened(0.1))
-	_poly(root, ellipse(Vector2(-10, -96), 5, 6), GLOW)
-	_poly(root, ellipse(Vector2(10, -96), 5, 6), GLOW)
+	_poly(root, ellipse(Vector2(2, -96), 4, 5.5), GLOW)
+	_poly(root, ellipse(Vector2(19, -96), 5, 6), GLOW)
 	_poly(root, PackedVector2Array([Vector2(26, -90), Vector2(34, -86), Vector2(66, -40), Vector2(58, -36)]), BARK.lightened(0.1))
 	_meta(root, 120, 210)
 
