@@ -2,10 +2,7 @@ extends Control
 ## Title screen: Continue / New Run / Options / Quit, with the Warden standing
 ## in the swamp and embers drifting up.
 
-## Full-screen overlay (dim + centred panel), so the panel stays centred at
-## any window size.
-var _options: Control
-var _first_option: Control
+var _options: OptionsPanel
 var _buttons: VBoxContainer
 
 
@@ -127,94 +124,13 @@ func _build_embers() -> void:
 
 
 func _build_options() -> void:
-	_options = Control.new()
-	_options.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_options.visible = false
+	_options = OptionsPanel.new()
+	_options.closed.connect(func(): (_buttons.get_child(0) as Control).grab_focus())
 	add_child(_options)
-	var dim := ColorRect.new()
-	dim.color = Color(UIStyle.BG_DEEP, 0.7)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.mouse_filter = Control.MOUSE_FILTER_STOP
-	dim.gui_input.connect(func(event):
-		if event is InputEventMouseButton and event.pressed:
-			_toggle_options())
-	_options.add_child(dim)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_options.add_child(center)
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(520, 0)
-	center.add_child(panel)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 14)
-	panel.add_child(box)
-	box.add_child(UIBuild.label("Options", &"HeadingLabel"))
-	var fast := CheckButton.new()
-	fast.text = "Fast animations"
-	fast.button_pressed = Settings.fast_mode
-	fast.toggled.connect(func(on): Settings.fast_mode = on)
-	box.add_child(fast)
-	_first_option = fast
-	var numbers := CheckButton.new()
-	numbers.text = "Damage numbers"
-	numbers.button_pressed = Settings.show_damage_numbers
-	numbers.toggled.connect(func(on): Settings.show_damage_numbers = on)
-	box.add_child(numbers)
-	var full := CheckButton.new()
-	full.text = "Fullscreen"
-	full.button_pressed = Settings.fullscreen
-	full.toggled.connect(func(on):
-		Settings.fullscreen = on
-		Settings.apply_all())
-	box.add_child(full)
-	var volumes := GridContainer.new()
-	volumes.columns = 2
-	volumes.add_theme_constant_override("h_separation", 16)
-	box.add_child(volumes)
-	for bus in Settings.AUDIO_BUSES:
-		volumes.add_child(UIBuild.label("%s volume" % bus, &"DimLabel", UIStyle.SIZE_BODY))
-		var slider := HSlider.new()
-		slider.min_value = 0.0
-		slider.max_value = 1.0
-		slider.step = 0.05
-		slider.custom_minimum_size = Vector2(260, 24)
-		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		slider.value = Settings.volumes.get(bus, 1.0)
-		slider.value_changed.connect(func(v: float): Settings.set_volume(bus, v))
-		slider.drag_ended.connect(_preview_volume.bind(bus))
-		volumes.add_child(slider)
-	box.add_child(UIBuild.label("Screen shake", &"DimLabel", UIStyle.SIZE_BODY))
-	var shake := HSlider.new()
-	shake.min_value = 0.0
-	shake.max_value = 1.5
-	shake.step = 0.1
-	shake.value = Settings.screen_shake
-	shake.value_changed.connect(func(v): Settings.screen_shake = v)
-	box.add_child(shake)
-	var close := UIBuild.button("Done", true)
-	close.pressed.connect(_toggle_options)
-	box.add_child(close)
-
-
-## Plays a sample on the bus that was just adjusted (music/ambience are already audible).
-func _preview_volume(_changed: bool, bus: StringName) -> void:
-	if bus == &"UI":
-		AudioManager.play_ui_id(&"ui_click")
-	elif bus == &"SFX" or bus == &"Master":
-		AudioManager.play(&"hit")
 
 
 func _toggle_options() -> void:
-	_options.visible = not _options.visible
-	if not _options.visible:
-		Settings.save_settings()
-		(_buttons.get_child(0) as Control).grab_focus()
+	if _options.visible:
+		_options.close()
 	else:
-		_first_option.grab_focus()
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if _options.visible and event.is_action_pressed("ui_cancel"):
-		_toggle_options()
-		get_viewport().set_input_as_handled()
+		_options.open()

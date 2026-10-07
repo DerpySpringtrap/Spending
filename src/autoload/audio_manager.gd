@@ -54,6 +54,8 @@ func _make_player(bus: StringName) -> AudioStreamPlayer:
 func play_music(stream: AudioStream, fade_time: float = DEFAULT_FADE) -> void:
 	if stream != null and _active_music.stream == stream and _active_music.playing:
 		return
+	if stream == null and not _active_music.playing:
+		return  # Nothing to fade (also the case while the game has no audio).
 	var outgoing := _active_music
 	var incoming := _music_b if _active_music == _music_a else _music_a
 	_active_music = incoming
@@ -78,6 +80,9 @@ func stop_music(fade_time: float = DEFAULT_FADE) -> void:
 
 func play_ambience(stream: AudioStream, fade_time: float = 2.0) -> void:
 	if _ambience.stream == stream and _ambience.playing:
+		return
+	if stream == null and not _ambience.playing:
+		_ambience.stream = null
 		return
 	var tween := create_tween()
 	if _ambience.playing:

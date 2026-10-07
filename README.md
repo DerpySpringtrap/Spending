@@ -13,7 +13,8 @@ A full run with four classes: main menu → class select → branching map → f
 - **Act 1** (The Drowned Thicket), **Act 2** (The Gilded Catacombs), **Act 3** (The Shattered Observatory) and **Act 4** (The Umbral Core): 17 enemies, 8 elites, 4 bosses.
 - 38 relics (5 boss relics), 14 potions, 2 curses, 15 events.
 - **Meta-progression:** each class earns XP per run. Level 2 and 4 add new cards to the reward pool, level 3 adds class relics. Winning a run unlocks the next Ascension level (1–15) for that class.
-- Synthesized music, ambience and sound effects for every screen and combat beat (volume sliders in Options).
+- **No sound for now:** the synthesized placeholder sounds were removed; real recorded audio is planned (see the roadmap).
+- **In-run menu:** press `Esc` or the **Menu** button (top right) on any run screen to resume, change options, quit to the main menu, abandon the run or quit the game.
 - **Co-op (new in build 5):** 2–4 friends play one run together online, invite only (host + join by address). See [Co-op](#co-op-play-with-friends) below.
 - Still to come: the Astromancer (fifth class), card art, real recorded audio (see the roadmap).
 
@@ -30,10 +31,11 @@ Open `project.godot` in Godot 4.4+ and press **F5**.
 | Potions | Click to drink, right-click to discard | – |
 | Map | Click a glowing room | `←`/`→` + `Enter` |
 | Auto-play a turn | – | `A` (in combat) |
+| In-run menu (options, quit, abandon) | Menu button (top right) | `Esc` |
 
 **Debug keys** (in the editor and in play-test builds): `F1` help · `F2` +100 gold · `F3` full heal · `F4` win the fight · `F6` skip to the boss (on the map) · `F7` add a random rare card · `F8` unlock every class, card, relic and ascension · `F9` add a potion.
 
-The Options menu (main menu) has volume sliders (master, music, SFX, UI, ambience), fast animations, screen-shake strength, damage-number and fullscreen toggles. To replay a run, enter the same seed on the class-select screen; the run summary shows the seed.
+Options (main menu, or the in-run menu) has fast animations, screen-shake strength, damage-number and fullscreen toggles. Volume sliders come back once the game has audio again. Quitting to the main menu mid-run keeps your save from the last time you were on the map; continue it from the main menu. In co-op the run doesn't pause while the menu is open, and leaving ends the run for everyone. To replay a run, enter the same seed on the class-select screen; the run summary shows the seed.
 
 ### Co-op: play with friends
 Invite-only online co-op for 2–4 players. There is no public lobby search: one player hosts and the others type in the host's address.
@@ -68,7 +70,6 @@ Invite-only online co-op for 2–4 players. There is no public lobby search: one
 - Difficulty: which fights feel unfair or trivial? (The simulator's numbers are in `docs/ROADMAP.md`.)
 - Cards that feel useless, too strong, or confusing.
 - Anything unclear on screen: intents, statuses, Heat, phases and Lunar Charge, Ink and the card picker, summons, the Umbra meter, tooltips.
-- Sound: anything too loud, repetitive or missing.
 - Pacing: animation speed, how long fights and the act take.
 - Co-op: does waiting on each other feel OK? Are fights too hard or easy with 2+ players? Any moment where the two screens disagreed?
 
@@ -88,6 +89,7 @@ godot --headless --path . res://tests/test_runner.tscn                         #
 godot --headless --path . res://tests/smoke_test.tscn                          # save/RNG smoke test
 godot --headless --path . res://tests/ui_smoke_test.tscn                       # plays the combat screen with real input
 godot --headless --path . res://tests/flow_test.tscn                           # plays a whole run through the real screens
+godot --headless --path . res://tests/pause_menu_test.tscn                     # the in-run menu (Esc): pause, options, quit, abandon
 godot --headless --path . res://tests/sim/auto_battler.tscn -- --fights=1000 --extra=4   # per-encounter balance
 godot --headless --path . res://tests/sim/run_sim.tscn -- --runs=300           # full-run simulator
 tools/coop_test.sh 12 pyre_warden rootmother                                   # two game copies play co-op over localhost; checks they stay in sync

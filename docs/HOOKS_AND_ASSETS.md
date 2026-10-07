@@ -18,7 +18,7 @@ CombatState ──emit──► EventBus ──► CombatScreen (director) ─�
 
 ## 2. Signal → response table
 
-Status: ✅ = implemented in M2, 🔊 = audio hooked up (audio pass). Rows still marked *(planned)* are not wired yet.
+Status: ✅ = implemented in M2, 🔊 = audio hook in place (silent until real audio is added). Rows still marked *(planned)* are not wired yet.
 
 | EventBus signal | Beat (group, duration) | Animation / VFX (M2) | Audio (M5) |
 |---|---|---|---|
@@ -57,7 +57,12 @@ UI-only audio: `AudioManager` watches `SceneTree.node_added`, so **every `BaseBu
 
 ## 3. Music & ambience
 
-**Implemented:** every sound is synthesized by `tools/audio/synth_audio.py` (numpy + scipy + ffmpeg; run `python3 tools/audio/synth_audio.py` to regenerate) into `assets/audio/{sfx,music,ambience}/` as OGG. Music: menu, map (act 1/act 2), combat, elite, boss, all seamless loops in related keys. Ambience: swamp, crypt. `AudioManager._on_screen_changed` picks the screen's music and act ambience; the combat screen picks combat/elite/boss from the encounter pool. Volume sliders for all five buses are in **Options** on the main menu. To use real recordings, drop files with the same names into `assets/audio/` (or edit the `SoundBank` tables).
+**Current state: the game is silent.** The synthesized placeholder sounds (and `tools/audio/synth_audio.py`) were removed in test build 5; real recorded audio is on the roadmap. All the hooks above still run and ask `SoundBank` for their id, which returns nothing until its tables are filled. To add audio: put OGG files in `assets/audio/{sfx,music,ambience}/` and list them in the `SoundBank` tables (variants per id, optional per-id gain in dB).
+
+Sound ids the game asks for:
+- **SFX:** `ui_hover`, `ui_click`, `ui_back`, `card_draw`, `card_hover`, `card_play`, `card_discard`, `card_exhaust`, `card_create`, `shuffle`, `hit`, `hit_heavy`, `block_gain`, `block_break`, `enemy_windup`, `poison_tick`, `burn_tick`, `status_buff`, `status_debuff`, `heal`, `death`, `energy`, `overheat`, `stoke`, `stance_wax`, `stance_wane`, `eclipse`, `summon`, `gold`, `relic`, `potion`, `map_select`, `rest`, `shop_buy`, `turn_player`, `turn_enemy`, `boss_intro`, `victory`, `defeat`, `motif_pyre_warden`, `motif_moonblade`, `motif_hollow_scribe`, `motif_rootmother`
+- **Music:** `menu`, `map_act1`, `map_act2`, `map_act3`, `map_act4`, `combat`, `elite`, `boss`
+- **Ambience:** `swamp`, `crypt`, `observatory`, `void` (per act: 1 swamp, 2 crypt, 3 observatory, 4 void)
 
 Original plan (stems and heartbeat layer still to do):
 - **Buses:** Master → Music, SFX, UI, Ambience (already in `default_bus_layout.tres`; volume sliders backed by `Settings`).

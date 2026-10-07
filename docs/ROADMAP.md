@@ -136,6 +136,8 @@ Next: the Astromancer, card art, real audio, and the polish milestones (juice, a
 
 Limitations for now: co-op runs aren't saved; event choices that start a fight are disabled in co-op; if anyone disconnects, the run ends for everyone; no co-op-specific cards yet; co-op balance hasn't been tuned beyond the HP scaling.
 
+**Also in build 5:** an in-run menu (Esc or the Menu button) with Resume, Options, Quit to Main Menu, Abandon Run and Quit Game (solo runs pause; co-op offers Leave Co-op Run). All sounds were removed at the user's request: the synthesized files and `tools/audio/synth_audio.py` are gone, the audio hooks remain silent, and the sound ids are listed in `docs/HOOKS_AND_ASSETS.md`.
+
 ## To-do list (requested, not yet scheduled)
 
 The suggested order is top to bottom; reorder freely.
@@ -147,7 +149,7 @@ The suggested order is top to bottom; reorder freely.
 2. **New class: the Astromancer** (working name). A female star-mage with a galaxy-purple look whose gimmick revolves around **Orbit**: Launched cards circle her and swing back with a stronger effect each time they complete an orbit. Inspired by Act 3's astronomy theme. Concept in `docs/design/CLASSES.md` §5 and the art-direction page.
 3. **Polish: juice.** Hit-stop and stronger screen shake on big hits, better card play/draw animations, damage-number pop, death effects, smoother screen transitions.
 4. **Polish: quality of life and accessibility.** Mid-combat save (quit and resume on the same turn), settings for text size, colorblind-safe intent/status colors, a game-speed slider and per-channel volume, and an optional first-run tutorial.
-5. **Real audio to replace the synthesized placeholders:** source sound effects from free SFX sites and copyright-free music (CC0 preferred; anything CC-BY gets a line in `CREDITS.md`). If downloads are blocked in the build environment, send the user a list of links to download and hand back. The swap is data-only: drop files with the same names into `assets/audio/` or edit the tables in `src/audio/sound_bank.gd`.
+5. **Real audio** (the game is currently silent; the synthesized placeholders were removed in build 5): source sound effects from free SFX sites and copyright-free music (CC0 preferred; anything CC-BY gets a line in `CREDITS.md`). If downloads are blocked in the build environment, send the user a list of links to download and hand back. Adding it is data-only: put the files in `assets/audio/` and fill the tables in `src/audio/sound_bank.gd` (ids listed in `docs/HOOKS_AND_ASSETS.md`).
 6. **Card art:** every card gets its own illustration. Art is themed per class, so the same kind of card (e.g. an attack) looks different for the Pyre Warden than for the Moonblade, and depicts what that specific card does. Hook: `CardData.art` already exists; `CardView` currently draws a placeholder type glyph when it's empty. Lowest priority; best done after the Astromancer so her cards are included.
 7. **Extras (optional):** run history and stats screen, daily seeded run, achievements.
 8. **Ongoing:** balance tuning from the user's own play-testing (the simulator AI only wins 7–18% of runs; a person should do much better).

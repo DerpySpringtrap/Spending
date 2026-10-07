@@ -56,6 +56,14 @@ func _ready() -> void:
 	_deck_button.add_theme_font_size_override("font_size", UIStyle.SIZE_BODY)
 	_deck_button.pressed.connect(func(): deck_pressed.emit())
 	row.add_child(_deck_button)
+	var menu := Button.new()
+	menu.text = "Menu"
+	menu.tooltip_text = "Options, quit or abandon the run (Esc)"
+	menu.focus_mode = Control.FOCUS_NONE
+	menu.custom_minimum_size = Vector2(100, 44)
+	menu.add_theme_font_size_override("font_size", UIStyle.SIZE_BODY)
+	menu.pressed.connect(func(): PauseMenu.open())
+	row.add_child(menu)
 	refresh()
 	var on_change := func(_a = null, _b = null, _c = null): refresh()
 	for sig in [EventBus.gold_changed, EventBus.run_hp_changed, EventBus.potion_obtained, EventBus.relic_obtained,
