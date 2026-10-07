@@ -138,9 +138,10 @@ Makes phase-changing feel good from turn 1 and smooths the card flow the class n
 
 **Fantasy:** A hollow, ink-stained archivist animated by a cursed tome. It fights by editing its own book: discarding drafts, erasing pages, rewriting fate. The deck-manipulation class.
 
-**Stats:** 68 HP · 99 gold · unlocked by reaching the Act 2 boss.
+**Stats:** 72 HP · 99 gold · unlocked by reaching the Act 2 boss.
 
 ### Resource: Ink (0–10, persists between turns)
+- Start each combat with **2 Ink** and gain **1 Ink** at the start of each turn (added after simulator testing so Inscribe is usable).
 - Gain **1 Ink** whenever you **discard** a card manually (not the end-of-turn discard) or **Erase** (exhaust) a card.
 - **Inscribe X:** a bonus clause. Spend X Ink for the bracketed effect (same UI as Vent).
 - **Footnote:** a keyword for effects that trigger *when the card is discarded* (`on_discard_effects`). Footnote cards are good to play and good to throw away.
@@ -155,9 +156,9 @@ Makes phase-changing feel good from turn 1 and smooths the card flow the class n
 
 | Starting card | Cost | Type | Effect | Upgraded |
 |---|---|---|---|---|
-| **Quill Jab** | 1 | Attack | Deal 6 damage. *Inscribe 2:* deal 6 more. | 8 + 8 |
-| **Blot** | 1 | Skill | Draw 2 cards. Discard 1 card. | Draw 3 |
-| **Marginalia** | 1 | Skill | Gain 5 Block. *Footnote:* gain 4 Block. | 7 / 6 |
+| **Quill Jab** | 1 | Attack | Deal 7 damage. *Inscribe 2:* deal 7 more. | 9 + 9 |
+| **Blot** | 0 | Skill | Draw 2 cards. Discard 1 card. | Draw 3 |
+| **Marginalia** | 1 | Skill | Gain 6 Block. *Footnote:* gain 4 Block. | 8 / 6 |
 
 ### Higher-rarity examples
 | Card | Rarity | Cost | Type | Effect | Upgraded |

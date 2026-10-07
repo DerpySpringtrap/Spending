@@ -3,16 +3,17 @@
 A run-based roguelike deckbuilder in the style of Slay the Spire / Monster Train, built with **Godot 4.4** and GDScript. *Duskbound* is a working title.
 
 ## Status: playable test build
-Two acts and two classes: main menu → class select → branching map → fights, elites, rest sites, the merchant, treasure and events → the **Drowned Matriarch** → pick a boss relic → **Act 2: The Gilded Catacombs** → the **Gilded Hierophant** → run summary. Death is permanent; runs auto-save on the map and can be continued from the main menu.
+A full three-act run with three classes: main menu → class select → branching map → fights, elites, rest sites, the merchant, treasure and events → the **Drowned Matriarch** → pick a boss relic → **Act 2: The Gilded Catacombs** → the **Gilded Hierophant** → boss relic → **Act 3: The Shattered Observatory** → **the Orrery** → run summary. Death is permanent; runs auto-save on the map and can be continued from the main menu.
 
 ### What's in this build
 - **Pyre Warden** (30 cards): Heat (Stoke, Vent, Overheat), Burn and Block.
 - **Moonblade** (32 cards, unlocked after your first run): Wax/Wane/Shift between phases, build Lunar Charge, enter Eclipse.
-- **Act 1** (The Drowned Thicket): 7 enemies, 2 elites, the Drowned Matriarch. **Act 2** (The Gilded Catacombs): 5 enemies, 3 elites, the Gilded Hierophant and its Gold Idols.
-- 21 relics (including 4 boss relics), 8 potions, 2 curses, 8 events.
+- **Hollow Scribe** (32 cards, unlocked by reaching the Act 2 boss): discard and Erase cards for Ink, trigger Footnotes, spend Ink to Inscribe. Some cards ask you to pick cards (a picker opens; click cards, then Confirm).
+- **Act 1** (The Drowned Thicket): 7 enemies, 2 elites, the Drowned Matriarch. **Act 2** (The Gilded Catacombs): 5 enemies, 3 elites, the Gilded Hierophant. **Act 3** (The Shattered Observatory): 5 enemies, 2 elites, the three-phase Orrery with a Supernova countdown.
+- 26 relics (5 boss relics), 8 potions, 2 curses, 11 events.
 - **Meta-progression:** each class earns XP per run. Level 2 and 4 add new cards to the reward pool, level 3 adds class relics. Winning a run unlocks the next Ascension level for that class.
 - Synthesized music, ambience and sound effects for every screen and combat beat (volume sliders in Options).
-- The Hollow Scribe, Rootmother and Act 3 are designed but not built yet (see the roadmap).
+- The Rootmother (fourth class) and the Act 4 finale are designed but not built yet (see the roadmap).
 
 ### Play-testing
 Open `project.godot` in Godot 4.4+ and press **F5**.
@@ -35,7 +36,7 @@ The Options menu (main menu) has volume sliders (master, music, SFX, UI, ambienc
 ### What feedback is most useful
 - Difficulty: which fights feel unfair or trivial? (The simulator's numbers are in `docs/ROADMAP.md`.)
 - Cards that feel useless, too strong, or confusing.
-- Anything unclear on screen: intents, statuses, Heat, phases and Lunar Charge, tooltips.
+- Anything unclear on screen: intents, statuses, Heat, phases and Lunar Charge, Ink and the card picker, tooltips.
 - Sound: anything too loud, repetitive or missing.
 - Pacing: animation speed, how long fights and the act take.
 

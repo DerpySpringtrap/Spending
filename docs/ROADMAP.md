@@ -89,6 +89,24 @@ Built in the order requested: sound, the Moonblade, Act 2, meta-progression.
 
 Play-testing feedback on Act 2 difficulty is the most useful next input.
 
+## Milestone 4 progress: test build 3
+
+**Balance pass:** Pyre Warden buffed (85 HP, Overheat 15 / 2 recoil, stronger starters); Moonblade's Starfall and Silver Tempest trimmed; Embalmer and Candle Acolyte softened. The simulator AI now values reaching Overheat.
+
+**Hollow Scribe:** 32 cards, Ink (start 2, +1 per turn, +1 per discard or Erase), Footnotes, Inscribe, Dog-Eared Tome + 3 class relics. New engine pieces: `ChooseCardsEffect` (the player picks cards; the card pauses and resumes after), a multi-select picker, `ExhaustFromHandEffect`, always-on `class_triggers`, card-type trigger filters, resource cost discounts. Unlocks by reaching the Act 2 boss.
+
+**Act 3:** Clockwork Sentinel, Star Shard, Storm Harpy, Void Leech, Astral Weaver; elites Chronomancer Construct and Starfall Seraph; the Orrery (alignment → gravity well → Supernova countdown). New engine pieces: lifesteal, HP rewind. The run is now won after the Act 3 boss.
+
+**Simulator numbers** (simple AI, A0, 400 runs, base unlocks, all three acts):
+
+| Class | Full-run wins |
+|---|---|
+| Pyre Warden | ~7% |
+| Moonblade | ~6% |
+| Hollow Scribe | ~9% |
+
+Most simulated runs still end at the Act 1 boss; a person should get much further. Next up: Rootmother, Act 4, more relics/potions/events, the remaining ascension levels.
+
 ## Backlog (requested, not yet scheduled)
 - **Card art:** every card gets its own illustration. Art is themed per class, so the same kind of card (e.g. an attack) looks different for the Pyre Warden than for the Moonblade, and depicts what that specific card does. Hook: `CardData.art` already exists; `CardView` currently draws a placeholder type glyph when it's empty. Lower priority than sound, the second class and Act 2.
 - **Real audio to replace the synthesized placeholders:** source sound effects from free SFX sites and copyright-free music (CC0 preferred; anything CC-BY gets a line in `CREDITS.md`). If downloads are blocked in the build environment, send the user a list of links to download and hand back. The swap is data-only: drop files with the same names into `assets/audio/` or edit the tables in `src/audio/sound_bank.gd`. Requested for later, not now.
