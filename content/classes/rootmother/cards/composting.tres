@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_jxwb7"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="2_s4nf1"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_yv047"]
+
+[sub_resource type="Resource" id="Resource_jxwb7"]
+script = ExtResource("2_s4nf1")
+amount = 2
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"sap"
+scale = 0
+
+[resource]
+script = ExtResource("3_yv047")
+id = &"composting"
+display_name = "Composting"
+description = "Gain {sap} Sap."
+card_pool = &"rootmother"
+type = 1
+rarity = 1
+target_mode = 0
+cost = 0
+effects = Array[ExtResource("1_jxwb7")]([SubResource("Resource_jxwb7")])
+keywords = Array[StringName]([&"exhaust"])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_jxwb7")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_jxwb7")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

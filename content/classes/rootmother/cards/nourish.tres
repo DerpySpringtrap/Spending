@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_uui15"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_v3jh0"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_max_hp_effect.gd" id="3_5370i"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_qtvcc"]
+
+[sub_resource type="Resource" id="Resource_uui15"]
+script = ExtResource("2_v3jh0")
+amount = 5
+upgrade_delta = 2
+times = 1
+target = 1
+value_key = &"block"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_v3jh0"]
+script = ExtResource("3_5370i")
+amount = 2
+upgrade_delta = 1
+times = 1
+target = 7
+value_key = &"hp"
+scale = 0
+
+[resource]
+script = ExtResource("4_qtvcc")
+id = &"nourish"
+display_name = "Nourish"
+description = "Gain {block} Block.
+Your summons gain {hp} max HP."
+card_pool = &"rootmother"
+type = 1
+rarity = 0
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_uui15")]([SubResource("Resource_uui15"), SubResource("Resource_v3jh0")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"summon"])
+on_discard_effects = Array[ExtResource("1_uui15")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_uui15")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

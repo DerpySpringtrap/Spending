@@ -20,6 +20,8 @@ enum Target {
 	ALL_ALLIES,      ## The owner's side, including summons.
 	ATTACKER,        ## Only meaningful in reactive triggers (e.g. Thorns).
 	EVERYONE,
+	SUMMONS,         ## The owner side's living summons (Rootmother).
+	EVENT_TARGET,    ## Reactive triggers: the combatant the event happened to (payload "target").
 }
 
 ## Optional multiplier source: the final amount is amount × this value.

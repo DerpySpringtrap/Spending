@@ -64,6 +64,12 @@ func resolve_targets(effect: GameEffect) -> Array[Combatant]:
 	match effect.target:
 		GameEffect.Target.CHOSEN:
 			var t := chosen_target if chosen_target != null else source
+			# Single-target enemy attacks hit the front summon first.
+			if t == combat.player and source != null and source.side == Combatant.Side.ENEMY \
+					and effect is DealDamageEffect and effect.damage_type == DamageInfo.Type.ATTACK:
+				var guard: Combatant = combat.front_summon()
+				if guard != null:
+					t = guard
 			if t != null and not t.is_dead:
 				out.append(t)
 		GameEffect.Target.SELF:
@@ -84,4 +90,11 @@ func resolve_targets(effect: GameEffect) -> Array[Combatant]:
 		GameEffect.Target.EVERYONE:
 			out.assign(combat.living_allies_of(source))
 			out.append_array(combat.living_opponents_of(source))
+		GameEffect.Target.SUMMONS:
+			if source != null and source.side == Combatant.Side.PLAYER:
+				out.assign(combat.living_summons())
+		GameEffect.Target.EVENT_TARGET:
+			var target: Combatant = payload.get("target")
+			if target != null and not target.is_dead:
+				out.append(target)
 	return out

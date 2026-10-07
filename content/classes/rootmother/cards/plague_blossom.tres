@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_hhk6a"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_ukqsw"]
+[ext_resource type="Resource" path="res://content/statuses/poison.tres" id="3_x2oa3"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_ecy2x"]
+
+[sub_resource type="Resource" id="Resource_hhk6a"]
+script = ExtResource("2_ukqsw")
+status = ExtResource("3_x2oa3")
+amount = 8
+upgrade_delta = 3
+times = 1
+target = 2
+value_key = &"poison"
+scale = 0
+
+[resource]
+script = ExtResource("4_ecy2x")
+id = &"plague_blossom"
+display_name = "Plague Blossom"
+description = "Apply {poison} Poison to ALL enemies."
+card_pool = &"rootmother"
+type = 1
+rarity = 3
+target_mode = 2
+cost = 2
+effects = Array[ExtResource("1_hhk6a")]([SubResource("Resource_hhk6a")])
+keywords = Array[StringName]([&"exhaust"])
+tags = Array[StringName]([&"poison"])
+on_discard_effects = Array[ExtResource("1_hhk6a")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_hhk6a")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 4

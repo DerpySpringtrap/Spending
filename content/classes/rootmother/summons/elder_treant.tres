@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_o0wx5"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_0nubm"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_eynls"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_3kis0"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="5_m4l75"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="6_flsmu"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="7_anul8"]
+[ext_resource type="Resource" path="res://content/statuses/taunt.tres" id="8_683d0"]
+
+[sub_resource type="Resource" id="Resource_o0wx5"]
+script = ExtResource("4_3kis0")
+damage_type = 0
+lifesteal = false
+amount = 6
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_0nubm"]
+script = ExtResource("2_0nubm")
+id = &"crush"
+display_name = "Crush"
+intent = 0
+intent_tooltip = "Deals {dmg} damage to the front enemy."
+effects = Array[ExtResource("3_eynls")]([SubResource("Resource_o0wx5")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_eynls"]
+script = ExtResource("1_o0wx5")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_0nubm")]([SubResource("Resource_0nubm")])
+opening_moves = Array[ExtResource("2_0nubm")]([])
+on_enter_effects = Array[ExtResource("3_eynls")]([])
+passive_triggers = Array[ExtResource("5_m4l75")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_3kis0"]
+script = ExtResource("7_anul8")
+status = ExtResource("8_683d0")
+stacks = 1
+
+[resource]
+script = ExtResource("6_flsmu")
+id = &"elder_treant"
+display_name = "Elder Treant"
+tier = 4
+act = 0
+hp_min = 10
+hp_max = 10
+gimmick_text = "Your summon. Taunts enemy attacks and crushes the front enemy for 6 at the end of your turn."
+starting_statuses = Array[ExtResource("7_anul8")]([SubResource("Resource_3kis0")])
+phases = Array[ExtResource("1_o0wx5")]([SubResource("Resource_eynls")])
+gold_min = 0
+gold_max = 0
+has_intro_cinematic = false
+intro_title = ""

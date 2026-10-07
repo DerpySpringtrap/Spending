@@ -24,6 +24,9 @@ const MAX_BLOCK := 999
 
 var player: PlayerCombatant
 var enemies: Array[EnemyCombatant] = []
+## The player's allies (Rootmother). Dead ones stay in the list.
+var summons: Array[SummonCombatant] = []
+const MAX_SUMMONS := 3
 var draw_pile: Array[CardInstance] = []  ## Top of the pile is the END of the array.
 var hand: Array[CardInstance] = []
 var discard_pile: Array[CardInstance] = []
@@ -108,12 +111,22 @@ func living_enemies() -> Array[EnemyCombatant]:
 	return out
 
 
+func living_summons() -> Array[SummonCombatant]:
+	var out: Array[SummonCombatant] = []
+	for s in summons:
+		if not s.is_dead:
+			out.append(s)
+	return out
+
+
 func living_opponents_of(combatant: Combatant) -> Array[Combatant]:
 	var out: Array[Combatant] = []
 	if combatant == null or combatant.side == Combatant.Side.PLAYER:
 		out.assign(living_enemies())
-	elif not player.is_dead:
-		out.append(player)
+	else:
+		if not player.is_dead:
+			out.append(player)
+		out.append_array(living_summons())
 	return out
 
 
@@ -122,9 +135,41 @@ func living_allies_of(combatant: Combatant) -> Array[Combatant]:
 	if combatant == null or combatant.side == Combatant.Side.PLAYER:
 		if not player.is_dead:
 			out.append(player)
+		out.append_array(living_summons())
 	else:
 		out.assign(living_enemies())
 	return out
+
+
+## The summon that takes single-target enemy attacks: a Taunting one if any,
+## otherwise the frontmost. Null = the attack hits the player.
+func front_summon() -> SummonCombatant:
+	var living := living_summons()
+	for s in living:
+		if s.has_status(&"taunt"):
+			return s
+	return living[0] if not living.is_empty() else null
+
+
+## Adds a player-side ally. Returns null when the board is full (3).
+func summon_ally(data: EnemyData) -> SummonCombatant:
+	if data == null or is_over() or living_summons().size() >= MAX_SUMMONS:
+		return null
+	var s := SummonCombatant.new(data, data.roll_hp(rng.get_stream(&"combat")))
+	summons.append(s)
+	EventBus.combatant_spawned.emit(s)
+	_apply_starting_statuses(s)
+	_roll_intent(s)
+	fire(EffectTrigger.Timing.SUMMON_CREATED, player, {"summon": s, "target": s})
+	return s
+
+
+## Destroys every living summon. Returns how many.
+func sacrifice_summons() -> int:
+	var living := living_summons()
+	for s in living:
+		_kill(s)
+	return living.size()
 
 
 func get_max_energy() -> int:
@@ -238,6 +283,9 @@ func end_player_turn() -> void:
 	_discard_hand()
 	_end_eclipse()
 	_end_turn_decay(player)
+	_run_summon_phase()
+	if is_over():
+		return
 	for card in draw_pile + discard_pile + hand:
 		card.cost_override_this_turn = -99
 	EventBus.turn_ended.emit(player, true)
@@ -332,8 +380,42 @@ func _all_living() -> Array[Combatant]:
 	var out: Array[Combatant] = []
 	if not player.is_dead:
 		out.append(player)
+	out.append_array(living_summons())
 	out.append_array(living_enemies())
 	return out
+
+
+## Summons act after the player's turn, before the enemies. Their Block lasts
+## through the enemy turn.
+func _run_summon_phase() -> void:
+	for s in summons.duplicate():
+		if is_over():
+			return
+		if s.is_dead:
+			continue
+		if s.block > 0 and not s.retains_block():
+			s.block = 0
+			EventBus.block_cleared.emit(s)
+		fire(EffectTrigger.Timing.TURN_START, s)
+		_flush()
+		if is_over():
+			return
+		if s.is_dead:
+			continue
+		_decay(s, StatusEffectData.Decay.DECREMENT_ON_TURN_START)
+		_decay(s, StatusEffectData.Decay.REMOVE_ON_TURN_START)
+		s.turns_taken += 1
+		if not s.skips_turn() and s.next_move != null:
+			_execute_move(s, s.next_move)
+		_flush()
+		if is_over():
+			return
+		if not s.is_dead:
+			fire(EffectTrigger.Timing.TURN_END, s)
+			_flush()
+			_end_turn_decay(s)
+	for s in living_summons():
+		_roll_intent(s)
 
 
 # =============================================================================
@@ -653,6 +735,8 @@ func deal_damage(source: Combatant, target: Combatant, base: int, type: DamageIn
 		fire(EffectTrigger.Timing.ATTACKED, target, {"attacker": source, "info": info})
 		if source != null:
 			fire(EffectTrigger.Timing.DEALT_ATTACK_DAMAGE, source, {"info": info})
+		if source is SummonCombatant and info.amount > 0:
+			fire(EffectTrigger.Timing.SUMMON_DEALT_DAMAGE, player, {"target": target, "info": info})
 	if info.hp_lost > 0:
 		fire(EffectTrigger.Timing.HP_LOST, target, {"info": info})
 		for status_id in target.statuses.keys():
@@ -662,7 +746,7 @@ func deal_damage(source: Combatant, target: Combatant, base: int, type: DamageIn
 
 	if info.killed:
 		_kill(target)
-	elif target is EnemyCombatant:
+	elif target is EnemyCombatant and not target is SummonCombatant:
 		_check_phase_change(target)
 	return info
 
@@ -690,7 +774,7 @@ func heal(target: Combatant, amount: int) -> void:
 
 ## A cheat-death status on [param target] that can fire now, or null.
 func _revive_status(target: Combatant) -> StatusEffectData:
-	if not target is EnemyCombatant:
+	if not target is EnemyCombatant or target is SummonCombatant:
 		return null
 	var others := living_enemies().filter(func(e): return e != target and e.hp > 0)
 	if others.is_empty():
@@ -746,7 +830,9 @@ func _kill(target: Combatant) -> void:
 		EventBus.gold_stolen.emit(target, -target.stolen_gold)
 		target.stolen_gold = 0
 	fire(EffectTrigger.Timing.OWNER_DIED, target)
-	if target is EnemyCombatant:
+	if target is SummonCombatant:
+		fire(EffectTrigger.Timing.SUMMON_DIED, player, {"summon": target, "target": target})
+	elif target is EnemyCombatant:
 		fire(EffectTrigger.Timing.ENEMY_DIED, player, {"enemy": target})
 	_check_end()
 
@@ -1116,10 +1202,16 @@ func _refresh_intents() -> void:
 		return
 	for enemy in living_enemies():
 		_emit_intent(enemy)
+	for s in living_summons():
+		_emit_intent(s)
 
 
 func _move_context(enemy: EnemyCombatant, move: EnemyMoveData) -> EffectContext:
-	var ctx := EffectContext.new(self, enemy, player)
+	var target: Combatant = player
+	if enemy is SummonCombatant:
+		var foes := living_enemies()
+		target = foes[0] if not foes.is_empty() else null
+	var ctx := EffectContext.new(self, enemy, target)
 	ctx.bonus = AscensionRules.move_bonus(move, ascension)
 	ctx.damage_multiplier = AscensionRules.enemy_damage_multiplier(enemy.data.tier, ascension)
 	return ctx
@@ -1132,7 +1224,8 @@ func _execute_move(enemy: EnemyCombatant, move: EnemyMoveData) -> void:
 	if move.cooldown > 0:
 		enemy.cooldowns[move.id] = move.cooldown
 	if get_intent_damage(enemy).x > 0 or _is_attack_intent(move.intent):
-		EventBus.attack_started.emit(enemy, [player])
+		var ctx_target := _move_context(enemy, move).chosen_target
+		EventBus.attack_started.emit(enemy, [ctx_target] if ctx_target else [])
 	var ctx := _move_context(enemy, move)
 	for effect in move.effects:
 		if is_over() or enemy.is_dead:

@@ -162,6 +162,18 @@ func _evaluate(effects: Array[GameEffect], ctx: EffectContext, totals: Dictionar
 					var junk: bool = card.data.type == CardData.CardType.STATUS or card.data.type == CardData.CardType.CURSE
 					if not junk:
 						totals.other -= 30.0 if remaining <= 12 else 3.0
+		elif effect is SummonAllyEffect:
+			var room := CombatState.MAX_SUMMONS - combat.living_summons().size()
+			if room > 0 and effect.summon != null:
+				totals.other += (6.0 + effect.summon.hp_max * 0.8) * mini(room, maxi(ctx.amount_for(effect), 1))
+		elif effect is GainMaxHpEffect:
+			totals.other += ctx.amount_for(effect) * 0.6 * ctx.resolve_targets(effect).size()
+		elif effect is SacrificeSummonsEffect:
+			var count := combat.living_summons().size()
+			totals.other -= count * 7.0
+			var sub := ctx.duplicate_context()
+			sub.x_value = count
+			_evaluate(effect.then_effects, sub, totals)
 		elif effect is ChangeStanceEffect:
 			totals.other += _stance_value(combat, effect.stance)
 		elif effect is ConditionalEffect:

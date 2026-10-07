@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/relic_data.gd" id="1_pp7wb"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_6dl2b"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_7n8xw"]
+[ext_resource type="Script" path="res://src/combat/effects/summon_ally_effect.gd" id="4_1l7mv"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/summons/sproutling.tres" id="5_u64ba"]
+
+[sub_resource type="Resource" id="Resource_pp7wb"]
+script = ExtResource("4_1l7mv")
+summon = ExtResource("5_u64ba")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_6dl2b"]
+script = ExtResource("2_6dl2b")
+timing = 0
+condition = 0
+effects = Array[ExtResource("3_7n8xw")]([SubResource("Resource_pp7wb")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("1_pp7wb")
+id = &"seed_of_the_first_tree"
+display_name = "Seed of the First Tree"
+description = "At the start of each combat, summon a Sproutling."
+flavor = "Every forest began as one of these."
+rarity = 0
+class_restriction = &"rootmother"
+triggers = Array[ExtResource("2_6dl2b")]([SubResource("Resource_6dl2b")])
+counter_max = 0
+max_energy_bonus = 0
+draw_per_turn_bonus = 0
+max_hp_bonus = 0
+potion_slot_bonus = 0
+gold_gain_multiplier = 1.0
+shop_price_multiplier = 1.0
+requires_unlock = false
+unlock_level = 1

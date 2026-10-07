@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_spjgy"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_bav82"]
+[ext_resource type="Resource" path="res://content/statuses/poison.tres" id="3_s21qp"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_318dc"]
+
+[sub_resource type="Resource" id="Resource_spjgy"]
+script = ExtResource("2_bav82")
+status = ExtResource("3_s21qp")
+amount = 2
+upgrade_delta = 1
+times = 1
+target = 2
+value_key = &"poison"
+scale = 5
+
+[resource]
+script = ExtResource("4_318dc")
+id = &"fungal_bloom"
+display_name = "Fungal Bloom"
+description = "Apply {poison} Poison to ALL enemies (2 per summon)."
+card_pool = &"rootmother"
+type = 1
+rarity = 2
+target_mode = 2
+cost = 1
+effects = Array[ExtResource("1_spjgy")]([SubResource("Resource_spjgy")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"summon", &"poison"])
+on_discard_effects = Array[ExtResource("1_spjgy")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_spjgy")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = "Apply {poison} Poison to ALL enemies (3 per summon)."
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

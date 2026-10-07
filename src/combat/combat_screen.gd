@@ -143,7 +143,7 @@ func _start_music(enc: EncounterData) -> void:
 
 func _spawn_view(c: Combatant, parent: Control) -> void:
 	var view := CombatantView.new().setup(c)
-	var slot := _free_enemy_slot() if parent == _enemy_row else -1
+	var slot := _free_enemy_slot(parent) if c is EnemyCombatant else -1
 	parent.add_child(view)
 	if slot >= 0:
 		parent.move_child(view, slot)
@@ -178,14 +178,34 @@ func _fit_enemy_row() -> void:
 ## the Matriarch) instead of being appended to the end of the row, which
 ## would shove the boss sideways. The dead view moves to a hidden holder so
 ## anything still referencing it keeps working. Returns -1 if no slot is free.
-func _free_enemy_slot() -> int:
-	for child in _enemy_row.get_children():
+func _free_enemy_slot(row: Control = null) -> int:
+	if row == null:
+		row = _enemy_row
+	for child in row.get_children():
 		if child is CombatantView and child.is_dead_shown():
 			var index := child.get_index()
-			_enemy_row.remove_child(child)
+			row.remove_child(child)
 			_graveyard().add_child(child)
 			return index
 	return -1
+
+
+## Row in front of the hero for the Rootmother's summons (created on demand).
+func _summon_row() -> HBoxContainer:
+	var row := _enemy_row.get_parent().get_node_or_null("SummonRow") as HBoxContainer
+	if row == null:
+		row = HBoxContainer.new()
+		row.name = "SummonRow"
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_theme_constant_override("separation", 0)
+		row.anchor_left = 0.283
+		row.anchor_right = 0.455
+		row.anchor_top = _enemy_row.anchor_top
+		row.anchor_bottom = _enemy_row.anchor_bottom
+		row.offset_top = _enemy_row.offset_top
+		row.offset_bottom = _enemy_row.offset_bottom
+		_enemy_row.get_parent().add_child(row)
+	return row
 
 
 func _graveyard() -> Control:
@@ -249,7 +269,12 @@ func _connect_bus() -> void:
 
 
 func _on_combatant_spawned(c: Combatant) -> void:
-	if c is EnemyCombatant:
+	if c is SummonCombatant:
+		queue.push(&"spawn", c.id, 0.35, func():
+			_spawn_view(c, _summon_row())
+			AudioManager.play(&"summon")
+			_fx.burst(_view(c).hit_point(), Color("#4FD1C5"), 18, 200, -200))
+	elif c is EnemyCombatant:
 		queue.push(&"spawn", c.id, 0.35, func():
 			_spawn_view(c, _enemy_row)
 			AudioManager.play(&"summon")

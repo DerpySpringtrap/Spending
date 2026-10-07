@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_uq7y1"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_yq444"]
+[ext_resource type="Resource" path="res://content/statuses/poison.tres" id="3_ljuju"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_w2gwl"]
+
+[sub_resource type="Resource" id="Resource_uq7y1"]
+script = ExtResource("2_yq444")
+status = ExtResource("3_ljuju")
+amount = 4
+upgrade_delta = 2
+times = 1
+target = 2
+value_key = &"poison"
+scale = 0
+
+[resource]
+script = ExtResource("4_w2gwl")
+id = &"spore_cloud"
+display_name = "Spore Cloud"
+description = "Apply {poison} Poison to ALL enemies."
+card_pool = &"rootmother"
+type = 1
+rarity = 2
+target_mode = 2
+cost = 2
+effects = Array[ExtResource("1_uq7y1")]([SubResource("Resource_uq7y1")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"poison"])
+on_discard_effects = Array[ExtResource("1_uq7y1")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_uq7y1")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

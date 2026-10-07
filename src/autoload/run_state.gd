@@ -87,7 +87,7 @@ func _ready() -> void:
 	EventBus.card_played.connect(func(_card, _targets): _stat("cards_played", 1))
 	EventBus.damage_dealt.connect(_on_damage_dealt)
 	EventBus.combatant_died.connect(func(c):
-		if c is EnemyCombatant:
+		if c is EnemyCombatant and not c is SummonCombatant:
 			_stat("enemies_killed", 1)
 			if c.data.tier == EnemyData.Tier.ELITE:
 				_stat("elites_killed", 1))

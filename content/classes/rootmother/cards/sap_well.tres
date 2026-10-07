@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_h6vb2"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="2_0pxb6"]
+[ext_resource type="Resource" path="res://content/statuses/sap_well.tres" id="3_nd212"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_wndey"]
+
+[sub_resource type="Resource" id="Resource_h6vb2"]
+script = ExtResource("2_0pxb6")
+status = ExtResource("3_nd212")
+amount = 1
+upgrade_delta = 1
+times = 1
+target = 1
+value_key = &"n"
+scale = 0
+
+[resource]
+script = ExtResource("4_wndey")
+id = &"sap_well"
+display_name = "Sap Well"
+description = "At the start of your turn, gain {n} Sap."
+card_pool = &"rootmother"
+type = 2
+rarity = 2
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_h6vb2")]([SubResource("Resource_h6vb2")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_h6vb2")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_h6vb2")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = true
+cost_reduction_per_stance_change = 0
+unlock_level = 4

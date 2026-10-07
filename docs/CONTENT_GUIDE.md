@@ -27,6 +27,9 @@ How to add cards, statuses, relics and enemies without writing code. Every piece
 | `ChangeStanceEffect` | Moonblade Wax / Wane / Shift (empty `stance` = Shift; the eclipse status = enter Eclipse) | `stance` |
 | `ChooseCardsEffect` | The player picks cards: discard from hand (Footnotes fire), Erase from hand, or take from the draw pile. Effects after it run once the choice is made, with X = cards chosen | `mode`, `amount`, `up_to`, `prompt` |
 | `ExhaustFromHandEffect` | Erase every card in hand of the listed types, then run effects once per card | `card_types`, `per_card_effects` |
+| `SummonAllyEffect` | Rootmother: summon allies (max 3). Summons are `EnemyData` with tier `SUMMON` under `content/classes/rootmother/summons/` | `summon`, `upgraded_summon`, `amount` |
+| `GainMaxHpEffect` | Raise max HP for the fight and heal that much (use `target = SUMMONS`) | `amount`, `target` |
+| `SacrificeSummonsEffect` | Destroy all summons, then run effects with X = how many | `then_effects` |
 | `ConditionalEffect` | "If in Waxing, draw 1" (a phase also counts during Eclipse) | `required_status`, `effects`, `else_effects` |
 
 4. **Upgrades:** set `upgrade_delta` on each effect (+3 damage, +1 Burn…), and/or `upgraded_cost`, `upgrade_adds_keywords`, `upgraded_description`.

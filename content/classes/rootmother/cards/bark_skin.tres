@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_yxvrb"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_kwn8d"]
+[ext_resource type="Script" path="res://src/combat/effects/spend_class_resource_effect.gd" id="3_et5mi"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_vctck"]
+
+[sub_resource type="Resource" id="Resource_yxvrb"]
+script = ExtResource("2_kwn8d")
+amount = 8
+upgrade_delta = 3
+times = 1
+target = 1
+value_key = &"block"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_kwn8d"]
+script = ExtResource("2_kwn8d")
+amount = 5
+upgrade_delta = 2
+times = 1
+target = 7
+value_key = &"sblock"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_et5mi"]
+script = ExtResource("3_et5mi")
+spend_all = false
+bonus_effects = Array[ExtResource("1_yxvrb")]([SubResource("Resource_kwn8d")])
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"graft"
+scale = 0
+
+[resource]
+script = ExtResource("4_vctck")
+id = &"bark_skin"
+display_name = "Bark Skin"
+description = "Gain {block} Block.
+Graft {graft}: Your summons gain {sblock} Block."
+card_pool = &"rootmother"
+type = 1
+rarity = 1
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_yxvrb")]([SubResource("Resource_yxvrb"), SubResource("Resource_et5mi")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"summon"])
+on_discard_effects = Array[ExtResource("1_yxvrb")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_yxvrb")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

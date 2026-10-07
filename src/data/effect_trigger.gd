@@ -44,6 +44,8 @@ enum Timing {
 	REST_SITE_ENTERED,
 	SHOP_ENTERED,
 	MAP_NODE_ENTERED,
+	# Appended (enums are append-only)
+	SUMMON_DEALT_DAMAGE,  ## Owner = the player; one of their summons hit something (payload "target").
 }
 
 ## Extra condition evaluated when the event happens (not when the queued

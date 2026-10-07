@@ -52,6 +52,12 @@ const STATUS_GLYPHS := {
 	&"clockwork_tick": &"hourglass",
 	&"gravity": &"arrow_down",
 	&"supernova": &"burst",
+	&"taunt": &"shield",
+	&"mycelial_network": &"drop",
+	&"world_tree": &"arrow_up",
+	&"symbiosis": &"sparkle",
+	&"sap_well": &"drop",
+	&"overgrowth": &"sparkle",
 }
 
 const INTENT_GLYPHS := {

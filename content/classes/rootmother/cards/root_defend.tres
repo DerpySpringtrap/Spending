@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_226qa"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="2_josi6"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_doqe4"]
+
+[sub_resource type="Resource" id="Resource_226qa"]
+script = ExtResource("2_josi6")
+amount = 5
+upgrade_delta = 3
+times = 1
+target = 1
+value_key = &"block"
+scale = 0
+
+[resource]
+script = ExtResource("3_doqe4")
+id = &"root_defend"
+display_name = "Defend"
+description = "Gain {block} Block."
+card_pool = &"rootmother"
+type = 1
+rarity = 0
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_226qa")]([SubResource("Resource_226qa")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_226qa")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_226qa")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

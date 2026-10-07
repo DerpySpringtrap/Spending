@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_cgse3"]
+[ext_resource type="Script" path="res://src/combat/effects/summon_ally_effect.gd" id="2_asoe2"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/summons/thornling.tres" id="3_tx5k6"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/summons/sporecap.tres" id="4_r1m3a"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/summons/sproutling.tres" id="5_vnrwe"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="6_yloqc"]
+
+[sub_resource type="Resource" id="Resource_cgse3"]
+script = ExtResource("2_asoe2")
+summon = ExtResource("3_tx5k6")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_asoe2"]
+script = ExtResource("2_asoe2")
+summon = ExtResource("4_r1m3a")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_tx5k6"]
+script = ExtResource("2_asoe2")
+summon = ExtResource("5_vnrwe")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("6_yloqc")
+id = &"verdant_army"
+display_name = "Verdant Army"
+description = "Summon a Thornling, a Sporecap and a Sproutling."
+card_pool = &"rootmother"
+type = 1
+rarity = 3
+target_mode = 0
+cost = 2
+effects = Array[ExtResource("1_cgse3")]([SubResource("Resource_cgse3"), SubResource("Resource_asoe2"), SubResource("Resource_tx5k6")])
+keywords = Array[StringName]([&"exhaust"])
+tags = Array[StringName]([&"summon"])
+on_discard_effects = Array[ExtResource("1_cgse3")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_cgse3")]([])
+can_upgrade = true
+upgraded_cost = 1
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = true
+cost_reduction_per_stance_change = 0
+unlock_level = 2

@@ -3,12 +3,12 @@ extends Control
 ## the rest are shown as coming), ascension level, optional seed, Embark.
 
 ## Built classes in display order.
-const CLASS_ORDER: Array[StringName] = [&"pyre_warden", &"moonblade", &"hollow_scribe"]
+const CLASS_ORDER: Array[StringName] = [&"pyre_warden", &"moonblade", &"hollow_scribe", &"rootmother"]
 
 ## Display info for classes whose content isn't built yet.
 const PLANNED := [
-	{"id": &"rootmother", "name": "Rootmother", "title": "The Walking Grove", "color": Color("#4FD1C5"),
-		"blurb": "Grow saplings that fight and shield for you. Spread rot spores."},
+	{"id": &"astromancer", "name": "Astromancer", "title": "Keeper of the Spiral Galaxy", "color": Color("#B04AD0"),
+		"blurb": "Set cards into orbit and let them swing back stronger each time they come around."},
 ]
 
 var _selected: StringName = &"pyre_warden"
@@ -82,7 +82,7 @@ func _ready() -> void:
 func _class_panel(id: StringName, display: String, subtitle: String, color: Color, blurb: String, footer: String,
 		playable: bool, built: bool) -> Control:
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(320, 560)
+	panel.custom_minimum_size = Vector2(300, 560)
 	panel.set_meta("color", color)
 	_style_panel(panel, id == _selected)
 	var box := VBoxContainer.new()

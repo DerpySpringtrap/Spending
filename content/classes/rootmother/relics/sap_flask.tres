@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/relic_data.gd" id="1_1b5rh"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_2628r"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_8wbra"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="4_7jkpj"]
+
+[sub_resource type="Resource" id="Resource_1b5rh"]
+script = ExtResource("4_7jkpj")
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_2628r"]
+script = ExtResource("2_2628r")
+timing = 0
+condition = 0
+effects = Array[ExtResource("3_8wbra")]([SubResource("Resource_1b5rh")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("1_1b5rh")
+id = &"sap_flask"
+display_name = "Sap Flask"
+description = "At the start of each combat, gain 3 Sap."
+flavor = "Sticky, sweet, and surprisingly potent."
+rarity = 1
+class_restriction = &"rootmother"
+triggers = Array[ExtResource("2_2628r")]([SubResource("Resource_2628r")])
+counter_max = 0
+max_energy_bonus = 0
+draw_per_turn_bonus = 0
+max_hp_bonus = 0
+potion_slot_bonus = 0
+gold_gain_multiplier = 1.0
+shop_price_multiplier = 1.0
+requires_unlock = false
+unlock_level = 3

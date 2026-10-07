@@ -31,6 +31,13 @@ func execute(ctx: EffectContext) -> void:
 			var info := ctx.combat.deal_damage(ctx.source, target_combatant, base, damage_type)
 			if lifesteal and info != null and info.hp_lost > 0:
 				ctx.combat.heal(ctx.source, info.hp_lost)
+			# A summon that soaked a hit meant for the player and died passes the
+			# leftover damage through.
+			if info != null and info.killed and target_combatant is SummonCombatant and target == Target.CHOSEN \
+					and ctx.chosen_target == ctx.combat.player:
+				var overflow := info.amount - info.blocked - info.hp_lost
+				if overflow > 0:
+					ctx.combat.deal_damage(ctx.source, ctx.combat.player, overflow, DamageInfo.Type.OTHER)
 		if ctx.combat.is_over():
 			return
 		if damage_type == DamageInfo.Type.ATTACK and ctx.source != null and ctx.source.is_dead:

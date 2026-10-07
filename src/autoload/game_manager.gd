@@ -77,7 +77,8 @@ func end_run(victory: bool) -> void:
 	var xp := floors * 5 + bosses * 25 + (60 if victory else 0) + RunState.ascension * 10
 	var at_boss := String(RunState.current_map_node().get("type", "")) == MapGenerator.TYPE_BOSS
 	var reached_act2_boss := victory or RunState.act > 2 or (RunState.act == 2 and at_boss)
-	var meta := MetaProgress.record_run(RunState.class_id, victory, floors, RunState.ascension, xp, reached_act2_boss)
+	var beat_act2_boss := victory or RunState.act > 2
+	var meta := MetaProgress.record_run(RunState.class_id, victory, floors, RunState.ascension, xp, reached_act2_boss, beat_act2_boss)
 	MetaProgress.stats["enemies_killed"] += int(RunState.run_stats.get("enemies_killed", 0))
 	MetaProgress.save_meta()
 	last_run_summary = {

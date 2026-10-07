@@ -20,6 +20,8 @@ const LEVEL_REWARDS := {
 const FIRST_RUN_UNLOCKS: Array[StringName] = [&"moonblade"]
 ## Classes unlocked by reaching (fighting) the Act 2 boss.
 const ACT2_BOSS_UNLOCKS: Array[StringName] = [&"hollow_scribe"]
+## Classes unlocked by defeating the Act 2 boss.
+const ACT2_WIN_UNLOCKS: Array[StringName] = [&"rootmother"]
 
 var unlocked_classes: Array[StringName] = []
 var unlocked_cards: Array[StringName] = []
@@ -110,7 +112,7 @@ func is_level_unlocked(pool_id: StringName, level: int) -> bool:
 ## Called by GameManager when a run ends. Returns what happened for the
 ## summary: {"xp", "old_xp", "new_xp", "old_level", "new_level", "unlocks": [String]}.
 func record_run(class_id: StringName, victory: bool, floor_reached: int, ascension: int, xp: int,
-		reached_act2_boss: bool = false) -> Dictionary:
+		reached_act2_boss: bool = false, beat_act2_boss: bool = false) -> Dictionary:
 	stats["runs_won"] += 1 if victory else 0
 	stats["highest_floor"] = maxi(stats["highest_floor"], floor_reached)
 	var old_xp := get_class_xp(class_id)
@@ -127,6 +129,8 @@ func record_run(class_id: StringName, victory: bool, floor_reached: int, ascensi
 	var class_unlocks: Array[StringName] = FIRST_RUN_UNLOCKS.duplicate()
 	if reached_act2_boss:
 		class_unlocks.append_array(ACT2_BOSS_UNLOCKS)
+	if beat_act2_boss:
+		class_unlocks.append_array(ACT2_WIN_UNLOCKS)
 	for unlock_id in class_unlocks:
 		if not unlocked_classes.has(unlock_id) and not is_class_unlocked(unlock_id):
 			unlock(&"class", unlock_id)

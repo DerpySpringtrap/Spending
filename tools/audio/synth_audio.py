@@ -359,6 +359,9 @@ def sfx():
     s["defeat"] = lp(mix(3.0, [(i * 0.35, pluck(midi(57 - [0, 2, 3, 7][i]), 1.2, decay=1.5), 0.7) for i in range(4)] + [(0, pad([midi(45), midi(52)], 3.0, SR, 900, 0.3, 1.5), 1.6)]), 3000)
     s["motif_warden"] = mix(1.3, [(0, brass(midi(43), 0.45, SR, 900), 0.8), (0.32, brass(midi(50), 0.9, SR, 900), 0.8), (0, tom(60, SR), 1.0)])
     s["motif_moonblade"] = mix(1.3, [(i * 0.07, bell(midi(81 + [0, 3, 7, 10, 12, 15][i]), 0.8, decay=0.6), 0.45) for i in range(6)])
+    # Wooden flute + kalimba-ish marimba, ending in a sprout "pop".
+    s["motif_root"] = mix(1.5, [(i * 0.12, marimba(midi(62 + [0, 3, 5, 7, 10][i]), 0.7), 0.5) for i in range(5)]
+        + [(0.62, sweep(300, 900, 0.08) * env_exp(int(0.08 * SR), 0.03), 0.35)])
     # Harpsichord-like plucked phrase with a quill scratch.
     s["motif_scribe"] = mix(1.4, [(i * 0.11, pluck(midi(69 + [0, 5, 3, 8, 7][i]), 0.6, bright=1.6, decay=0.4), 0.5) for i in range(5)]
         + [(0.55, hp(noise(int(0.12 * SR)), 3000) * env_exp(int(0.12 * SR), 0.05), 0.2)])

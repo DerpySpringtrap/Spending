@@ -14,6 +14,18 @@ static func build(id: StringName, accent: Color = Color("#E8692C")) -> Node2D:
 			_moonblade(root, accent)
 		&"hollow_scribe":
 			_scribe(root)
+		&"rootmother":
+			_rootmother(root)
+		&"sproutling":
+			_sproutling(root)
+		&"thornling", &"thornling_plus":
+			_thornling(root, id == &"thornling_plus")
+		&"sporecap":
+			_sporecap(root)
+		&"barkguard":
+			_barkguard(root)
+		&"elder_treant":
+			_elder_treant(root)
 		&"mire_toad":
 			_toad(root)
 		&"bog_lurker":
@@ -775,3 +787,95 @@ static func _orrery(root: Node2D) -> void:
 	_poly(root, ellipse(Vector2(40, -190), 22, 22), Color("#C9A86A"))
 	_poly(root, ellipse(Vector2(40, -190), 34, 8), Color("#C9A86A", 0.6))
 	_meta(root, 340, 340)
+
+
+
+# --- Rootmother and her summons ---------------------------------------------------
+
+const MOSS := Color("#4F7A3A")
+const BARK := Color("#5B4030")
+const GLOW := Color("#4FD1C5")
+const SPORE := Color("#E58FB0")
+
+
+static func _rootmother(root: Node2D) -> void:
+	# Antler-branch crown behind the head
+	for side in [-1, 1]:
+		_poly(root, PackedVector2Array([Vector2(side * 10, -230), Vector2(side * 16, -232), Vector2(side * 56, -300), Vector2(side * 50, -304)]), BARK)
+		_poly(root, PackedVector2Array([Vector2(side * 36, -268), Vector2(side * 40, -270), Vector2(side * 70, -270), Vector2(side * 68, -264)]), BARK)
+		_poly(root, ellipse(Vector2(side * 56, -304), 7, 7), GLOW)
+	# Robe of leaves
+	_poly(root, PackedVector2Array([Vector2(-66, 0), Vector2(66, 0), Vector2(34, -180), Vector2(-34, -180)]), MOSS.darkened(0.2))
+	for i in 6:
+		var y := -30 - i * 26
+		_poly(root, ellipse(Vector2(-30 + (i % 2) * 22, y), 18, 9), MOSS.lightened(0.05 * (i % 3)))
+		_poly(root, ellipse(Vector2(24 - (i % 2) * 18, y - 10), 16, 8), MOSS.darkened(0.05))
+	# Bark face with glowing eyes
+	_poly(root, ellipse(Vector2(0, -206), 26, 30), BARK.lightened(0.1))
+	_poly(root, ellipse(Vector2(-9, -208), 4, 5), GLOW)
+	_poly(root, ellipse(Vector2(9, -208), 4, 5), GLOW)
+	_poly(root, rounded_rect(-12, -190, 24, 3, 1), BARK.darkened(0.4))
+	# Staff with a glowing seed (forward = right)
+	_poly(root, rounded_rect(60, -250, 9, 250, 3), BARK)
+	_poly(root, ellipse(Vector2(64, -262), 20, 20), Color(GLOW, 0.25))
+	_poly(root, ellipse(Vector2(64, -262), 10, 12), GLOW.lightened(0.2))
+	# Spore motes
+	for p in [Vector2(-70, -120), Vector2(-86, -200), Vector2(84, -160)]:
+		_poly(root, ellipse(p, 4, 4), Color(SPORE, 0.8))
+	_meta(root, 200, 300)
+
+
+static func _sproutling(root: Node2D) -> void:
+	_poly(root, ellipse(Vector2(0, -26), 24, 24), MOSS.lightened(0.15))
+	_poly(root, PackedVector2Array([Vector2(-2, -48), Vector2(2, -48), Vector2(4, -70), Vector2(-2, -70)]), MOSS.darkened(0.2))
+	_poly(root, ellipse(Vector2(-10, -72), 10, 5), MOSS.lightened(0.3))
+	_poly(root, ellipse(Vector2(10, -74), 10, 5), MOSS.lightened(0.25))
+	_poly(root, ellipse(Vector2(-7, -28), 3, 4), Color("#1A2010"))
+	_poly(root, ellipse(Vector2(7, -28), 3, 4), Color("#1A2010"))
+	_meta(root, 60, 80)
+
+
+static func _thornling(root: Node2D, plus: bool) -> void:
+	var c := Color("#6F8A3A") if not plus else Color("#8AA64A")
+	var r := 26.0 if not plus else 32.0
+	for i in 8:
+		var a := TAU * i / 8.0
+		var tip := Vector2(cos(a), sin(a)) * (r + 12) + Vector2(0, -r - 4)
+		_poly(root, PackedVector2Array([Vector2(cos(a - 0.25), sin(a - 0.25)) * r + Vector2(0, -r - 4), tip,
+			Vector2(cos(a + 0.25), sin(a + 0.25)) * r + Vector2(0, -r - 4)]), Color("#C9C2A0"))
+	_poly(root, ellipse(Vector2(0, -r - 4), r, r), c)
+	_poly(root, ellipse(Vector2(8, -r - 8), 4, 4), Color("#F6E05A"))
+	_meta(root, r * 2 + 24, r * 2 + 20)
+
+
+static func _sporecap(root: Node2D) -> void:
+	_poly(root, rounded_rect(-9, -40, 18, 40, 6), Color("#E8DCC8"))
+	_poly(root, ellipse(Vector2(0, -44), 34, 20, 28, PI, TAU), SPORE.darkened(0.15))
+	_poly(root, rounded_rect(-34, -46, 68, 6, 3), SPORE.darkened(0.3))
+	for p in [Vector2(-16, -54), Vector2(4, -60), Vector2(18, -50)]:
+		_poly(root, ellipse(p, 5, 4), Color("#F6E0EA"))
+	_poly(root, ellipse(Vector2(-4, -26), 3, 3), Color("#3A2A20"))
+	_poly(root, ellipse(Vector2(5, -26), 3, 3), Color("#3A2A20"))
+	_meta(root, 70, 70)
+
+
+static func _barkguard(root: Node2D) -> void:
+	_poly(root, rounded_rect(-34, -96, 68, 96, 16), BARK)
+	for i in 4:
+		_poly(root, rounded_rect(-28, -86 + i * 22, 56, 4, 2), BARK.darkened(0.25))
+	_poly(root, ellipse(Vector2(0, -104), 30, 14), MOSS)
+	_poly(root, ellipse(Vector2(-10, -64), 4, 5), GLOW)
+	_poly(root, ellipse(Vector2(10, -64), 4, 5), GLOW)
+	_poly(root, rounded_rect(30, -80, 20, 54, 6), BARK.lightened(0.15))
+	_meta(root, 90, 120)
+
+
+static func _elder_treant(root: Node2D) -> void:
+	_poly(root, PackedVector2Array([Vector2(-40, 0), Vector2(40, 0), Vector2(26, -130), Vector2(-26, -130)]), BARK)
+	_poly(root, ellipse(Vector2(0, -160), 60, 46), MOSS)
+	_poly(root, ellipse(Vector2(-24, -176), 30, 22), MOSS.lightened(0.1))
+	_poly(root, ellipse(Vector2(26, -170), 28, 20), MOSS.darkened(0.1))
+	_poly(root, ellipse(Vector2(-10, -96), 5, 6), GLOW)
+	_poly(root, ellipse(Vector2(10, -96), 5, 6), GLOW)
+	_poly(root, PackedVector2Array([Vector2(26, -90), Vector2(34, -86), Vector2(66, -40), Vector2(58, -36)]), BARK.lightened(0.1))
+	_meta(root, 120, 210)

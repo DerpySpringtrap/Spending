@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_e5aoa"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_txt0r"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_bindb"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_block_effect.gd" id="4_g2fsb"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="5_77qei"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="6_cx75l"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="7_xx5ep"]
+[ext_resource type="Resource" path="res://content/statuses/taunt.tres" id="8_wdhhr"]
+
+[sub_resource type="Resource" id="Resource_e5aoa"]
+script = ExtResource("4_g2fsb")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 1
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_txt0r"]
+script = ExtResource("2_txt0r")
+id = &"bark_up"
+display_name = "Bark Up"
+intent = 4
+intent_tooltip = "Gains 2 Block."
+effects = Array[ExtResource("3_bindb")]([SubResource("Resource_e5aoa")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"cast"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_bindb"]
+script = ExtResource("1_e5aoa")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_txt0r")]([SubResource("Resource_txt0r")])
+opening_moves = Array[ExtResource("2_txt0r")]([])
+on_enter_effects = Array[ExtResource("3_bindb")]([])
+passive_triggers = Array[ExtResource("5_77qei")]([])
+transition_animation = &""
+music_layer = &""
+
+[sub_resource type="Resource" id="Resource_g2fsb"]
+script = ExtResource("7_xx5ep")
+status = ExtResource("8_wdhhr")
+stacks = 1
+
+[resource]
+script = ExtResource("6_cx75l")
+id = &"barkguard"
+display_name = "Barkguard"
+tier = 4
+act = 0
+hp_min = 6
+hp_max = 6
+gimmick_text = "Your summon. Taunts enemy attacks; gains 2 Block at the end of your turn."
+starting_statuses = Array[ExtResource("7_xx5ep")]([SubResource("Resource_g2fsb")])
+phases = Array[ExtResource("1_e5aoa")]([SubResource("Resource_bindb")])
+gold_min = 0
+gold_max = 0
+has_intro_cinematic = false
+intro_title = ""

@@ -1,0 +1,65 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://src/data/enemy_phase_data.gd" id="1_pjmtb"]
+[ext_resource type="Script" path="res://src/data/enemy_move_data.gd" id="2_u8p6s"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_8uuvw"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="4_ylpla"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="5_4jacy"]
+[ext_resource type="Script" path="res://src/data/enemy_data.gd" id="6_e0dv6"]
+[ext_resource type="Script" path="res://src/data/status_stack.gd" id="7_8a3y6"]
+
+[sub_resource type="Resource" id="Resource_pjmtb"]
+script = ExtResource("4_ylpla")
+damage_type = 0
+lifesteal = false
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 3
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_u8p6s"]
+script = ExtResource("2_u8p6s")
+id = &"lash"
+display_name = "Lash"
+intent = 0
+intent_tooltip = "Deals {dmg} damage to a random enemy."
+effects = Array[ExtResource("3_8uuvw")]([SubResource("Resource_pjmtb")])
+weight = 1.0
+max_consecutive = 0
+cooldown = 0
+min_turn = 0
+max_living_allies = -1
+ascension_threshold = 0
+ascension_amount_bonus = 0
+animation = &"attack"
+is_heavy = false
+
+[sub_resource type="Resource" id="Resource_8uuvw"]
+script = ExtResource("1_pjmtb")
+display_name = "Default"
+hp_threshold = 1.0
+selection = 1
+moves = Array[ExtResource("2_u8p6s")]([SubResource("Resource_u8p6s")])
+opening_moves = Array[ExtResource("2_u8p6s")]([])
+on_enter_effects = Array[ExtResource("3_8uuvw")]([])
+passive_triggers = Array[ExtResource("5_4jacy")]([])
+transition_animation = &""
+music_layer = &""
+
+[resource]
+script = ExtResource("6_e0dv6")
+id = &"sproutling"
+display_name = "Sproutling"
+tier = 4
+act = 0
+hp_min = 3
+hp_max = 3
+gimmick_text = "Your summon. At the end of your turn, deals 2 damage to a random enemy."
+starting_statuses = Array[ExtResource("7_8a3y6")]([])
+phases = Array[ExtResource("1_pjmtb")]([SubResource("Resource_8uuvw")])
+gold_min = 0
+gold_max = 0
+has_intro_cinematic = false
+intro_title = ""

@@ -1,0 +1,61 @@
+[gd_resource type="Resource" script_class="CharacterClassData" load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="1_hgewy"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="2_56ngv"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="3_fcqtx"]
+[ext_resource type="Script" path="res://src/data/character_class_data.gd" id="4_d60c8"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/sap_resource.tres" id="5_m6rf6"]
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="6_h6753"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="7_qpbe6"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/cards/root_strike.tres" id="8_mfhm3"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/cards/root_defend.tres" id="9_f7xnx"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/cards/sow_thornling.tres" id="10_rlvbp"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/cards/spore_puff.tres" id="11_1xoi0"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/cards/nourish.tres" id="12_v3nup"]
+[ext_resource type="Resource" path="res://content/classes/rootmother/relics/seed_of_the_first_tree.tres" id="13_56c5c"]
+
+[sub_resource type="Resource" id="Resource_hgewy"]
+script = ExtResource("3_fcqtx")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 5
+
+[sub_resource type="Resource" id="Resource_56ngv"]
+script = ExtResource("1_hgewy")
+timing = 3
+condition = 0
+effects = Array[ExtResource("2_56ngv")]([SubResource("Resource_hgewy")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("4_d60c8")
+id = &"rootmother"
+display_name = "Rootmother"
+title = "The Walking Grove"
+description = "An ancient druid whose body is a living forest. Grow saplings that fight and shield for you, and choke enemies with rot spores."
+max_hp = 64
+starting_gold = 99
+energy_per_turn = 3
+cards_per_turn = 5
+max_hand_size = 10
+starting_deck = Array[ExtResource("7_qpbe6")]([ExtResource("8_mfhm3"), ExtResource("8_mfhm3"), ExtResource("8_mfhm3"), ExtResource("8_mfhm3"), ExtResource("9_f7xnx"), ExtResource("9_f7xnx"), ExtResource("9_f7xnx"), ExtResource("10_rlvbp"), ExtResource("11_1xoi0"), ExtResource("12_v3nup")])
+starting_relic = ExtResource("13_56c5c")
+secondary_resource = ExtResource("5_m6rf6")
+stances = Array[ExtResource("6_h6753")]([])
+eclipse_effects = Array[ExtResource("2_56ngv")]([])
+class_triggers = Array[ExtResource("1_hgewy")]([SubResource("Resource_56ngv")])
+primary_color = Color(0.180392, 0.227451, 0.133333, 1)
+secondary_color = Color(0.309804, 0.478431, 0.227451, 1)
+accent_color = Color(0.309804, 0.819608, 0.772549, 1)
+attack_sfx = Array[AudioStream]([])
+unlocked_by_default = false
+unlock_hint = "Defeat the Act 2 boss to unlock."

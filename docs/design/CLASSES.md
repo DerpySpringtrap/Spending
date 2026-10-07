@@ -190,20 +190,21 @@ Deck manipulation as the identity from turn 1: you always open with the card you
 
 **Fantasy:** An ancient druid whose body is a living forest. They grow sapling allies that fight and shield for them, and fill the air with rot spores. The summoner class.
 
-**Stats:** 70 HP · 99 gold · unlocked by defeating the Act 2 boss.
+**Stats:** 64 HP · 99 gold · unlocked by defeating the Act 2 boss.
 
 ### Mechanic: Summons + Sap
 - **Summons** stand in front of the Rootmother, max 3. Each is a small `Combatant` with HP, its own status tray and a visible intent. Summons act at the end of your turn, before enemies.
-- **Single-target enemy attacks hit the frontmost summon first.** Overflow damage does *not* carry through. AoE attacks hit everyone. This makes summons living Block that is easy to read and fun to protect.
+- **Single-target enemy attacks hit the frontmost summon first** (a Taunting summon before any other). If the hit kills the summon, the leftover damage carries through to you (changed from the original design after simulator testing: free soak made the class far too strong). AoE attacks hit everyone.
 - **Sap (0–10, persists):** at the start of your turn, gain 1 Sap per living summon.
 - **Graft X:** bonus clause. Spend X Sap for the bracketed effect.
 
 | Base summon | HP | Acts at end of your turn |
 |---|---|---|
 | **Sproutling** | 3 | Deal 2 damage to a random enemy |
-| **Thornling** | 4 | Deal 3 damage to the front enemy |
+| **Thornling** | 3 | Deal 2 damage to the front enemy (upgraded: 5 HP, 3 damage) |
 | **Sporecap** | 3 | Apply 2 Poison to a random enemy |
-| **Barkguard** | 8 | Gain 3 Block; Taunt (always targeted first) |
+| **Barkguard** | 6 | Gain 2 Block; Taunt (always targeted first) |
+| **Elder Treant** | 10 (+5 per summon sacrificed) | Deal 6 damage to the front enemy; Taunt |
 
 ### Archetypes
 1. **Swarm:** keep 3 summons alive, with payoffs per summon and per summon action.
@@ -215,9 +216,9 @@ Deck manipulation as the identity from turn 1: you always open with the card you
 
 | Starting card | Cost | Type | Effect | Upgraded |
 |---|---|---|---|---|
-| **Sow Thornling** | 1 | Skill | Summon a Thornling. | Thornling has 6 HP / 4 dmg |
-| **Spore Puff** | 1 | Skill | Apply 3 Poison. *Graft 1:* apply to ALL enemies instead. | 4 Poison |
-| **Nourish** | 1 | Skill | Gain 5 Block. Give a summon +3 max HP. | 7 Block, +4 HP |
+| **Sow Thornling** | 1 | Skill | Summon a Thornling. | Thornling+ (5 HP / 3 dmg) |
+| **Spore Puff** | 1 | Skill | Apply 3 Poison. *Graft 2:* apply 3 Poison to ALL enemies. | 4 / 4 |
+| **Nourish** | 1 | Skill | Gain 5 Block. Your summons gain +2 max HP. | 7 Block, +3 HP |
 
 ### Higher-rarity examples
 | Card | Rarity | Cost | Type | Effect | Upgraded |

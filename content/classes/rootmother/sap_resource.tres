@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ClassResourceData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_pvjor"]
+[ext_resource type="Script" path="res://src/data/class_resource_data.gd" id="2_ymjf3"]
+
+[resource]
+script = ExtResource("2_ymjf3")
+id = &"sap"
+display_name = "Sap"
+description = "At the start of your turn, gain 1 Sap for each living summon. Graft spends it for bonuses. Kept between turns (max 10)."
+color = Color(0.788235, 0.658824, 0.415686, 1)
+max_value = 10
+starting_value = 0
+persists_between_turns = true
+on_reach_max_effects = Array[ExtResource("1_pvjor")]([])
+max_triggers_at_turn_end = false

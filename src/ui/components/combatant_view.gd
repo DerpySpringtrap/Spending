@@ -10,6 +10,8 @@ extends Control
 const ENEMY_SIZE := Vector2(250, 400)
 ## Minions (Gold Idols, Halo Fragments, Broodlings...) take a narrower slot.
 const MINION_SIZE := Vector2(180, 400)
+## The player's summons stand in a tight row in front of the hero.
+const SUMMON_SIZE := Vector2(118, 400)
 const PLAYER_SIZE := Vector2(300, 420)
 const DISSOLVE := preload("res://assets/shaders/dissolve.gdshader")
 
@@ -38,7 +40,7 @@ var _aura: Polygon2D
 func setup(p_combatant: Combatant) -> CombatantView:
 	combatant = p_combatant
 	is_player = combatant is PlayerCombatant
-	_facing = 1.0 if is_player else -1.0
+	_facing = 1.0 if is_player or combatant.side == Combatant.Side.PLAYER else -1.0
 	return self
 
 
@@ -46,6 +48,8 @@ func _ready() -> void:
 	var view_size := PLAYER_SIZE if is_player else ENEMY_SIZE
 	if combatant is EnemyCombatant and (combatant as EnemyCombatant).data.tier == EnemyData.Tier.MINION:
 		view_size = MINION_SIZE
+	elif combatant is SummonCombatant:
+		view_size = SUMMON_SIZE
 	custom_minimum_size = view_size
 	size = view_size
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -88,13 +92,15 @@ func _build_body() -> void:
 
 func _build_ui() -> void:
 	_hp = HealthBar.new()
-	_hp.size = Vector2(190, 30)
-	_hp.position = Vector2(size.x / 2 - 95, _feet_y + 16)
+	var bar_w := minf(190.0, size.x - 16.0)
+	_hp.size = Vector2(bar_w, 30)
+	_hp.position = Vector2(size.x / 2 - bar_w / 2, _feet_y + 16)
 	add_child(_hp)
 	_hp.setup(combatant.hp, combatant.max_hp, combatant.block)
 	_tray = StatusTray.new()
-	_tray.size = Vector2(240, 40)
-	_tray.position = Vector2(size.x / 2 - 120, _feet_y + 50)
+	var tray_w := minf(240.0, size.x)
+	_tray.size = Vector2(tray_w, 40)
+	_tray.position = Vector2(size.x / 2 - tray_w / 2, _feet_y + 50)
 	add_child(_tray)
 	if not is_player:
 		_intent = IntentView.new()
