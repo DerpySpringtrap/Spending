@@ -8,3 +8,7 @@ extends GameEffect
 func execute(ctx: EffectContext) -> void:
 	if ctx.source is EnemyCombatant:
 		ctx.combat.steal_gold(ctx.source, ctx.amount_for(self))
+
+
+func per_player() -> bool:
+	return true

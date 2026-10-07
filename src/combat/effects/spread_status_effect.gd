@@ -16,3 +16,7 @@ func execute(ctx: EffectContext) -> void:
 	for other in ctx.combat.living_allies_of(origin):
 		if other != origin:
 			ctx.combat.apply_status(other, status, stacks, ctx.source)
+
+
+func per_player() -> bool:
+	return true

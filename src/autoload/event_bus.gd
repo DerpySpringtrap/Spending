@@ -64,6 +64,12 @@ signal card_cost_changed(card)
 ## A card effect needs the player to pick cards (CombatState.resolve_choice).
 signal card_choice_requested(prompt: String, options: Array, min_count: int, max_count: int)
 signal card_choice_resolved()
+## Co-op: another hero's hand, energy or resource changed (refresh their panel).
+signal seat_updated(seat_index: int)
+## Co-op: a hero ended their turn (true) or a new turn began (false).
+signal seat_ready_changed(seat_index: int, ready: bool)
+## Co-op: another hero played a card.
+signal ally_card_played(seat_index: int, card, targets: Array)  ## CardInstance, Array[Combatant]
 signal deck_shuffled(card_count: int)  ## Discard pile shuffled into draw pile.
 
 # --- Damage, block, statuses --------------------------------------------------

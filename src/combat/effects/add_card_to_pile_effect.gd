@@ -15,3 +15,7 @@ func execute(ctx: EffectContext) -> void:
 		return
 	for i in maxi(ctx.amount_for(self), 1):
 		ctx.combat.add_card_to_pile(card, pile, upgraded)
+
+
+func per_player() -> bool:
+	return true

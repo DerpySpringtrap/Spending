@@ -20,3 +20,7 @@ func execute(ctx: EffectContext) -> void:
 
 func get_sub_effects() -> Array[GameEffect]:
 	return then_effects
+
+
+func per_player() -> bool:
+	return true

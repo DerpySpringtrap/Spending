@@ -52,3 +52,7 @@ func preview_amount(ctx: EffectContext) -> int:
 		return base
 	var preview_target: Combatant = ctx.chosen_target if target == Target.CHOSEN else null
 	return DamageCalc.attack_damage(base, ctx.source, preview_target)
+
+
+func per_player() -> bool:
+	return target == Target.CHOSEN

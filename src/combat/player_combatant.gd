@@ -9,6 +9,8 @@ var energy: int = 0
 var resource_value: int = 0
 ## Current phase (Moonblade): the active stance status, or null.
 var stance: StatusEffectData
+## Which PlayerSeat (hero) this is; 0 in solo.
+var seat_index: int = 0
 
 
 func _init(p_class: CharacterClassData, p_hp: int, p_max_hp: int) -> void:

@@ -68,6 +68,12 @@ func preview_amount(ctx: EffectContext) -> int:
 	return ctx.amount_for(self)
 
 
+## Enemy effects only: true if this effect is aimed at "the player", so in
+## co-op it runs once for each living hero (see CombatState._run_enemy_effects).
+func per_player() -> bool:
+	return false
+
+
 ## Nested effects (e.g. the bonus of a Vent clause), so card text and tooling
 ## can find their value_keys.
 func get_sub_effects() -> Array[GameEffect]:

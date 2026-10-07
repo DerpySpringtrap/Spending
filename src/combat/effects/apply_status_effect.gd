@@ -15,3 +15,7 @@ func execute(ctx: EffectContext) -> void:
 	for i in times:
 		for target_combatant in ctx.resolve_targets(self):
 			ctx.combat.apply_status(target_combatant, status, amount, ctx.source)
+
+
+func per_player() -> bool:
+	return target == Target.CHOSEN

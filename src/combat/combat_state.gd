@@ -13,6 +13,16 @@ extends RefCounted
 ##   combat.start()
 ##   combat.play_card(card, target)
 ##   combat.end_player_turn()   # runs the enemy phase and starts the next player turn
+##
+## Co-op: create_party() builds one PlayerSeat per hero. The player/hand/pile
+## fields below read the *active* seat; every command runs with the acting
+## hero's seat active (use_seat), and triggers switch to their owner's seat
+## while they resolve. Enemy effects aimed at "the player" run once per living
+## hero, so a 12-damage attack deals 12 to each of them. Enemy HP is multiplied
+## by the number of heroes. Heroes play at the same time; the enemy phase runs
+## once every living hero has ended their turn. Signals about hands, piles,
+## energy and the class resource are only emitted for [member home_seat] (the
+## hero this screen shows); other heroes' changes emit EventBus.seat_updated.
 
 enum Phase { NOT_STARTED, PLAYER_TURN, ENEMY_TURN, ENDED }
 enum Result { NONE, VICTORY, DEFEAT }
@@ -22,28 +32,61 @@ enum Pile { DRAW, HAND, DISCARD, EXHAUST }
 const ROUND_LIMIT := 100
 const MAX_BLOCK := 999
 
-var player: PlayerCombatant
-var enemies: Array[EnemyCombatant] = []
-## The player's allies (Rootmother). Dead ones stay in the list.
-var summons: Array[SummonCombatant] = []
 const MAX_SUMMONS := 3
-var draw_pile: Array[CardInstance] = []  ## Top of the pile is the END of the array.
-var hand: Array[CardInstance] = []
-var discard_pile: Array[CardInstance] = []
-var exhaust_pile: Array[CardInstance] = []
-var relics: Array[RelicData] = []
+
+## One per hero (solo = one). [member seat] is the one being acted for.
+var seats: Array[PlayerSeat] = []
+var seat: PlayerSeat
+## The hero this client shows and controls (co-op); 0 in solo.
+var home_seat: int = 0
+var enemies: Array[EnemyCombatant] = []
 var encounter: EncounterData
+
+# The active seat's fields, kept under their solo names.
+var player: PlayerCombatant:
+	get: return seat.player
+	set(value): seat.player = value
+## The active hero's allies (Rootmother). Dead ones stay in the list.
+var summons: Array[SummonCombatant]:
+	get: return seat.summons
+	set(value): seat.summons = value
+var draw_pile: Array[CardInstance]:  ## Top of the pile is the END of the array.
+	get: return seat.draw_pile
+	set(value): seat.draw_pile = value
+var hand: Array[CardInstance]:
+	get: return seat.hand
+	set(value): seat.hand = value
+var discard_pile: Array[CardInstance]:
+	get: return seat.discard_pile
+	set(value): seat.discard_pile = value
+var exhaust_pile: Array[CardInstance]:
+	get: return seat.exhaust_pile
+	set(value): seat.exhaust_pile = value
+var relics: Array[RelicData]:
+	get: return seat.relics
+	set(value): seat.relics = value
+var cards_played_this_turn: int:
+	get: return seat.cards_played_this_turn
+	set(value): seat.cards_played_this_turn = value
+## The run's gold, mirrored so thieves know how much they can take. The combat
+## screen applies EventBus.gold_stolen to RunState as it happens.
+var player_gold: int:
+	get: return seat.player_gold
+	set(value): seat.player_gold = value
+var stance_changes_this_turn: int:
+	get: return seat.stance_changes_this_turn
+	set(value): seat.stance_changes_this_turn = value
+## The choice the active hero still has to make, or {} (see request_choice).
+var pending_choice: Dictionary:
+	get: return seat.pending_choice
+	set(value): seat.pending_choice = value
+
 var ascension: int = 0
 var rng: RngStreams
 
 var round_number: int = 0
 var phase: Phase = Phase.NOT_STARTED
 var result: Result = Result.NONE
-var cards_played_this_turn: int = 0
-## The run's gold, mirrored so thieves know how much they can take. The combat
-## screen applies EventBus.gold_stolen to RunState as it happens.
-var player_gold: int = 0
-var stance_changes_this_turn: int = 0
 
 var queue := ActionQueue.new()
 var _trigger_counts: Dictionary = {}  # "<owner id>:<trigger instance id>" -> int
@@ -55,8 +98,6 @@ var interactive := false
 ## Callable(options: Array[CardInstance], min_count: int, max_count: int,
 ## mode: ChooseCardsEffect.Mode) -> Array. Null = CombatState.default_choice.
 var auto_choose: Callable
-## The choice the player still has to make, or {} (see request_choice).
-var pending_choice: Dictionary = {}
 var _ending := false
 
 
@@ -69,14 +110,27 @@ static func create(
 		p_encounter: EncounterData,
 		p_ascension: int,
 		p_rng: RngStreams) -> CombatState:
+	return create_party([{"class_data": class_data, "deck": deck, "hp": hp, "max_hp": max_hp, "relics": p_relics}],
+			p_encounter, p_ascension, p_rng)
+
+
+## A fight for several heroes. Each entry of [param heroes]:
+## {"class_data", "deck": Array[CardInstance], "hp", "max_hp", "relics": Array[RelicData], "gold" (optional)}.
+static func create_party(heroes: Array, p_encounter: EncounterData, p_ascension: int, p_rng: RngStreams) -> CombatState:
 	var combat := CombatState.new()
-	combat.player = PlayerCombatant.new(class_data, hp, max_hp)
-	combat.relics = p_relics.duplicate()
+	for i in heroes.size():
+		var hero: Dictionary = heroes[i]
+		var s := PlayerSeat.new(i, PlayerCombatant.new(hero.class_data, hero.hp, hero.max_hp))
+		var hero_relics: Array = hero.get("relics", [])
+		s.relics.assign(hero_relics)
+		for card in hero.deck:
+			s.draw_pile.append(card.clone_for_combat())
+		s.player_gold = int(hero.get("gold", 0))
+		combat.seats.append(s)
+	combat.seat = combat.seats[0]
 	combat.encounter = p_encounter
 	combat.ascension = p_ascension
 	combat.rng = p_rng
-	for card in deck:
-		combat.draw_pile.append(card.clone_for_combat())
 	for enemy_data in p_encounter.enemies:
 		combat.add_enemy(enemy_data)
 	if p_ascension >= 15:
@@ -88,7 +142,7 @@ static func create(
 ## Adds an enemy (encounter setup or mid-fight summons). Returns it.
 func add_enemy(enemy_data: EnemyData) -> EnemyCombatant:
 	var hp := enemy_data.roll_hp(rng.get_stream(&"combat"))
-	hp = ceili(hp * AscensionRules.enemy_hp_multiplier(enemy_data.tier, ascension))
+	hp = ceili(hp * AscensionRules.enemy_hp_multiplier(enemy_data.tier, ascension)) * seats.size()
 	var enemy := EnemyCombatant.new(enemy_data, hp)
 	enemies.append(enemy)
 	if phase != Phase.NOT_STARTED:
@@ -96,6 +150,52 @@ func add_enemy(enemy_data: EnemyData) -> EnemyCombatant:
 		_apply_starting_statuses(enemy)
 		_roll_intent(enemy)
 	return enemy
+
+
+# =============================================================================
+# Seats (co-op)
+# =============================================================================
+
+func party_size() -> int:
+	return seats.size()
+
+
+func is_coop() -> bool:
+	return seats.size() > 1
+
+
+## Makes [param index] the hero being acted for (commands from the network or
+## the local player). Callers restore [member home_seat] afterwards.
+func use_seat(index: int) -> void:
+	seat = seats[clampi(index, 0, seats.size() - 1)]
+
+
+## The seat a player-side combatant belongs to (the hero or one of its summons).
+func seat_of(combatant: Combatant) -> PlayerSeat:
+	if combatant is PlayerCombatant:
+		return seats[combatant.seat_index]
+	if combatant is SummonCombatant:
+		return seats[combatant.owner_seat]
+	return null
+
+
+func living_heroes() -> Array[PlayerCombatant]:
+	var out: Array[PlayerCombatant] = []
+	for s in seats:
+		if not s.player.is_dead:
+			out.append(s.player)
+	return out
+
+
+## True while the active seat is the one this client shows.
+func _home() -> bool:
+	return seat.index == home_seat
+
+
+## Signals for another hero's private state (hand, energy...) collapse into this.
+func _seat_updated() -> void:
+	if not _home():
+		EventBus.seat_updated.emit(seat.index)
 
 
 # =============================================================================
@@ -114,31 +214,41 @@ func living_enemies() -> Array[EnemyCombatant]:
 	return out
 
 
+## The active hero's living summons.
 func living_summons() -> Array[SummonCombatant]:
+	return _living_summons_of(seat)
+
+
+func _living_summons_of(s: PlayerSeat) -> Array[SummonCombatant]:
 	var out: Array[SummonCombatant] = []
-	for s in summons:
-		if not s.is_dead:
-			out.append(s)
+	for summon in s.summons:
+		if not summon.is_dead:
+			out.append(summon)
 	return out
 
 
+## Enemies see every hero and every summon; heroes see the enemies.
 func living_opponents_of(combatant: Combatant) -> Array[Combatant]:
 	var out: Array[Combatant] = []
 	if combatant == null or combatant.side == Combatant.Side.PLAYER:
 		out.assign(living_enemies())
 	else:
-		if not player.is_dead:
-			out.append(player)
-		out.append_array(living_summons())
+		for s in seats:
+			if not s.player.is_dead:
+				out.append(s.player)
+			out.append_array(_living_summons_of(s))
 	return out
 
 
+## A hero's allies are their own summons (and themselves); other heroes are
+## not included, so solo cards keep their meaning in co-op.
 func living_allies_of(combatant: Combatant) -> Array[Combatant]:
 	var out: Array[Combatant] = []
 	if combatant == null or combatant.side == Combatant.Side.PLAYER:
-		if not player.is_dead:
-			out.append(player)
-		out.append_array(living_summons())
+		var s := seat_of(combatant) if combatant != null else seat
+		if not s.player.is_dead:
+			out.append(s.player)
+		out.append_array(_living_summons_of(s))
 	else:
 		out.assign(living_enemies())
 	return out
@@ -159,6 +269,7 @@ func summon_ally(data: EnemyData) -> SummonCombatant:
 	if data == null or is_over() or living_summons().size() >= MAX_SUMMONS:
 		return null
 	var s := SummonCombatant.new(data, data.roll_hp(rng.get_stream(&"combat")))
+	s.owner_seat = seat.index
 	summons.append(s)
 	EventBus.combatant_spawned.emit(s)
 	_apply_starting_statuses(s)
@@ -192,7 +303,7 @@ func get_draw_per_turn() -> int:
 ## Empty string if the card can be played on that target, otherwise the reason
 ## (shown to the player when they try).
 func can_play(card: CardInstance, target: Combatant = null) -> String:
-	if phase != Phase.PLAYER_TURN:
+	if phase != Phase.PLAYER_TURN or seat.ended_turn or player.is_dead:
 		return "Not your turn"
 	if not pending_choice.is_empty():
 		return "Choose cards first"
@@ -215,12 +326,15 @@ func is_affordable(card: CardInstance) -> bool:
 
 
 ## Damage per hit and hit count of an enemy's telegraphed attack, after all
-## modifiers. Vector2i(0, 0) if it isn't attacking.
-func get_intent_damage(enemy: EnemyCombatant) -> Vector2i:
+## modifiers, against [param against] (default: the home hero). Vector2i(0, 0)
+## if it isn't attacking.
+func get_intent_damage(enemy: EnemyCombatant, against: Combatant = null) -> Vector2i:
 	var move := enemy.next_move
 	if move == null or enemy.skips_turn():
 		return Vector2i.ZERO
 	var ctx := _move_context(enemy, move)
+	if not enemy is SummonCombatant:
+		ctx.chosen_target = against if against != null else seats[home_seat].player
 	for effect in move.effects:
 		if effect is DealDamageEffect and effect.damage_type == DamageInfo.Type.ATTACK:
 			return Vector2i(effect.preview_amount(ctx), effect.times)
@@ -233,26 +347,33 @@ func get_intent_damage(enemy: EnemyCombatant) -> Vector2i:
 
 func start() -> void:
 	assert(phase == Phase.NOT_STARTED, "CombatState.start() called twice")
-	rng.shuffle(draw_pile, &"shuffle")
-	# Innate cards go on top so they're in the opening hand.
-	var innate: Array[CardInstance] = []
-	for card in draw_pile:
-		if card.has_keyword(CardData.KW_INNATE):
-			innate.append(card)
-	for card in innate:
-		draw_pile.erase(card)
-		draw_pile.append(card)
+	for s in seats:
+		use_seat(s.index)
+		rng.shuffle(draw_pile, &"shuffle")
+		# Innate cards go on top so they're in the opening hand.
+		var innate: Array[CardInstance] = []
+		for card in draw_pile:
+			if card.has_keyword(CardData.KW_INNATE):
+				innate.append(card)
+		for card in innate:
+			draw_pile.erase(card)
+			draw_pile.append(card)
 
 	EventBus.combat_started.emit(encounter)
-	var res := player.get_resource_data()
-	if res:
-		player.resource_value = res.starting_value
-		EventBus.class_resource_changed.emit(res.id, 0, player.resource_value, res.max_value)
+	for s in seats:
+		use_seat(s.index)
+		var res := player.get_resource_data()
+		if res:
+			player.resource_value = res.starting_value
+			if _home():
+				EventBus.class_resource_changed.emit(res.id, 0, player.resource_value, res.max_value)
+	use_seat(home_seat)
 	for enemy in enemies:
 		_apply_starting_statuses(enemy)
 		if ascension >= AscensionRules.ELITE_AFFIX_LEVEL and enemy.data.tier == EnemyData.Tier.ELITE:
 			_apply_elite_affix(enemy)
-	fire(EffectTrigger.Timing.COMBAT_START, player)
+	for s in seats:
+		fire(EffectTrigger.Timing.COMBAT_START, s.player)
 	for enemy in enemies:
 		fire(EffectTrigger.Timing.COMBAT_START, enemy)
 	_flush()
@@ -261,10 +382,47 @@ func start() -> void:
 	_start_player_turn()
 
 
+## The active hero is done for this turn. In solo (or once every living hero
+## is done) the heroes' end-of-turn steps run, then the enemy phase.
 func end_player_turn() -> void:
-	if phase != Phase.PLAYER_TURN or not pending_choice.is_empty():
+	if phase != Phase.PLAYER_TURN or not pending_choice.is_empty() or seat.ended_turn:
 		return
-	EventBus.player_input_enabled.emit(false)
+	seat.ended_turn = true
+	if _home():
+		EventBus.player_input_enabled.emit(false)
+	EventBus.seat_ready_changed.emit(seat.index, true)
+	_try_finish_player_turns()
+
+
+## Once every living hero has ended their turn: their end-of-turn steps (in
+## seat order), then the enemy phase.
+func _try_finish_player_turns() -> void:
+	if phase != Phase.PLAYER_TURN or is_over():
+		return
+	for s in seats:
+		if not s.ended_turn and not s.player.is_dead:
+			return
+	for s in seats:
+		if s.player.is_dead:
+			continue
+		use_seat(s.index)
+		_end_seat_turn()
+		if is_over():
+			use_seat(home_seat)
+			return
+	use_seat(home_seat)
+	for s in seats:
+		for card in s.draw_pile + s.discard_pile + s.hand:
+			card.cost_override_this_turn = -99
+	for s in seats:
+		if not s.player.is_dead:
+			EventBus.turn_ended.emit(s.player, true)
+	_run_enemy_phase()
+
+
+## One hero's end of turn: turn-end triggers, held-card effects, discard,
+## status decay, then their summons act.
+func _end_seat_turn() -> void:
 	fire(EffectTrigger.Timing.TURN_END, player)
 	_flush()
 	if is_over():
@@ -289,12 +447,6 @@ func end_player_turn() -> void:
 	_end_eclipse()
 	_end_turn_decay(player)
 	_run_summon_phase()
-	if is_over():
-		return
-	for card in draw_pile + discard_pile + hand:
-		card.cost_override_this_turn = -99
-	EventBus.turn_ended.emit(player, true)
-	_run_enemy_phase()
 
 
 func _start_player_turn() -> void:
@@ -305,22 +457,37 @@ func _start_player_turn() -> void:
 		_end(Result.DEFEAT)
 		return
 	phase = Phase.PLAYER_TURN
-	cards_played_this_turn = 0
-	stance_changes_this_turn = 0
 	_once_per_turn_fired.clear()
 	EventBus.round_started.emit(round_number)
-	_begin_turn(player)
-	if is_over():
-		return
-	player.energy = get_max_energy()
-	EventBus.energy_changed.emit(player.energy, get_max_energy())
-	var res := player.get_resource_data()
-	if res and not res.persists_between_turns:
-		set_class_resource(res.starting_value)
-	draw_cards(get_draw_per_turn())
-	fire(EffectTrigger.Timing.TURN_START_POST_DRAW, player)
-	_flush()
-	if not is_over():
+	for s in seats:
+		s.ended_turn = s.player.is_dead
+		if s.player.is_dead:
+			continue
+		use_seat(s.index)
+		cards_played_this_turn = 0
+		stance_changes_this_turn = 0
+		_begin_turn(player)
+		if is_over():
+			break
+		if player.is_dead:
+			s.ended_turn = true
+			continue
+		player.energy = get_max_energy()
+		if _home():
+			EventBus.energy_changed.emit(player.energy, get_max_energy())
+		var res := player.get_resource_data()
+		if res and not res.persists_between_turns:
+			set_class_resource(res.starting_value)
+		draw_cards(get_draw_per_turn())
+		fire(EffectTrigger.Timing.TURN_START_POST_DRAW, player)
+		_flush()
+		if is_over():
+			break
+		_seat_updated()
+	use_seat(home_seat)
+	for s in seats:
+		EventBus.seat_ready_changed.emit(s.index, s.ended_turn)
+	if not is_over() and not seat.ended_turn:
 		EventBus.player_input_enabled.emit(true)
 
 
@@ -367,7 +534,7 @@ func _begin_turn(combatant: Combatant) -> void:
 	if combatant.block > 0 and not combatant.retains_block():
 		combatant.block = 0
 		EventBus.block_cleared.emit(combatant)
-	EventBus.turn_started.emit(combatant, combatant == player)
+	EventBus.turn_started.emit(combatant, combatant is PlayerCombatant)
 	fire(EffectTrigger.Timing.TURN_START, combatant)
 	_flush()
 	if not combatant.is_dead:
@@ -381,7 +548,20 @@ func _end_turn_decay(combatant: Combatant) -> void:
 	_decay(combatant, StatusEffectData.Decay.HALVE_ON_TURN_END)
 
 
+## Every living combatant: each hero followed by their summons, then enemies.
 func _all_living() -> Array[Combatant]:
+	var out: Array[Combatant] = []
+	for s in seats:
+		if not s.player.is_dead:
+			out.append(s.player)
+		out.append_array(_living_summons_of(s))
+	out.append_array(living_enemies())
+	return out
+
+
+## The active hero, their summons and the enemies (who may react to a hero's
+## cards). Other heroes don't hear this hero's events.
+func _living_for_seat() -> Array[Combatant]:
 	var out: Array[Combatant] = []
 	if not player.is_dead:
 		out.append(player)
@@ -446,7 +626,10 @@ func play_card(card: CardInstance, target: Combatant = null) -> bool:
 			targets.append(target)
 		CardData.TargetMode.ALL_ENEMIES:
 			targets.assign(living_enemies())
-	EventBus.card_played.emit(card, targets)
+	if _home():
+		EventBus.card_played.emit(card, targets)
+	else:
+		EventBus.ally_card_played.emit(seat.index, card, targets)
 
 	var ctx := _card_context(card, target)
 	ctx.x_value = x
@@ -458,7 +641,8 @@ func play_card(card: CardInstance, target: Combatant = null) -> bool:
 		_exhaust(card)
 	else:
 		discard_pile.append(card)
-		EventBus.card_discarded.emit(card, false)
+		if _home():
+			EventBus.card_discarded.emit(card, false)
 
 	var payload := {"card": card}
 	_fire_all(EffectTrigger.Timing.CARD_PLAYED, payload)
@@ -471,12 +655,25 @@ func play_card(card: CardInstance, target: Combatant = null) -> bool:
 			_fire_all(EffectTrigger.Timing.POWER_PLAYED, payload)
 	_flush()
 	_check_end()
+	_seat_updated()
+	_after_command()
 	return true
+
+
+## Co-op: a hero who fell during their own turn no longer holds up the party.
+func _after_command() -> void:
+	if is_coop() and player.is_dead and phase == Phase.PLAYER_TURN and not seat.ended_turn:
+		seat.ended_turn = true
+		EventBus.seat_ready_changed.emit(seat.index, true)
+		var acting := seat.index
+		_try_finish_player_turns()
+		if not is_over() and seat.index == acting:
+			use_seat(acting)
 
 
 ## Uses a potion in combat. The caller removes it from the potion belt.
 func can_use_potion(potion: PotionData, target: Combatant = null) -> String:
-	if phase != Phase.PLAYER_TURN:
+	if phase != Phase.PLAYER_TURN or seat.ended_turn or player.is_dead:
 		return "Not your turn"
 	if potion.target_mode == CardData.TargetMode.SINGLE_ENEMY and (target == null or target.is_dead or not enemies.has(target)):
 		return "Choose a target"
@@ -489,6 +686,8 @@ func use_potion(potion: PotionData, target: Combatant = null) -> bool:
 	_run_effects(potion.effects, EffectContext.new(self, player, target))
 	_flush()
 	_check_end()
+	_seat_updated()
+	_after_command()
 	return true
 
 
@@ -502,7 +701,8 @@ func draw_cards(count: int) -> void:
 			return
 		var card: CardInstance = draw_pile.pop_back()
 		hand.append(card)
-		EventBus.card_drawn.emit(card)
+		if _home():
+			EventBus.card_drawn.emit(card)
 		fire(EffectTrigger.Timing.CARD_DRAWN, player, {"card": card})
 
 
@@ -512,7 +712,8 @@ func discard_card(card: CardInstance) -> void:
 		return
 	hand.erase(card)
 	discard_pile.append(card)
-	EventBus.card_discarded.emit(card, true)
+	if _home():
+		EventBus.card_discarded.emit(card, true)
 	if not card.data.on_discard_effects.is_empty():
 		_run_effects(card.data.on_discard_effects, _card_context(card, null))
 	fire(EffectTrigger.Timing.CARD_DISCARDED, player, {"card": card})
@@ -543,7 +744,8 @@ func add_card_to_pile(card_data: CardData, pile: Pile, upgraded: bool = false) -
 			discard_pile.append(card)
 		Pile.EXHAUST:
 			exhaust_pile.append(card)
-	EventBus.card_created.emit(card, StringName(Pile.keys()[pile].to_lower()))
+	if _home():
+		EventBus.card_created.emit(card, StringName(Pile.keys()[pile].to_lower()))
 	return card
 
 
@@ -551,27 +753,31 @@ func _reshuffle() -> void:
 	draw_pile.append_array(discard_pile)
 	discard_pile.clear()
 	rng.shuffle(draw_pile, &"shuffle")
-	EventBus.deck_shuffled.emit(draw_pile.size())
+	if _home():
+		EventBus.deck_shuffled.emit(draw_pile.size())
 	fire(EffectTrigger.Timing.DECK_SHUFFLED, player)
 
 
 func _exhaust(card: CardInstance) -> void:
 	exhaust_pile.append(card)
-	EventBus.card_exhausted.emit(card)
+	if _home():
+		EventBus.card_exhausted.emit(card)
 	fire(EffectTrigger.Timing.CARD_EXHAUSTED, player, {"card": card})
 
 
 func _discard_hand() -> void:
 	for card in hand.duplicate():
 		if card.has_keyword(CardData.KW_RETAIN):
-			EventBus.card_retained.emit(card)
+			if _home():
+				EventBus.card_retained.emit(card)
 			continue
 		hand.erase(card)
 		if card.has_keyword(CardData.KW_ETHEREAL):
 			_exhaust(card)
 		else:
 			discard_pile.append(card)
-			EventBus.card_discarded.emit(card, false)
+			if _home():
+				EventBus.card_discarded.emit(card, false)
 
 
 func _card_context(card: CardInstance, target: Combatant) -> EffectContext:
@@ -587,12 +793,14 @@ func _card_context(card: CardInstance, target: Combatant) -> EffectContext:
 
 func spend_energy(amount: int) -> void:
 	player.energy = maxi(player.energy - amount, 0)
-	EventBus.energy_changed.emit(player.energy, get_max_energy())
+	if _home():
+		EventBus.energy_changed.emit(player.energy, get_max_energy())
 
 
 func gain_energy(amount: int) -> void:
 	player.energy = maxi(player.energy + amount, 0)
-	EventBus.energy_changed.emit(player.energy, get_max_energy())
+	if _home():
+		EventBus.energy_changed.emit(player.energy, get_max_energy())
 
 
 ## Returns the actual change after clamping.
@@ -605,7 +813,8 @@ func change_class_resource(delta: int) -> int:
 	var actual := player.resource_value - old
 	if actual == 0:
 		return 0
-	EventBus.class_resource_changed.emit(res.id, old, player.resource_value, res.max_value)
+	if _home():
+		EventBus.class_resource_changed.emit(res.id, old, player.resource_value, res.max_value)
 	if actual > 0:
 		_fire_all(EffectTrigger.Timing.CLASS_RESOURCE_GAINED, {"amount": actual})
 		if player.resource_value >= res.max_value and not res.max_triggers_at_turn_end \
@@ -622,7 +831,8 @@ func set_class_resource(value: int) -> void:
 
 func _trigger_resource_max() -> void:
 	var res := player.get_resource_data()
-	EventBus.class_resource_maxed.emit(res.id)
+	if _home():
+		EventBus.class_resource_maxed.emit(res.id)
 	_run_effects(res.on_reach_max_effects, EffectContext.new(self, player, null))
 
 
@@ -668,9 +878,10 @@ func has_status_or_stance(combatant: Combatant, status_id: StringName) -> bool:
 		return false
 	if combatant.has_status(status_id):
 		return true
-	if combatant != player or player.stance == null or player.stance != player.class_data.eclipse_stance:
+	var hero := combatant as PlayerCombatant
+	if hero == null or hero.stance == null or hero.stance != hero.class_data.eclipse_stance:
 		return false
-	for stance in player.class_data.stances:
+	for stance in hero.class_data.stances:
 		if stance.id == status_id:
 			return true
 	return false
@@ -684,7 +895,8 @@ func _set_stance(new_stance: StatusEffectData) -> void:
 	if new_stance != null:
 		apply_status(player, new_stance, 1, player)
 		player.stance = new_stance
-	EventBus.stance_changed.emit(old.id if old else &"", new_stance.id if new_stance else &"")
+	if _home():
+		EventBus.stance_changed.emit(old.id if old else &"", new_stance.id if new_stance else &"")
 
 
 ## Eclipse lasts until the end of the turn, then Lunar Charge resets.
@@ -741,7 +953,7 @@ func deal_damage(source: Combatant, target: Combatant, base: int, type: DamageIn
 		if source != null:
 			fire(EffectTrigger.Timing.DEALT_ATTACK_DAMAGE, source, {"info": info})
 		if source is SummonCombatant and info.amount > 0:
-			fire(EffectTrigger.Timing.SUMMON_DEALT_DAMAGE, player, {"target": target, "info": info})
+			fire(EffectTrigger.Timing.SUMMON_DEALT_DAMAGE, seat_of(source).player, {"target": target, "info": info})
 	if info.hp_lost > 0 and type == DamageInfo.Type.ATTACK and source != null and not source.is_dead:
 		var steal := source.stat_flat(&"attack_lifesteal")
 		if steal > 0.0:
@@ -814,7 +1026,9 @@ func steal_gold(thief: EnemyCombatant, amount: int) -> int:
 		return 0
 	player_gold -= taken
 	thief.stolen_gold += taken
-	EventBus.gold_stolen.emit(thief, taken)
+	seat.stolen[thief.id] = int(seat.stolen.get(thief.id, 0)) + taken
+	if _home():
+		EventBus.gold_stolen.emit(thief, taken)
 	return taken
 
 
@@ -835,21 +1049,31 @@ func _kill(target: Combatant) -> void:
 	target.is_dead = true
 	EventBus.combatant_died.emit(target)
 	if target is EnemyCombatant and target.stolen_gold > 0:
-		player_gold += target.stolen_gold
-		EventBus.gold_stolen.emit(target, -target.stolen_gold)
+		for s in seats:
+			var back: int = s.stolen.get(target.id, 0)
+			if back > 0:
+				s.player_gold += back
+				s.stolen.erase(target.id)
+				if s.index == home_seat:
+					EventBus.gold_stolen.emit(target, -back)
 		target.stolen_gold = 0
 	fire(EffectTrigger.Timing.OWNER_DIED, target)
 	if target is SummonCombatant:
-		fire(EffectTrigger.Timing.SUMMON_DIED, player, {"summon": target, "target": target})
+		fire(EffectTrigger.Timing.SUMMON_DIED, seat_of(target).player, {"summon": target, "target": target})
 	elif target is EnemyCombatant:
-		fire(EffectTrigger.Timing.ENEMY_DIED, player, {"enemy": target})
+		for s in seats:
+			fire(EffectTrigger.Timing.ENEMY_DIED, s.player, {"enemy": target})
+	elif target is PlayerCombatant and is_coop():
+		# A fallen hero's summons fall with them.
+		for summon in _living_summons_of(seat_of(target)):
+			_kill(summon)
 	_check_end()
 
 
 func _check_end() -> void:
 	if is_over() or _ending:
 		return
-	if player.is_dead:
+	if living_heroes().is_empty():
 		_end(Result.DEFEAT)
 	elif living_enemies().is_empty():
 		_end(Result.VICTORY)
@@ -863,7 +1087,8 @@ func _end(p_result: Result) -> void:
 	queue.clear()
 	if result == Result.VICTORY:
 		# Post-combat relics (heal after fight, etc.) resolve right away.
-		fire(EffectTrigger.Timing.COMBAT_END, player, {}, true)
+		for s in seats:
+			fire(EffectTrigger.Timing.COMBAT_END, s.player, {}, true)
 	phase = Phase.ENDED
 	EventBus.player_input_enabled.emit(false)
 	EventBus.combat_ended.emit(result == Result.VICTORY)
@@ -900,9 +1125,11 @@ func remove_status(target: Combatant, status_id: StringName) -> void:
 	target.status_data.erase(status_id)
 	target.skip_next_round_decay.erase(status_id)
 	EventBus.status_removed.emit(target, data)
-	if target == player and player.stance != null and player.stance.id == status_id:
-		player.stance = null
-		EventBus.stance_changed.emit(status_id, &"")
+	var hero := target as PlayerCombatant
+	if hero != null and hero.stance != null and hero.stance.id == status_id:
+		hero.stance = null
+		if hero.seat_index == home_seat:
+			EventBus.stance_changed.emit(status_id, &"")
 	_refresh_intents()
 
 
@@ -933,7 +1160,10 @@ func _burst_status(target: Combatant, data: StatusEffectData) -> void:
 	if target.is_dead or is_over() or not target.has_status(data.id):
 		return
 	EventBus.status_triggered.emit(target, data)
-	_run_effects(data.max_stack_effects, EffectContext.new(self, target, player))
+	if target is EnemyCombatant and not target is SummonCombatant:
+		_run_enemy_effects(target, data.max_stack_effects, EffectContext.new(self, target, null))
+	else:
+		_run_effects(data.max_stack_effects, EffectContext.new(self, target, player))
 	if not target.is_dead:
 		_set_stacks(target, data, 0)
 
@@ -974,12 +1204,12 @@ func fire(timing: EffectTrigger.Timing, owner: Combatant, payload: Dictionary = 
 		for trigger in data.triggers:
 			if trigger.timing == timing:
 				_queue_trigger(trigger, owner, status_id, null, payload, immediate)
-	if owner == player:
-		for relic in relics:
+	if owner is PlayerCombatant:
+		for relic in seats[owner.seat_index].relics:
 			for trigger in relic.triggers:
 				if trigger.timing == timing:
 					_queue_trigger(trigger, owner, &"", relic, payload, immediate)
-		for trigger in player.class_data.class_triggers:
+		for trigger in owner.class_data.class_triggers:
 			if trigger.timing == timing:
 				_queue_trigger(trigger, owner, &"", null, payload, immediate)
 	elif owner is EnemyCombatant:
@@ -994,7 +1224,7 @@ func fire(timing: EffectTrigger.Timing, owner: Combatant, payload: Dictionary = 
 ## cards, and enemy passives can react to them too ("gains Strength whenever
 ## you play a Skill").
 func _fire_all(timing: EffectTrigger.Timing, payload: Dictionary) -> void:
-	for combatant in _all_living():
+	for combatant in _living_for_seat():
 		fire(timing, combatant, payload)
 
 
@@ -1011,7 +1241,7 @@ func _queue_trigger(trigger: EffectTrigger, owner: Combatant, status_id: StringN
 		var key := "%d:%d" % [owner.id, trigger.get_instance_id()]
 		var count: int = _trigger_counts.get(key, 0) + 1
 		_trigger_counts[key] = count % trigger.every_nth
-		if relic:
+		if relic and owner is PlayerCombatant and owner.seat_index == home_seat:
 			EventBus.relic_counter_changed.emit(relic, count % trigger.every_nth)
 		if count < trigger.every_nth:
 			return
@@ -1057,11 +1287,17 @@ func _run_trigger(trigger: EffectTrigger, owner: Combatant, status_id: StringNam
 	ctx.payload = payload
 	if trigger.amount_from_stacks:
 		ctx.amount_override = absi(stacks)
-	if relic:
+	# A hero's (or summon's) reactions resolve on that hero's seat.
+	var previous := seat
+	var owner_seat := seat_of(owner)
+	if owner_seat != null:
+		seat = owner_seat
+	if relic and _home():
 		EventBus.relic_triggered.emit(relic)
 	if status_id != &"":
 		EventBus.status_triggered.emit(owner, owner.status_data[status_id])
 	_run_effects(trigger.effects, ctx)
+	seat = previous
 	if status_id != &"" and owner.has_status(status_id):
 		var data: StatusEffectData = owner.status_data[status_id]
 		match data.decay:
@@ -1112,8 +1348,11 @@ func request_choice(effect: ChooseCardsEffect, ctx: EffectContext) -> void:
 		ctx.x_value = chosen.size()
 		return
 	pending_choice = {"effect": effect, "ctx": ctx, "options": options, "min": min_count, "max": max_count}
-	EventBus.player_input_enabled.emit(false)
-	EventBus.card_choice_requested.emit(effect.get_prompt(max_count), options, min_count, max_count)
+	if _home():
+		EventBus.player_input_enabled.emit(false)
+		EventBus.card_choice_requested.emit(effect.get_prompt(max_count), options, min_count, max_count)
+	else:
+		_seat_updated()
 
 
 ## The player's answer to the pending choice. Returns false if it's invalid.
@@ -1129,14 +1368,17 @@ func resolve_choice(chosen: Array) -> bool:
 	pending_choice = {}
 	var effect: ChooseCardsEffect = c.effect
 	_apply_choice(effect.mode, chosen)
-	EventBus.card_choice_resolved.emit()
+	if _home():
+		EventBus.card_choice_resolved.emit()
 	var ctx: EffectContext = c.ctx
 	ctx.x_value = chosen.size()
 	_run_effects(c.get("rest", [] as Array[GameEffect]), ctx)
 	_flush()
 	_check_end()
-	if not is_over() and pending_choice.is_empty() and phase == Phase.PLAYER_TURN:
+	if not is_over() and pending_choice.is_empty() and phase == Phase.PLAYER_TURN and _home():
 		EventBus.player_input_enabled.emit(true)
+	_seat_updated()
+	_after_command()
 	return true
 
 
@@ -1153,11 +1395,13 @@ func _apply_choice(mode: ChooseCardsEffect.Mode, chosen: Array) -> void:
 				draw_pile.erase(card)
 				if hand.size() < player.class_data.max_hand_size:
 					hand.append(card)
-					EventBus.card_drawn.emit(card)
+					if _home():
+						EventBus.card_drawn.emit(card)
 					fire(EffectTrigger.Timing.CARD_DRAWN, player, {"card": card})
 				else:
 					discard_pile.append(card)
-					EventBus.card_discarded.emit(card, false)
+					if _home():
+						EventBus.card_discarded.emit(card, false)
 
 
 ## Simple choice policy for the AI, simulations and tests: get rid of Curses
@@ -1245,6 +1489,9 @@ func _refresh_intents() -> void:
 
 func _move_context(enemy: EnemyCombatant, move: EnemyMoveData) -> EffectContext:
 	var target: Combatant = player
+	if not enemy is SummonCombatant and player.is_dead:
+		var heroes := living_heroes()
+		target = heroes[0] if not heroes.is_empty() else player
 	if enemy is SummonCombatant:
 		var foes := living_enemies()
 		target = foes[0] if not foes.is_empty() else null
@@ -1260,14 +1507,49 @@ func _execute_move(enemy: EnemyCombatant, move: EnemyMoveData) -> void:
 		enemy.cooldowns[move_id] = maxi(int(enemy.cooldowns[move_id]) - 1, 0)
 	if move.cooldown > 0:
 		enemy.cooldowns[move.id] = move.cooldown
-	if get_intent_damage(enemy).x > 0 or _is_attack_intent(move.intent):
-		var ctx_target := _move_context(enemy, move).chosen_target
-		EventBus.attack_started.emit(enemy, [ctx_target] if ctx_target else [])
 	var ctx := _move_context(enemy, move)
-	for effect in move.effects:
+	if get_intent_damage(enemy, ctx.chosen_target).x > 0 or _is_attack_intent(move.intent):
+		var attack_targets: Array = []
+		if enemy is SummonCombatant:
+			if ctx.chosen_target:
+				attack_targets.append(ctx.chosen_target)
+		else:
+			attack_targets.assign(living_heroes())
+		EventBus.attack_started.emit(enemy, attack_targets)
+	if enemy is SummonCombatant:
+		for effect in move.effects:
+			if is_over() or enemy.is_dead:
+				return
+			effect.execute(ctx)
+	else:
+		_run_enemy_effects(enemy, move.effects, ctx)
+
+
+## Runs an enemy's effects. Effects aimed at "the player" (see
+## GameEffect.per_player) run once for each living hero, with that hero's seat
+## active; the rest (self-buffs, summoning minions) run once.
+func _run_enemy_effects(enemy: EnemyCombatant, effects: Array[GameEffect], ctx: EffectContext) -> void:
+	var previous := seat
+	for effect in effects:
 		if is_over() or enemy.is_dead:
-			return
-		effect.execute(ctx)
+			break
+		if effect.per_player():
+			for s in seats:
+				if is_over() or enemy.is_dead:
+					break
+				if s.player.is_dead:
+					continue
+				seat = s
+				ctx.chosen_target = s.player
+				effect.execute(ctx)
+		else:
+			if player.is_dead:
+				var heroes := living_heroes()
+				if not heroes.is_empty():
+					seat = seats[heroes[0].seat_index]
+			ctx.chosen_target = player
+			effect.execute(ctx)
+	seat = previous
 
 
 static func _is_attack_intent(intent: EnemyMoveData.Intent) -> bool:
@@ -1290,5 +1572,5 @@ func _check_phase_change(enemy: EnemyCombatant) -> void:
 		return
 	var new_phase := enemy.current_phase()
 	EventBus.boss_phase_changed.emit(enemy, enemy.phase_index, new_phase)
-	_run_effects(new_phase.on_enter_effects, EffectContext.new(self, enemy, player))
+	_run_enemy_effects(enemy, new_phase.on_enter_effects, EffectContext.new(self, enemy, player))
 	_roll_intent(enemy)

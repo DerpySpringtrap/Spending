@@ -24,3 +24,10 @@ func get_sub_effects() -> Array[GameEffect]:
 	var out: Array[GameEffect] = effects.duplicate()
 	out.append_array(else_effects)
 	return out
+
+
+func per_player() -> bool:
+	for effect in get_sub_effects():
+		if effect.per_player():
+			return true
+	return false

@@ -99,3 +99,19 @@ static func class_combat(class_id: StringName, enemies: Array, with_relic := fal
 	if with_relic:
 		relics.append(cls.starting_relic)
 	return CombatState.create(cls, deck, cls.max_hp, cls.max_hp, relics, encounter(enemies), 0, RngStreams.new(seed_value))
+
+
+## A co-op fight: one hero per class id, each with their starter deck (and
+## starting relic if asked).
+static func party_combat(class_ids: Array, enemies: Array, with_relics := false, seed_value := 1) -> CombatState:
+	var heroes: Array = []
+	for class_id in class_ids:
+		var cls := ContentDB.get_character_class(class_id)
+		var deck: Array[CardInstance] = []
+		for data in cls.starting_deck:
+			deck.append(CardInstance.new(data))
+		var relics: Array[RelicData] = []
+		if with_relics:
+			relics.append(cls.starting_relic)
+		heroes.append({"class_data": cls, "deck": deck, "hp": cls.max_hp, "max_hp": cls.max_hp, "relics": relics, "gold": 100})
+	return CombatState.create_party(heroes, encounter(enemies), 0, RngStreams.new(seed_value))
