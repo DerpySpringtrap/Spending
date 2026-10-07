@@ -46,7 +46,8 @@ Invite-only online co-op for 2–4 players. There is no public lobby search: one
 - **Enemy attacks hit every player**: a 12-damage attack deals 12 to each of you, and each player's own Block, summons and statuses only protect them. Enemy debuffs hit everyone too. **Enemy HP is multiplied by the number of players.**
 - If you fall, the fight goes on without you; after a win you get back up with 10% HP. If everyone falls, the run ends.
 - Rewards, the shop, rest sites, treasure and events are personal: each player gets their own, and the map waits until everyone is done. Then everyone votes on the next room (click a room; you can change your vote). If the votes differ, one of the voted rooms is picked at random.
-- Co-op runs aren't saved, debug keys that change the game are disabled, and event choices that start a fight are solo-only for now. If someone leaves, the run ends for everyone.
+- **Co-op runs have their own save**, separate from your solo save, so neither overwrites the other. Every player's game saves it whenever the party is back on the map. If anyone disconnects (or leaves through the Esc menu), everyone returns to the main menu, and nothing from before that map visit is lost: one of you opens **Co-op → Host & Continue Saved Run**, the others join as usual and get their own hero back (matched by name; anyone else fills a free hero), and the host presses **Continue Run**. Any player who was in the run can host it, since everyone has a copy. The save is deleted when the run is won or lost (or with **Delete Save** in the Co-op screen).
+- Debug keys that change the game are disabled, and event choices that start a fight are solo-only for now.
 
 **Setting it up (host)**
 1. Main menu → **Co-op** → type your name → **Host** (default port 24785).
@@ -93,6 +94,7 @@ godot --headless --path . res://tests/pause_menu_test.tscn                     #
 godot --headless --path . res://tests/sim/auto_battler.tscn -- --fights=1000 --extra=4   # per-encounter balance
 godot --headless --path . res://tests/sim/run_sim.tscn -- --runs=300           # full-run simulator
 tools/coop_test.sh 12 pyre_warden rootmother                                   # two game copies play co-op over localhost; checks they stay in sync
+tools/coop_resume_test.sh                                                      # co-op save: a player drops, the run is continued, state must match
 ```
 
 ## Exporting a Windows build

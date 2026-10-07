@@ -113,6 +113,7 @@ func end_run(victory: bool) -> void:
 	if RunState.coop:
 		for s in RunState.seats:
 			party.append({"name": s.player_name, "class_id": s.class_id, "hp": s.hp, "max_hp": s.max_hp})
+		RunState.clear_coop_save()  # The run is over (won or lost).
 		Coop.finish()
 	MetaProgress.stats["enemies_killed"] += int(RunState.run_stats.get("enemies_killed", 0))
 	MetaProgress.save_meta()
@@ -127,6 +128,12 @@ func end_run(victory: bool) -> void:
 	EventBus.run_ended.emit(victory)
 	RunState.clear()
 	go_to_screen(&"run_summary")
+
+
+## Co-op: leave the run but keep its save, so the group can continue later.
+func coop_leave() -> void:
+	Coop.leave()
+	coop_abort("You left the co-op run.")
 
 
 func abandon_run() -> void:
@@ -249,12 +256,17 @@ func start_coop_run(payload: Dictionary, my_seat: int) -> void:
 	coop_done.clear()
 	_coop_combat_inbox.clear()
 	coop_message = ""
-	RunState.start_coop(payload.players, int(payload.ascension), int(payload.seed), int(payload.final_act), my_seat)
-	RunState.map_data = MapGenerator.generate(RunState.shared_rng.get_stream(&"map"), 1, RunState.ascension)
-	MetaProgress.stats["runs_started"] += 1
-	MetaProgress.save_meta()
-	EventBus.run_started.emit(RunState.class_id, RunState.ascension, int(payload.seed))
-	EventBus.act_started.emit(1)
+	if payload.has("resume"):
+		# Continuing a saved run: everyone loads the host's save.
+		RunState.from_coop_dict(payload.resume, my_seat)
+	else:
+		RunState.start_coop(payload.players, int(payload.ascension), int(payload.seed), int(payload.final_act), my_seat)
+		RunState.map_data = MapGenerator.generate(RunState.shared_rng.get_stream(&"map"), 1, RunState.ascension)
+		MetaProgress.stats["runs_started"] += 1
+		MetaProgress.save_meta()
+		EventBus.run_started.emit(RunState.class_id, RunState.ascension, int(payload.seed))
+		EventBus.act_started.emit(1)
+	RunState.save_coop()
 	go_to_screen(&"map")
 
 
@@ -336,6 +348,7 @@ func _coop_all_done() -> void:
 	if String(RunState.current_map_node().get("type", "")) == MapGenerator.TYPE_BOSS and RunState.act < RunState.final_act:
 		RunLogic.advance_act()
 		go_to_screen(&"map")  # Redraw for the new act.
+	RunState.save_coop()
 	EventBus.coop_state_changed.emit()
 
 
@@ -359,8 +372,11 @@ func coop_combat_resolved(combat: CombatState) -> void:
 		RunState.monster_fights += 1
 
 
-## The session broke mid-run (someone left or the connection dropped).
+## The session broke mid-run (someone left or the connection dropped). The
+## co-op save stays, so the group can continue from the last map visit.
 func coop_abort(reason: String) -> void:
+	if RunState.active and RunState.coop:
+		reason += " The run is saved: open Co-op and choose Continue Saved Run to carry on."
 	coop_message = reason
 	coop_last_abort = reason
 	coop_votes.clear()

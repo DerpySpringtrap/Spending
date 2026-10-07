@@ -1,6 +1,8 @@
 extends Control
 ## Friends-only co-op: host a game or join a friend by address, pick heroes,
-## and (host) start the run. No public matchmaking.
+## and (host) start the run. No public matchmaking. A saved co-op run (kept
+## separately from the solo save) can be continued: host it again and the
+## friends rejoin.
 
 const CFG_PATH := "user://coop.cfg"
 const CLASS_ORDER: Array[StringName] = [&"pyre_warden", &"moonblade", &"hollow_scribe", &"rootmother"]
@@ -12,6 +14,7 @@ var _connect_box: VBoxContainer
 var _lobby_box: VBoxContainer
 var _players: VBoxContainer
 var _classes: HBoxContainer
+var _classes_heading: Label
 var _start: Button
 var _status: Label
 var _error: Label
@@ -73,6 +76,10 @@ func _build_connect() -> void:
 	name_row.add_child(_name_edit)
 	_connect_box.add_child(name_row)
 
+	var saved := RunState.load_coop_save()
+	if not saved.is_empty():
+		_build_saved_run(saved)
+
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 40)
@@ -100,6 +107,41 @@ func _build_connect() -> void:
 	join_button.pressed.connect(_join)
 	_address_edit.text_submitted.connect(func(_t): _join())
 	join.add_child(join_button)
+
+
+## The saved co-op run: host it again to continue, or delete it.
+func _build_saved_run(saved: Dictionary) -> void:
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	panel.custom_minimum_size = Vector2(1080, 0)
+	_connect_box.add_child(panel)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 10)
+	panel.add_child(box)
+	box.add_child(UIBuild.label("Saved co-op run", &"HeadingLabel", UIStyle.SIZE_H2))
+	var info := UIBuild.label(RunState.describe_coop_save(saved), &"", UIStyle.SIZE_BODY, UIStyle.GOLD)
+	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(info)
+	box.add_child(UIBuild.label("Host it to continue: your friends join as usual and get their hero back (matched by name). Joining a friend who hosts it works too.", &"DimLabel", UIStyle.SIZE_BODY))
+	var buttons := HBoxContainer.new()
+	buttons.add_theme_constant_override("separation", 16)
+	box.add_child(buttons)
+	var cont := UIBuild.button("Host & Continue Saved Run", true, Vector2(380, 60))
+	cont.pressed.connect(func():
+		_error.text = ""
+		var err := Coop.host_game(_port(), _name_edit.text, saved)
+		if err != "":
+			_error.text = err
+		_refresh())
+	buttons.add_child(cont)
+	var delete := UIBuild.button("Delete Save", false, Vector2(240, 60))
+	delete.pressed.connect(func():
+		if delete.text == "Delete Save":
+			delete.text = "Really delete?"
+			return
+		RunState.clear_coop_save()
+		panel.queue_free())
+	buttons.add_child(delete)
 
 
 func _join() -> void:
@@ -136,7 +178,8 @@ func _build_lobby() -> void:
 	_players = VBoxContainer.new()
 	_players.add_theme_constant_override("separation", 8)
 	_lobby_box.add_child(_players)
-	_lobby_box.add_child(UIBuild.label("Your hero", &"HeadingLabel", 22))
+	_classes_heading = UIBuild.label("Your hero", &"HeadingLabel", 22)
+	_lobby_box.add_child(_classes_heading)
 	_classes = HBoxContainer.new()
 	_classes.alignment = BoxContainer.ALIGNMENT_CENTER
 	_classes.add_theme_constant_override("separation", 12)
@@ -165,11 +208,16 @@ func _refresh() -> void:
 	_connect_box.visible = not in_lobby and not joining
 	_lobby_box.visible = in_lobby or joining
 	_start.visible = Coop.is_host
-	_start.disabled = Coop.lobby.size() < 2
-	_classes.visible = in_lobby
+	_start.disabled = not Coop.ready_to_start()
+	_start.text = "Continue Run" if Coop.is_resuming() else "Start Run"
+	_classes.visible = in_lobby and not Coop.is_resuming()
+	_classes_heading.visible = _classes.visible
 	if joining:
 		_status.text = "Connecting…"
 		_host_info.text = ""
+	elif Coop.is_resuming():
+		_status.text = "Continuing a saved run · %s" % Coop.resume_where
+		_host_info.text = _address_hint() if Coop.is_host else "Waiting for everyone to rejoin, then the host continues the run."
 	elif Coop.is_host:
 		_status.text = "Lobby (%d/%d) · you are hosting" % [Coop.lobby.size(), Coop.MAX_PLAYERS]
 		_host_info.text = _address_hint()
@@ -179,6 +227,9 @@ func _refresh() -> void:
 	for child in _players.get_children():
 		child.queue_free()
 	var me := Coop.my_lobby_entry()
+	if Coop.is_resuming():
+		_list_saved_seats(me)
+		return
 	for entry in Coop.lobby:
 		var cls := ContentDB.get_character_class(StringName(entry.class_id))
 		var tag := " (host)" if entry.id == 1 else ""
@@ -191,6 +242,22 @@ func _refresh() -> void:
 		var wait := UIBuild.label("Waiting for a friend to join…", &"DimLabel", UIStyle.SIZE_BODY)
 		wait.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_players.add_child(wait)
+
+
+## Saved run: one row per saved hero, showing who has taken it.
+func _list_saved_seats(me: Dictionary) -> void:
+	for i in Coop.resume_party.size():
+		var hero: Dictionary = Coop.resume_party[i]
+		var cls := ContentDB.get_character_class(StringName(hero.class_id))
+		var player := ""
+		for entry in Coop.lobby:
+			if int(entry.get("seat", -1)) == i:
+				player = entry.name + (" · you" if not me.is_empty() and entry.id == me.id else "")
+		var text := "%s's %s  —  %s" % [hero.name, cls.display_name if cls else "?", player if player != "" else "waiting for %s…" % hero.name]
+		var label := UIBuild.label(text, &"", UIStyle.SIZE_H2 - 6)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.add_theme_color_override("font_color", (cls.secondary_color.lerp(Color.WHITE, 0.3) if cls else Color.WHITE) if player != "" else UIStyle.TEXT_DIM)
+		_players.add_child(label)
 
 
 ## Where friends can reach this computer: its local addresses (a VPN like

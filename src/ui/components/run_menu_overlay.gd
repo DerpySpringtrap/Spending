@@ -1,8 +1,9 @@
 class_name RunMenuOverlay
 extends CanvasLayer
 ## The in-run menu: Resume, Options, Quit to Main Menu, Abandon Run, Quit Game.
-## Solo runs pause underneath; in co-op the game keeps going for the others
-## and leaving ends the run for everyone. Risky choices ask twice.
+## Solo runs pause underneath; in co-op the game keeps going for the others,
+## and leaving stops the session for everyone but keeps the co-op save.
+## Risky choices ask twice.
 
 const CONFIRM_TIME := 3.0
 
@@ -38,15 +39,15 @@ func _ready() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_box.add_child(title)
 	if RunState.coop:
-		_note("The run keeps going for your friends while this menu is open.")
+		_note("The run keeps going for your friends while this menu is open. Leaving keeps the co-op save: host it again from Co-op to continue together.")
 	var resume := _button("Resume", true, close)
 	_button("Options", false, func():
 		_options.open())
 	if RunState.coop:
-		_button("Leave Co-op Run", false, _leave_coop, "Leave? The run ends for everyone. Press again")
+		_button("Leave Co-op Run", false, _leave_coop, "Leave? Everyone stops; the run is saved. Press again")
 		_button("Quit Game", false, func():
 			Coop.leave()
-			get_tree().quit(), "Quit? The run ends for everyone. Press again")
+			get_tree().quit(), "Quit? Everyone stops; the run is saved. Press again")
 	else:
 		_button("Quit to Main Menu", false, _quit_to_menu)
 		_note("Your run is saved from the last time you were on the map; continue it from the main menu.")
@@ -85,7 +86,7 @@ func _quit_to_menu() -> void:
 func _leave_coop() -> void:
 	_unpause()
 	queue_free()
-	GameManager.abandon_run()
+	GameManager.coop_leave()
 
 
 ## A menu button; with [param confirm] it must be pressed twice within a few seconds.

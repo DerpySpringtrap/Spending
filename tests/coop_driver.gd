@@ -12,6 +12,8 @@ var _players := 2
 ## Leave the session after this many votes (tests the disconnect path).
 var _leave_at := -1
 var _name := ""
+## Host: continue the saved co-op run instead of starting a new one.
+var _resume := false
 
 
 func _ready() -> void:
@@ -33,6 +35,8 @@ func _ready() -> void:
 			_leave_at = int(arg.trim_prefix("--leave-at="))
 		elif arg.begins_with("--name="):
 			_name = arg.trim_prefix("--name=")
+		elif arg == "--resume":
+			_resume = true
 	MetaProgress.unlock(&"class", _class_id)
 	_visual = _shots_dir != "" and DisplayServer.get_name() != "headless"
 	UIStyle.speed = 1.0 if _visual else 30.0
@@ -58,15 +62,25 @@ func _connect() -> void:
 	lobby._name_edit.text = _name if _name != "" else _role.capitalize()
 	if _role == "host":
 		lobby._port_edit.text = str(_port)
-		_press(_find_button("Host"))
+		if _resume:
+			var cont := _find_button("Host & Continue")
+			if cont == null:
+				_failures.append("no saved co-op run to continue")
+				return
+			_press(cont)
+		else:
+			_press(_find_button("Host"))
 		if not await _until(func(): return Coop.lobby.size() >= _players, 30.0):
 			_failures.append("no one joined")
 			return
 		Coop.set_class(_class_id)
 		await _until(func(): return Coop.lobby.all(func(p): return p.class_id != ""), 2.0)
 		await get_tree().create_timer(1.0).timeout  # The client picks its hero.
-		await _screen_shot("coop_lobby")
-		_press(_find_button("Start Run"))
+		await _screen_shot("coop_lobby_resume" if _resume else "coop_lobby")
+		if not Coop.ready_to_start():
+			_failures.append("can't start: lobby %s" % str(Coop.lobby))
+			return
+		_press(lobby._start)
 	else:
 		lobby._address_edit.text = "127.0.0.1:%d" % _port
 		_press(_find_button("Join"))

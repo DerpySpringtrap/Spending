@@ -134,7 +134,9 @@ Next: the Astromancer, card art, real audio, and the polish milestones (juice, a
 - **Network model: lockstep.** Every client simulates the whole run. Actions are commands sent to the host, numbered, and relayed to all clients in one order; combat is deterministic, so only inputs travel. Personal screens (rewards, shop, rest, treasure, events) run locally and end with a "done" snapshot of the player's seat. Then everyone votes on the next room (a seeded pick among different votes).
 - `tools/coop_test.sh` runs two game copies over localhost through the real screens and checks they print identical state at every vote. Tested with 2 and 3 players, plus a player leaving mid-run. Solo simulator output is bit-for-bit unchanged.
 
-Limitations for now: co-op runs aren't saved; event choices that start a fight are disabled in co-op; if anyone disconnects, the run ends for everyone; no co-op-specific cards yet; co-op balance hasn't been tuned beyond the HP scaling.
+Limitations for now: event choices that start a fight are disabled in co-op; if anyone disconnects, the run ends for everyone; no co-op-specific cards yet; co-op balance hasn't been tuned beyond the HP scaling.
+
+**Co-op save (build 5):** co-op runs save to `user://coop_run.json` on every player's machine, separate from the solo `run.json`, each time the party is back on the map. After a disconnect, anyone from the run hosts it again (Co-op → Host & Continue Saved Run); players rejoin and take their saved hero (matched by name), and the host sends the save so every client starts from identical state. `tools/coop_resume_test.sh` drops a player mid-run, continues, and checks the state matches.
 
 **Also in build 5:** an in-run menu (Esc or the Menu button) with Resume, Options, Quit to Main Menu, Abandon Run and Quit Game (solo runs pause; co-op offers Leave Co-op Run). All sounds were removed at the user's request: the synthesized files and `tools/audio/synth_audio.py` are gone, the audio hooks remain silent, and the sound ids are listed in `docs/HOOKS_AND_ASSETS.md`.
 
@@ -145,7 +147,7 @@ The suggested order is top to bottom; reorder freely.
 1. **Co-op, round 2.** Round 1 shipped in test build 5 (see above) with the rules the user set:
    - **Enemy attacks hit every player.** An enemy doesn't pick one hero: its intent applies to the whole party, so a 12-damage attack deals 12 to *each* player (each player's own Block, Taunt summon and statuses apply to their share). Enemy debuffs follow the same rule.
    - **Enemy HP scales with the number of players** (starting point: max HP × player count, then tuned with the simulator).
-   - Still to do: co-op cards (e.g. give Block to an ally), co-op balance tuning, saving/resuming a co-op run, reconnecting after a dropped connection, event fights in co-op, and optionally Steam friends invites or invite codes (instead of typing an address).
+   - Still to do: co-op cards (e.g. give Block to an ally), co-op balance tuning, rejoining a run in progress without returning to the menu (today a drop sends everyone to the menu and you continue from the co-op save), event fights in co-op, and optionally Steam friends invites or invite codes (instead of typing an address).
 2. **New class: the Astromancer** (working name). A female star-mage with a galaxy-purple look whose gimmick revolves around **Orbit**: Launched cards circle her and swing back with a stronger effect each time they complete an orbit. Inspired by Act 3's astronomy theme. Concept in `docs/design/CLASSES.md` §5 and the art-direction page.
 3. **Polish: juice.** Hit-stop and stronger screen shake on big hits, better card play/draw animations, damage-number pop, death effects, smoother screen transitions.
 4. **Polish: quality of life and accessibility.** Mid-combat save (quit and resume on the same turn), settings for text size, colorblind-safe intent/status colors, a game-speed slider and per-channel volume, and an optional first-run tutorial.

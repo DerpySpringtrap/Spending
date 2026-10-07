@@ -17,6 +17,9 @@ extends Node
 ## runs are unchanged. Co-op runs are not saved.
 
 const PATH := "user://run.json"
+## Co-op runs save separately (every player's game keeps a copy), so a solo
+## save and a co-op save never overwrite each other.
+const COOP_PATH := "user://coop_run.json"
 const VERSION := 1
 const BASE_POTION_SLOTS := 3
 
@@ -84,6 +87,9 @@ var current_node: String = ""
 var monster_fights: int = 0
 var seen_encounters: Array = []
 var seen_events: Array = []
+## Where this copy of the game keeps its co-op save (tests run two copies on
+## one machine with "--coop-save=user://other.json").
+var coop_save_path := COOP_PATH
 
 
 func start(class_data: CharacterClassData, ascension_level: int, run_seed: int) -> void:
@@ -165,6 +171,9 @@ func _start_seat(class_data: CharacterClassData) -> void:
 
 
 func _ready() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--coop-save="):
+			coop_save_path = arg.trim_prefix("--coop-save=")
 	EventBus.card_played.connect(func(_card, _targets): _stat("cards_played", 1))
 	EventBus.damage_dealt.connect(_on_damage_dealt)
 	EventBus.combatant_died.connect(func(c):
@@ -388,6 +397,75 @@ func from_dict(data: Dictionary) -> void:
 	seen_events = data.get("seen_events", [])
 	removals = int(data.get("removals", 0))
 	active = true
+
+
+# --- Co-op save -------------------------------------------------------------------
+
+## The whole shared run: every seat plus the map, act and shared RNG.
+func to_coop_dict() -> Dictionary:
+	var seat_dicts: Array = []
+	for s in seats:
+		seat_dicts.append(s.to_dict())
+	return {
+		"coop": true, "ascension": ascension, "shared_rng": shared_rng.to_dict(), "seats": seat_dicts,
+		"act": act, "final_act": final_act, "floor": floor_number, "map": map_data, "visited": visited_nodes,
+		"current_node": current_node, "monster_fights": monster_fights,
+		"seen_encounters": seen_encounters, "seen_events": seen_events,
+	}
+
+
+## Loads a co-op run (from a save, via the host) with [param local_seat] as this player.
+func from_coop_dict(data: Dictionary, local_seat: int) -> void:
+	coop = true
+	active = true
+	ascension = int(data.get("ascension", 0))
+	shared_rng = RngStreams.from_dict(data.get("shared_rng", {}))
+	seats = []
+	var seat_dicts: Array = data.get("seats", [])
+	for i in seat_dicts.size():
+		var s := RunSeat.new(i)
+		s.from_dict(seat_dicts[i])
+		seats.append(s)
+	home_seat = clampi(local_seat, 0, seats.size() - 1)
+	seat = seats[home_seat]
+	act = int(data.get("act", 1))
+	final_act = int(data.get("final_act", GameManager.FINAL_ACT))
+	floor_number = int(data.get("floor", 0))
+	map_data = data.get("map", {})
+	visited_nodes = data.get("visited", [])
+	current_node = String(data.get("current_node", ""))
+	monster_fights = int(data.get("monster_fights", 0))
+	seen_encounters = data.get("seen_encounters", [])
+	seen_events = data.get("seen_events", [])
+
+
+## Every player's game saves the co-op run whenever the party is on the map.
+func save_coop() -> void:
+	if active and coop:
+		SaveIO.write_json(coop_save_path, to_coop_dict(), VERSION)
+
+
+func has_coop_save() -> bool:
+	return FileAccess.file_exists(coop_save_path)
+
+
+func load_coop_save() -> Dictionary:
+	var data := SaveIO.read_json(coop_save_path)
+	data.erase(SaveIO.VERSION_KEY)
+	return data if data.get("coop", false) and not data.get("seats", []).is_empty() else {}
+
+
+func clear_coop_save() -> void:
+	SaveIO.delete(coop_save_path)
+
+
+## "Ana (Pyre Warden), Bo (Moonblade) · Act 1, floor 3" for a co-op save.
+static func describe_coop_save(data: Dictionary) -> String:
+	var names: PackedStringArray = []
+	for s in data.get("seats", []):
+		var cls := ContentDB.get_character_class(StringName(s.get("class_id", "")))
+		names.append("%s (%s)" % [s.get("name", "?"), cls.display_name if cls else "?"])
+	return "%s · Act %d, floor %d" % [", ".join(names), int(data.get("act", 1)), int(data.get("floor", 0))]
 
 
 func save_run() -> void:

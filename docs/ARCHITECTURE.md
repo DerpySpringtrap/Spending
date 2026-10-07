@@ -64,7 +64,7 @@ Loaded in this order (later ones may depend on earlier ones):
 | `ContentDB` | `src/autoload/content_db.gd` | Scans `res://content/` at boot, indexes every resource by type + id, reports duplicate ids, answers pool queries ("all uncommon Pyre Warden cards"). Handles `.remap` in exported builds. |
 | `Settings` | `src/autoload/settings.gd` | Volumes per bus, screen-shake scale, fast mode, fullscreen, UI scale. `user://settings.cfg`. |
 | `MetaProgress` | `src/autoload/meta_progress.gd` | Permanent unlocks, per-class ascension and XP, lifetime stats, bestiary. `user://meta.json`. |
-| `RunState` | `src/autoload/run_state.gd` | Current run: class, HP, gold, deck, relics, potions (one `RunSeat` per player), act/floor, map, RNG. `user://run.json` (solo only). |
+| `RunState` | `src/autoload/run_state.gd` | Current run: class, HP, gold, deck, relics, potions (one `RunSeat` per player), act/floor, map, RNG. `user://run.json` (solo) and `user://coop_run.json` (co-op). |
 | `AudioManager` | `src/autoload/audio_manager.gd` | Crossfading music (2 players), ambience layer, pooled SFX with pitch variance. |
 | `SceneRouter` | `src/autoload/scene_router.gd` | All screen changes with fade transitions and input blocking. Emits `screen_changed`. |
 | `GameManager` | `src/autoload/game_manager.gd` | Flow decisions: new run, continue, start combat, end run → summary. The only place that picks the next screen. |
@@ -164,7 +164,8 @@ Friends-only online co-op uses **lockstep**: every client simulates the whole ru
 - `RunState` holds one `RunSeat` per player (hero, HP, gold, deck, relics, potions, personal RNG); its solo-named fields read the current seat. Shared draws (map, encounters, events, combat) use `RunState.shared_rng`, which is the seat's RNG in solo.
 - `Coop` (autoload) runs the ENet session: lobby, version check (`ContentDB.signature()`), and commands that the host numbers and relays to every client in one order.
 - `GameManager`'s co-op section routes commands: map votes, "done" snapshots after personal screens (rewards, shop, rest, events), and combat commands, which the combat screen applies (`_apply_coop`).
-- `tools/coop_test.sh` plays two copies over localhost and diffs their state at every vote.
+- Saving: every client writes `RunState.to_coop_dict()` to `user://coop_run.json` (separate from the solo save) when the party reaches the map. Continuing: the host loads it (`Coop.host_game(..., resume)`), joiners are matched to saved seats by name, and `_begin_run` ships the save so every client loads identical state (`RunState.from_coop_dict`).
+- `tools/coop_test.sh` plays two copies over localhost and diffs their state at every vote; `tools/coop_resume_test.sh` covers drop-and-continue.
 
 ## 6. Event bus
 

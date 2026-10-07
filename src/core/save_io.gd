@@ -11,7 +11,9 @@ const VERSION_KEY := "_save_version"
 static func write_json(path: String, data: Dictionary, version: int) -> Error:
 	var payload := data.duplicate(true)
 	payload[VERSION_KEY] = version
-	var tmp_path := path + ".tmp"
+	# Per-process temp name: two game copies on one PC (co-op testing) can save
+	# the same file without clobbering each other's half-written temp file.
+	var tmp_path := "%s.%d.tmp" % [path, OS.get_process_id()]
 	var file := FileAccess.open(tmp_path, FileAccess.WRITE)
 	if file == null:
 		var err := FileAccess.get_open_error()

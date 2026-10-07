@@ -36,6 +36,12 @@ var lobby: Array = []
 ## During a run: seat index -> peer id, and this client's seat.
 var seat_peers: Array = []
 var my_seat := 0
+## Continuing a saved run: the host's save, and (on every client) the saved
+## party [{"name", "class_id"}] plus where the run was. Joining players take
+## the saved hero with their name (otherwise any free one).
+var resume_state: Dictionary = {}
+var resume_party: Array = []
+var resume_where := ""
 var _seq := 0
 var _connect_timer: SceneTreeTimer
 
@@ -65,8 +71,9 @@ func version_tag() -> String:
 # Hosting and joining
 # =============================================================================
 
-## Opens the lobby. Returns "" or an error to show.
-func host_game(port: int, player_name: String) -> String:
+## Opens the lobby. Returns "" or an error to show. With [param resume] (a
+## co-op save) the lobby continues that run instead of starting a new one.
+func host_game(port: int, player_name: String, resume: Dictionary = {}) -> String:
 	leave()
 	var peer := ENetMultiplayerPeer.new()
 	var err := peer.create_server(port, MAX_PLAYERS - 1)
@@ -76,9 +83,55 @@ func host_game(port: int, player_name: String) -> String:
 	is_host = true
 	my_name = _clean_name(player_name)
 	state = State.LOBBY
-	lobby = [{"id": 1, "name": my_name, "class_id": _default_class(0)}]
+	lobby = [{"id": 1, "name": my_name, "class_id": _default_class(0), "seat": -1}]
+	if not resume.is_empty():
+		resume_state = resume
+		resume_where = "Act %d, floor %d" % [int(resume.get("act", 1)), int(resume.get("floor", 0))]
+		for s in resume.get("seats", []):
+			resume_party.append({"name": String(s.get("name", "?")), "class_id": String(s.get("class_id", ""))})
+		_assign_seats()
 	lobby_changed.emit()
 	return ""
+
+
+func is_resuming() -> bool:
+	return not resume_party.is_empty()
+
+
+## The host can start: 2+ players, and for a saved run every hero is taken.
+func ready_to_start() -> bool:
+	if lobby.size() < 2:
+		return false
+	if not is_resuming():
+		return true
+	return lobby.size() == resume_party.size() and lobby.all(func(p): return int(p.get("seat", -1)) >= 0)
+
+
+## Saved run: players get the hero saved under their name, the rest fill the
+## free heroes in join order.
+func _assign_seats() -> void:
+	if not is_resuming():
+		return
+	var taken := {}
+	for entry in lobby:
+		entry.seat = -1
+	for entry in lobby:
+		for i in resume_party.size():
+			if not taken.has(i) and String(resume_party[i].name).to_lower() == String(entry.name).to_lower():
+				entry.seat = i
+				taken[i] = true
+				break
+	for entry in lobby:
+		if int(entry.seat) >= 0:
+			continue
+		for i in resume_party.size():
+			if not taken.has(i):
+				entry.seat = i
+				taken[i] = true
+				break
+	for entry in lobby:
+		if int(entry.seat) >= 0:
+			entry.class_id = resume_party[int(entry.seat)].class_id
 
 
 ## Starts connecting to a host. Returns "" or an error; the outcome arrives as
@@ -111,6 +164,9 @@ func leave() -> void:
 	state = State.OFFLINE
 	is_host = false
 	lobby = []
+	resume_state = {}
+	resume_party = []
+	resume_where = ""
 	seat_peers = []
 	_seq = 0
 
@@ -176,6 +232,7 @@ func _on_peer_disconnected(id: int) -> void:
 		return
 	if state == State.LOBBY:
 		lobby = lobby.filter(func(p): return p.id != id)
+		_assign_seats()
 		_broadcast_lobby()
 
 
@@ -191,6 +248,8 @@ func _hello(player_name: String, version: String) -> void:
 		reason = "That run has already started."
 	elif lobby.size() >= MAX_PLAYERS:
 		reason = "The lobby is full (%d players)." % MAX_PLAYERS
+	elif is_resuming() and lobby.size() >= resume_party.size():
+		reason = "This saved run is for %d players, and they're all here." % resume_party.size()
 	if reason != "":
 		_rejected.rpc_id(id, reason)
 		get_tree().create_timer(0.5).timeout.connect(func():
@@ -198,7 +257,8 @@ func _hello(player_name: String, version: String) -> void:
 			if peer:
 				peer.disconnect_peer(id))
 		return
-	lobby.append({"id": id, "name": _clean_name(player_name), "class_id": _default_class(lobby.size())})
+	lobby.append({"id": id, "name": _clean_name(player_name), "class_id": _default_class(lobby.size()), "seat": -1})
+	_assign_seats()
 	_broadcast_lobby()
 
 
@@ -208,13 +268,15 @@ func _rejected(reason: String) -> void:
 
 
 func _broadcast_lobby() -> void:
-	_lobby_sync.rpc(lobby)
+	_lobby_sync.rpc(lobby, resume_party, resume_where)
 	lobby_changed.emit()
 
 
 @rpc("authority", "call_remote", "reliable")
-func _lobby_sync(list: Array) -> void:
+func _lobby_sync(list: Array, party: Array, where: String) -> void:
 	lobby = list
+	resume_party = party
+	resume_where = where
 	if state == State.JOINING:
 		state = State.LOBBY
 	lobby_changed.emit()
@@ -222,6 +284,8 @@ func _lobby_sync(list: Array) -> void:
 
 ## Picks this player's hero in the lobby.
 func set_class(class_id: StringName) -> void:
+	if is_resuming():
+		return  # Heroes come from the save.
 	if is_host:
 		_set_class_for(1, String(class_id))
 	else:
@@ -264,7 +328,15 @@ func _name_of(id: int) -> String:
 
 ## Host: everyone in the lobby starts the same run.
 func start_run(ascension: int = 0) -> void:
-	if not is_host or state != State.LOBBY or lobby.size() < 2:
+	if not is_host or state != State.LOBBY or not ready_to_start():
+		return
+	if is_resuming():
+		var players: Array = []
+		for i in resume_party.size():
+			for entry in lobby:
+				if int(entry.seat) == i:
+					players.append({"id": entry.id, "name": resume_party[i].name, "class_id": resume_party[i].class_id})
+		_begin_run.rpc({"resume": resume_state, "players": players})
 		return
 	var payload := {
 		"seed": randi(), "ascension": ascension, "final_act": GameManager.final_act(),
