@@ -185,7 +185,7 @@ func _refresh() -> void:
 		var you := " · you" if not me.is_empty() and entry.id == me.id else ""
 		var label := UIBuild.label("%s%s%s  —  %s" % [entry.name, tag, you, cls.display_name if cls else "?"], &"", UIStyle.SIZE_H2 - 6)
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.add_theme_color_override("font_color", cls.primary_color if cls else Color.WHITE)
+		label.add_theme_color_override("font_color", cls.secondary_color.lerp(Color.WHITE, 0.3) if cls else Color.WHITE)
 		_players.add_child(label)
 	if Coop.is_host and Coop.lobby.size() < 2:
 		var wait := UIBuild.label("Waiting for a friend to join…", &"DimLabel", UIStyle.SIZE_BODY)

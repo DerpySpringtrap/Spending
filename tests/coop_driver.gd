@@ -7,6 +7,11 @@ var _role := "host"
 var _port := 24799
 var _last_vote_key := ""
 var _synced := 0
+## Host: start once this many players are in the lobby.
+var _players := 2
+## Leave the session after this many votes (tests the disconnect path).
+var _leave_at := -1
+var _name := ""
 
 
 func _ready() -> void:
@@ -22,6 +27,12 @@ func _ready() -> void:
 			_max_nodes = int(arg.trim_prefix("--nodes="))
 		elif arg.begins_with("--shots="):
 			_shots_dir = arg.trim_prefix("--shots=")
+		elif arg.begins_with("--players="):
+			_players = int(arg.trim_prefix("--players="))
+		elif arg.begins_with("--leave-at="):
+			_leave_at = int(arg.trim_prefix("--leave-at="))
+		elif arg.begins_with("--name="):
+			_name = arg.trim_prefix("--name=")
 	MetaProgress.unlock(&"class", _class_id)
 	_visual = _shots_dir != "" and DisplayServer.get_name() != "headless"
 	UIStyle.speed = 1.0 if _visual else 30.0
@@ -44,11 +55,11 @@ func _connect() -> void:
 	_press(_find_button("Co-op"))
 	await _settle()
 	var lobby := get_tree().current_scene
-	lobby._name_edit.text = _role.capitalize()
+	lobby._name_edit.text = _name if _name != "" else _role.capitalize()
 	if _role == "host":
 		lobby._port_edit.text = str(_port)
 		_press(_find_button("Host"))
-		if not await _until(func(): return Coop.lobby.size() >= 2, 30.0):
+		if not await _until(func(): return Coop.lobby.size() >= _players, 30.0):
 			_failures.append("no one joined")
 			return
 		Coop.set_class(_class_id)
@@ -79,7 +90,7 @@ func _play() -> void:
 			continue
 		var name := String(scene.name)
 		if name == "MainMenu":
-			_failures.append("back at the main menu: %s" % GameManager.coop_message)
+			_failures.append("back at the main menu: %s" % GameManager.coop_last_abort)
 			return
 		if name == "RunSummary":
 			await _screen_shot("run_summary")
@@ -91,6 +102,10 @@ func _play() -> void:
 				if key != _last_vote_key:
 					_last_vote_key = key
 					_print_sync()
+					if _synced == _leave_at:
+						print("COOP LEAVING on purpose")
+						Coop.leave()
+						return
 					await _screen_shot("map")
 					var options := MapGenerator.reachable(RunState.map_data, RunState.current_node)
 					var pick: String = options[0] if _role == "host" else options[options.size() - 1]

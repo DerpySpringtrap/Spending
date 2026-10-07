@@ -73,7 +73,7 @@ func _ready() -> void:
 		GameManager.coop_message = ""
 
 	_build_options()
-	var version := UIBuild.label("Play-test build 4 · Acts 1–4 · four classes", &"DimLabel")
+	var version := UIBuild.label("Play-test build 5 · Acts 1–4 · four classes · co-op", &"DimLabel")
 	version.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	version.position = Vector2(24, -40)
 	version.anchor_top = 1.0

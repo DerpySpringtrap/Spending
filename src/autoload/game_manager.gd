@@ -54,6 +54,8 @@ var coop_combat_handler: Callable
 var _coop_combat_inbox: Array = []
 ## Shown on the main menu after a co-op run ends abruptly.
 var coop_message := ""
+## The last such message (kept for tests; coop_message is cleared once shown).
+var coop_last_abort := ""
 
 
 func _ready() -> void:
@@ -360,6 +362,7 @@ func coop_combat_resolved(combat: CombatState) -> void:
 ## The session broke mid-run (someone left or the connection dropped).
 func coop_abort(reason: String) -> void:
 	coop_message = reason
+	coop_last_abort = reason
 	coop_votes.clear()
 	coop_done.clear()
 	_coop_combat_inbox.clear()

@@ -184,7 +184,7 @@ func _spawn_view(c: Combatant, parent: Control) -> void:
 
 
 ## Co-op: the other heroes stand behind the local one (smaller, further back).
-const PARTNER_SPOTS := [[-0.115, 0.0, 0.85], [-0.055, -70.0, 0.72], [-0.17, -70.0, 0.72]]
+const PARTNER_SPOTS := [[-0.115, -95.0, 0.8], [-0.06, -160.0, 0.68], [-0.165, -160.0, 0.68]]
 
 
 func _spawn_partners() -> void:
@@ -215,7 +215,7 @@ func _spawn_partners() -> void:
 		label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 		label.add_theme_constant_override("outline_size", 6)
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		label.position = Vector2(0, -34)
+		label.position = Vector2(0, view.custom_minimum_size.y * (1.0 - spot[2]) - 6)
 		label.size = Vector2(view.custom_minimum_size.x, 30)
 		anchor.add_child(label)
 		_partner_labels[s.index] = label

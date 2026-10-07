@@ -64,10 +64,11 @@ Loaded in this order (later ones may depend on earlier ones):
 | `ContentDB` | `src/autoload/content_db.gd` | Scans `res://content/` at boot, indexes every resource by type + id, reports duplicate ids, answers pool queries ("all uncommon Pyre Warden cards"). Handles `.remap` in exported builds. |
 | `Settings` | `src/autoload/settings.gd` | Volumes per bus, screen-shake scale, fast mode, fullscreen, UI scale. `user://settings.cfg`. |
 | `MetaProgress` | `src/autoload/meta_progress.gd` | Permanent unlocks, per-class ascension and XP, lifetime stats, bestiary. `user://meta.json`. |
-| `RunState` | `src/autoload/run_state.gd` | Current run: class, HP, gold, deck, relics, potions, act/floor, map, RNG. `user://run.json`. |
+| `RunState` | `src/autoload/run_state.gd` | Current run: class, HP, gold, deck, relics, potions (one `RunSeat` per player), act/floor, map, RNG. `user://run.json` (solo only). |
 | `AudioManager` | `src/autoload/audio_manager.gd` | Crossfading music (2 players), ambience layer, pooled SFX with pitch variance. |
 | `SceneRouter` | `src/autoload/scene_router.gd` | All screen changes with fade transitions and input blocking. Emits `screen_changed`. |
 | `GameManager` | `src/autoload/game_manager.gd` | Flow decisions: new run, continue, start combat, end run → summary. The only place that picks the next screen. |
+| `Coop` | `src/autoload/coop.gd` | Friends-only co-op sessions: ENet host/join, lobby, version check, lockstep command relay (see §5c). |
 | `TooltipLayer` | `src/autoload/tooltip_layer.gd` | One global tooltip for mouse hover and keyboard/gamepad focus (`EventBus.tooltip_requested`). |
 | `DebugTools` | `src/autoload/debug_tools.gd` | Play-testing hotkeys (F1–F9). Disabled in release exports. |
 
@@ -154,6 +155,16 @@ boss won ──► end_run(victory) ──► RunSummary        death ──► 
 - `GameManager` is the only router. Screens report what happened (node picked, fight won, shop left).
 - `RunLogic` (`src/run/run_logic.gd`) holds the non-combat rules as pure functions over `RunState`: reward rolls, encounter/event picks, shop stock and prices, rest healing, event outcomes. `MapGenerator` builds the map as JSON-safe data. The headless `run_sim` uses the same functions, so simulated runs follow the real rules.
 - Screens under `src/ui/screens/` and `src/map/` are code-built Control trees assembled from shared components (`UIBuild`, `TopBar`, `CardView`, `PileViewer` in picker mode).
+
+## 5c. Co-op (test build 5)
+
+Friends-only online co-op uses **lockstep**: every client simulates the whole run, and only player inputs cross the network.
+
+- `CombatState` holds one `PlayerSeat` per hero. The solo-named fields (`player`, `hand`, `draw_pile`, `relics`, `summons`…) read the *active* seat; commands run with the acting hero's seat active (`use_seat`), and triggers switch to their owner's seat while they resolve. Enemy effects with `GameEffect.per_player() == true` (attacks and debuffs aimed at the player, added status cards, gold theft, summon destruction) run once per living hero. Hand/pile/energy signals are only emitted for `home_seat` (the local player); other heroes emit `EventBus.seat_updated` / `ally_card_played`.
+- `RunState` holds one `RunSeat` per player (hero, HP, gold, deck, relics, potions, personal RNG); its solo-named fields read the current seat. Shared draws (map, encounters, events, combat) use `RunState.shared_rng`, which is the seat's RNG in solo.
+- `Coop` (autoload) runs the ENet session: lobby, version check (`ContentDB.signature()`), and commands that the host numbers and relays to every client in one order.
+- `GameManager`'s co-op section routes commands: map votes, "done" snapshots after personal screens (rewards, shop, rest, events), and combat commands, which the combat screen applies (`_apply_coop`).
+- `tools/coop_test.sh` plays two copies over localhost and diffs their state at every vote.
 
 ## 6. Event bus
 

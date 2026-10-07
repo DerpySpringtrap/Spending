@@ -177,23 +177,19 @@ func _build_party_panel() -> void:
 	_party_box = VBoxContainer.new()
 	_party_box.add_theme_constant_override("separation", 6)
 	panel.add_child(_party_box)
-	_status = UIBuild.label("", &"HeadingLabel", 20)
+	_status = UIBuild.label("", &"", UIStyle.SIZE_BODY, UIStyle.GOLD)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.custom_minimum_size.x = 300
-	_status.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_status.anchor_left = 0.3
-	_status.anchor_right = 0.7
-	_status.offset_top = 76
-	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_status)
 
 
 func _refresh_coop() -> void:
 	if not is_inside_tree() or not RunState.active:
 		return
 	for child in _party_box.get_children():
-		child.queue_free()
+		if child != _status:
+			child.queue_free()
+	if _status.get_parent() == null:
+		_party_box.add_child(_status)
 	_party_box.add_child(UIBuild.label("Party", &"HeadingLabel", 22))
 	var waiting := GameManager.coop_waiting()
 	for s in RunState.seats:
@@ -208,7 +204,7 @@ func _refresh_coop() -> void:
 		var you := " (you)" if s.index == RunState.home_seat else ""
 		var text := "%s%s · %s\n%d/%d HP · %s" % [s.player_name, you, cls.display_name if cls else "?", s.hp, s.max_hp, state]
 		var label := UIBuild.label(text, &"", UIStyle.SIZE_BODY)
-		label.add_theme_color_override("font_color", cls.primary_color if cls else Color.WHITE)
+		label.add_theme_color_override("font_color", cls.secondary_color.lerp(Color.WHITE, 0.3) if cls else Color.WHITE)
 		_party_box.add_child(label)
 	if waiting:
 		_status.text = "Waiting for %s to finish…" % " and ".join(GameManager.coop_busy_players())
@@ -228,7 +224,7 @@ func _refresh_coop() -> void:
 		var s := RunState.seats[seat_index]
 		var cls := ContentDB.get_character_class(s.class_id)
 		var tag := UIBuild.label(s.player_name, &"", 16)
-		tag.add_theme_color_override("font_color", cls.primary_color if cls else Color.WHITE)
+		tag.add_theme_color_override("font_color", cls.secondary_color.lerp(Color.WHITE, 0.3) if cls else Color.WHITE)
 		tag.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 		tag.add_theme_constant_override("outline_size", 6)
 		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE

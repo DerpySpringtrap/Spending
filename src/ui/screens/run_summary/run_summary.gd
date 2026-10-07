@@ -17,6 +17,15 @@ func _ready() -> void:
 	var sub := UIBuild.label(subtitle, &"", UIStyle.SIZE_H2)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(sub)
+	var party: Array = s.get("party", [])
+	if not party.is_empty():
+		var names: PackedStringArray = []
+		for p in party:
+			var cls := ContentDB.get_character_class(StringName(p.class_id))
+			names.append("%s (%s, %d/%d HP)" % [p.name, cls.display_name if cls else "?", p.hp, p.max_hp])
+		var party_label := UIBuild.label("Party: " + ",  ".join(names), &"DimLabel", UIStyle.SIZE_BODY)
+		party_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		column.add_child(party_label)
 	var meta_panel := _meta_panel(s)
 	column.add_child(meta_panel)
 
@@ -73,8 +82,13 @@ func _ready() -> void:
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 20)
 	column.add_child(buttons)
-	var again := UIBuild.button("New Run", true, Vector2(240, 64))
-	again.pressed.connect(func(): GameManager.go_to_screen(&"class_select"))
+	var again := UIBuild.button("New Run" if party.is_empty() else "Co-op Lobby", true, Vector2(240, 64))
+	again.pressed.connect(func():
+		if party.is_empty():
+			GameManager.go_to_screen(&"class_select")
+		else:
+			Coop.leave()
+			GameManager.go_to_screen(&"coop_lobby"))
 	buttons.add_child(again)
 	var menu := UIBuild.button("Main Menu", false, Vector2(240, 64))
 	menu.pressed.connect(func(): GameManager.go_to_screen(&"main_menu"))
