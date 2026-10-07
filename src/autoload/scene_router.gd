@@ -12,6 +12,10 @@ const FADE_TIME := 0.35
 
 var is_transitioning := false
 var _overlay: ColorRect
+var _target := ""
+## A different screen requested mid-transition (co-op: the party moved on
+## while this client was still fading). Visited as soon as the fade ends.
+var _queued: Array = []
 
 
 func _ready() -> void:
@@ -27,8 +31,11 @@ func _ready() -> void:
 
 func go_to(scene_path: String, screen_id: StringName = &"") -> void:
 	if is_transitioning:
+		if scene_path != _target:
+			_queued = [scene_path, screen_id]
 		return
 	is_transitioning = true
+	_target = scene_path
 	_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	await _fade_to(1.0)
 	var err := get_tree().change_scene_to_file(scene_path)
@@ -40,7 +47,12 @@ func go_to(scene_path: String, screen_id: StringName = &"") -> void:
 	await _fade_to(0.0)
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	is_transitioning = false
+	_target = ""
 	transition_finished.emit()
+	if not _queued.is_empty():
+		var next: Array = _queued
+		_queued = []
+		go_to(next[0], next[1])
 
 
 func _fade_to(alpha: float) -> void:

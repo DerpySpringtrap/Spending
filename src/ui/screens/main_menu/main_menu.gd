@@ -10,6 +10,8 @@ var _buttons: VBoxContainer
 
 
 func _ready() -> void:
+	if Coop.state != Coop.State.LOBBY:
+		Coop.leave()
 	UIBuild.backdrop(self, 0.15)
 	_build_hero()
 	_build_embers()
@@ -45,6 +47,9 @@ func _ready() -> void:
 	var new_run := UIBuild.button("New Run", not RunState.has_saved_run(), Vector2(460, 68))
 	new_run.pressed.connect(func(): GameManager.go_to_screen(&"class_select"))
 	entries.append(new_run)
+	var coop := UIBuild.button("Co-op  ·  play with friends", false, Vector2(460, 60))
+	coop.pressed.connect(func(): GameManager.go_to_screen(&"coop_lobby"))
+	entries.append(coop)
 	var options := UIBuild.button("Options", false, Vector2(460, 60))
 	options.pressed.connect(_toggle_options)
 	entries.append(options)
@@ -60,6 +65,12 @@ func _ready() -> void:
 		_buttons.add_child(warn)
 	UIBuild.stagger_in([title, subtitle] + entries)
 	(entries[0] as Button).grab_focus.call_deferred()
+
+	if GameManager.coop_message != "":
+		var notice := UIBuild.label(GameManager.coop_message, &"", UIStyle.SIZE_BODY, UIStyle.DAMAGE)
+		notice.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_buttons.add_child(notice)
+		GameManager.coop_message = ""
 
 	_build_options()
 	var version := UIBuild.label("Play-test build 4 · Acts 1–4 · four classes", &"DimLabel")

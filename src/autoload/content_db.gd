@@ -166,7 +166,9 @@ func get_relics_by_rarity(rarity: RelicData.Rarity, class_id: StringName = &"") 
 func signature() -> String:
 	var parts: PackedStringArray = []
 	for table in [cards, statuses, relics, potions, enemies, encounters, classes, events]:
-		var ids: Array = table.keys()
+		var ids: PackedStringArray = []
+		for id in table.keys():
+			ids.append(String(id))  # StringNames don't sort by text.
 		ids.sort()
-		parts.append(str(hash(str(ids))))
+		parts.append(str(hash(",".join(ids))))
 	return "-".join(parts)

@@ -47,11 +47,18 @@ func _ready() -> void:
 		var b := UIBuild.button(c.text, false, Vector2(760, 62))
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		var reason := RunLogic.choice_available(c)
+		if reason == "" and RunState.coop and c.outcomes.any(func(o): return o.type == EventOutcome.Type.FIGHT):
+			reason = "fights from events are solo-only for now"
 		if reason != "":
 			b.disabled = true
 			b.text += "   (%s)" % reason
 		b.pressed.connect(_choose.bind(c))
 		_choices.add_child(b)
+	if _choices.get_children().all(func(b): return b.disabled):
+		var leave := UIBuild.button("Leave", false, Vector2(760, 62))
+		leave.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		leave.pressed.connect(_choose.bind(EventChoice.new()))
+		_choices.add_child(leave)
 	_picker = PileViewer.new()
 	add_child(_picker)
 	UIBuild.stagger_in([title, _text, _choices])

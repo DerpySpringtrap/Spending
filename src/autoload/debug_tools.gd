@@ -36,6 +36,9 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
+	if RunState.coop and event.keycode in [KEY_F2, KEY_F3, KEY_F4, KEY_F6, KEY_F7, KEY_F9]:
+		_say("Not available in co-op (it would put the players out of sync)")
+		return
 	match event.keycode:
 		KEY_F1:
 			_help.visible = not _help.visible

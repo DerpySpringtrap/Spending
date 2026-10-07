@@ -10,6 +10,11 @@ extends Control
 ## Controls: drag cards (mouse), or ←/→ + Accept, then ←/→ to pick a target
 ## (keyboard/gamepad). E / Y ends the turn, Q / LB and W / RB show the draw
 ## and discard piles, 1-9 play a card by position, A auto-plays (debug).
+##
+## Co-op: the local player's actions are sent as commands (Coop.send) and only
+## applied when they come back in the shared order (_apply_coop), together
+## with the other players' commands. Partner heroes stand behind the local
+## hero with a label showing their energy, hand and whether they're ready.
 
 enum Mode { LOCKED, HAND, TARGETING }
 
@@ -51,6 +56,10 @@ var _targeting_card: CardInstance
 var _enemy_banner_shown := false
 var _ai := GreedyPlayerAI.new()
 var _connections: Array = []
+## Co-op: a command of ours is on its way; wait for it before acting again.
+var _awaiting := false
+var _coop_resolved := false
+var _partner_labels: Dictionary = {}    # seat index -> Label
 
 
 func _ready() -> void:
@@ -83,9 +92,13 @@ func _ready() -> void:
 			_pile_viewer.open("Your Deck", RunState.deck, Callable(), true))
 	_connect_bus()
 	_start_fight()
+	if combat.is_coop():
+		GameManager.set_coop_combat_handler(_apply_coop)
 
 
 func _exit_tree() -> void:
+	if combat and combat.is_coop():
+		GameManager.set_coop_combat_handler(Callable())
 	for pair in _connections:
 		if (pair[0] as Signal).is_connected(pair[1]):
 			(pair[0] as Signal).disconnect(pair[1])
@@ -105,9 +118,18 @@ func _start_fight() -> void:
 	if enc == null:
 		enc = _random_encounter()
 	_encounter = enc
-	combat = CombatState.create(RunState.get_class_data(), RunState.deck, RunState.hp, RunState.max_hp,
-			RunState.relics, enc, RunState.ascension, RunState.shared_rng)
-	combat.player_gold = RunState.gold
+	if RunState.coop:
+		var heroes: Array = []
+		for s in RunState.seats:
+			heroes.append({"class_data": ContentDB.get_character_class(s.class_id), "deck": s.deck, "hp": s.hp,
+				"max_hp": s.max_hp, "relics": s.relics, "gold": s.gold})
+		combat = CombatState.create_party(heroes, enc, RunState.ascension, RunState.shared_rng)
+		combat.home_seat = RunState.home_seat
+		combat.use_seat(RunState.home_seat)
+	else:
+		combat = CombatState.create(RunState.get_class_data(), RunState.deck, RunState.hp, RunState.max_hp,
+				RunState.relics, enc, RunState.ascension, RunState.shared_rng)
+		combat.player_gold = RunState.gold
 	combat.interactive = true
 	_top_bar.refresh()
 	_top_bar.set_location("Act %d · %s" % [RunState.act, String(EncounterData.Pool.keys()[enc.pool]).capitalize()])
@@ -116,6 +138,8 @@ func _start_fight() -> void:
 	_counts.draw = combat.draw_pile.size()
 	_update_piles()
 	_spawn_view(combat.player, _player_anchor)
+	if combat.is_coop():
+		_spawn_partners()
 	for enemy in combat.enemies:
 		_spawn_view(enemy, _enemy_row)
 	_start_music(enc)
@@ -157,6 +181,69 @@ func _spawn_view(c: Combatant, parent: Control) -> void:
 		var t := view.create_tween()
 		t.tween_interval(UIStyle.dur(0.1 * _views.size()))
 		t.tween_property(view, "modulate:a", 1.0, UIStyle.dur(0.35))
+
+
+## Co-op: the other heroes stand behind the local one (smaller, further back).
+const PARTNER_SPOTS := [[-0.115, 0.0, 0.85], [-0.055, -70.0, 0.72], [-0.17, -70.0, 0.72]]
+
+
+func _spawn_partners() -> void:
+	var k := 0
+	for s in combat.seats:
+		if s.index == combat.home_seat or k >= PARTNER_SPOTS.size():
+			continue
+		var spot: Array = PARTNER_SPOTS[k]
+		var anchor := Control.new()
+		anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		anchor.anchor_left = _player_anchor.anchor_left + spot[0]
+		anchor.anchor_right = _player_anchor.anchor_right + spot[0]
+		anchor.anchor_top = _player_anchor.anchor_top
+		anchor.anchor_bottom = _player_anchor.anchor_bottom
+		anchor.offset_left = _player_anchor.offset_left
+		anchor.offset_right = _player_anchor.offset_right
+		anchor.offset_top = _player_anchor.offset_top + spot[1]
+		anchor.offset_bottom = _player_anchor.offset_bottom + spot[1]
+		_world.add_child(anchor)
+		_world.move_child(anchor, _player_anchor.get_index())
+		_spawn_view(s.player, anchor)
+		var view := _view(s.player)
+		view.pivot_offset = Vector2(view.custom_minimum_size.x / 2, view.custom_minimum_size.y)
+		view.scale = Vector2.ONE * spot[2]
+		var label := Label.new()
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.add_theme_font_size_override("font_size", 20)
+		label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+		label.add_theme_constant_override("outline_size", 6)
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.position = Vector2(0, -34)
+		label.size = Vector2(view.custom_minimum_size.x, 30)
+		anchor.add_child(label)
+		_partner_labels[s.index] = label
+		_refresh_partner(s.index)
+		k += 1
+
+
+## A partner's name, energy, hand size and ready state above their hero.
+func _refresh_partner(seat_index: int) -> void:
+	var label: Label = _partner_labels.get(seat_index)
+	if label == null:
+		return
+	var s := combat.seats[seat_index]
+	var name := RunState.seats[seat_index].player_name
+	if s.player.is_dead:
+		label.text = "%s · fallen" % name
+		label.modulate = Color(1, 1, 1, 0.6)
+		return
+	var parts := [name, "%d energy" % s.player.energy, "%d cards" % s.hand.size()]
+	var res := s.player.get_resource_data()
+	if res:
+		parts.append("%s %d" % [res.display_name, s.player.resource_value])
+	if not s.pending_choice.is_empty():
+		parts.append("choosing…")
+	elif s.ended_turn and combat.phase == CombatState.Phase.PLAYER_TURN:
+		parts.append("READY")
+	label.text = " · ".join(parts)
+	label.add_theme_color_override("font_color", UIStyle.GOLD if s.ended_turn else Color.WHITE)
 
 
 ## Tightens the spacing when a crowded row would spill off the screen.
@@ -266,6 +353,9 @@ func _connect_bus() -> void:
 	_listen(EventBus.gold_stolen, _on_gold_stolen)
 	_listen(EventBus.card_choice_requested, _on_card_choice_requested)
 	_listen(EventBus.combatant_escaped, _on_combatant_escaped)
+	_listen(EventBus.seat_updated, _on_seat_updated)
+	_listen(EventBus.seat_ready_changed, _on_seat_ready_changed)
+	_listen(EventBus.ally_card_played, _on_ally_card_played)
 
 
 func _on_combatant_spawned(c: Combatant) -> void:
@@ -290,6 +380,8 @@ func _view(c: Combatant) -> CombatantView:
 
 
 func _on_turn_started(c: Combatant, is_player: bool) -> void:
+	if is_player and c != combat.seats[combat.home_seat].player:
+		return  # Co-op: one banner per round, for the local hero.
 	if is_player:
 		_enemy_banner_shown = false
 		queue.push(&"banner", 0, 0.75, func():
@@ -331,6 +423,13 @@ func _on_card_choice_requested(prompt: String, options: Array, min_count: int, m
 		_set_mode(Mode.LOCKED)
 		_hand.end_keyboard_targeting(false)
 		_pile_viewer.open_multi_picker(prompt, options, min_count, max_count, func(chosen: Array):
+			if combat.is_coop():
+				var picks: Array = []
+				for card in chosen:
+					picks.append(options.find(card))
+				_awaiting = true
+				Coop.send({"t": "choice", "picks": picks})
+				return
 			combat.resolve_choice(chosen)
 			if not queue.is_busy():
 				_on_queue_idle()))
@@ -338,12 +437,20 @@ func _on_card_choice_requested(prompt: String, options: Array, min_count: int, m
 
 ## Autoplay / tests: answer a pending choice with the default policy.
 func _auto_resolve_choice() -> void:
-	if combat == null or combat.pending_choice.is_empty():
+	if combat == null or combat.pending_choice.is_empty() or _awaiting:
 		return
 	var c := combat.pending_choice
 	var effect: ChooseCardsEffect = c.effect
 	_pile_viewer.close()
-	combat.resolve_choice(CombatState.default_choice(c.options, c.min, c.max, effect.mode))
+	var chosen := CombatState.default_choice(c.options, c.min, c.max, effect.mode)
+	if combat.is_coop():
+		var picks: Array = []
+		for card in chosen:
+			picks.append(c.options.find(card))
+		_awaiting = true
+		Coop.send({"t": "choice", "picks": picks})
+		return
+	combat.resolve_choice(chosen)
 
 
 ## Gold changes hands right away (so a save mid-fight can't dupe it); the
@@ -635,7 +742,8 @@ func _on_combat_ended(victory: bool) -> void:
 		_hand.create_tween().tween_property(_hand, "modulate:a", 0.0, UIStyle.dur(0.3))
 		if victory:
 			AudioManager.play(&"victory", 0.0, -6.0)
-			_view(combat.player).play_victory()
+			for hero in combat.living_heroes():
+				_view(hero).play_victory()
 			var view_size := get_viewport_rect().size
 			for k in 5:
 				_fx.burst(Vector2(view_size.x * (0.15 + k * 0.175), -20), Color.from_hsv(randf(), 0.6, 1.0), 30, 300, 500, 60.0, 1.0, Vector2.DOWN))
@@ -697,7 +805,8 @@ func _update_piles() -> void:
 
 func _can_act() -> bool:
 	return combat != null and combat.phase == CombatState.Phase.PLAYER_TURN and not queue.is_busy() \
-			and not _pile_viewer.visible and not _result.visible and _potion_slot < 0 and combat.pending_choice.is_empty()
+			and not _pile_viewer.visible and not _result.visible and _potion_slot < 0 and combat.pending_choice.is_empty() \
+			and not _awaiting and not combat.seat.ended_turn and not combat.player.is_dead
 
 
 func _on_queue_idle() -> void:
@@ -714,7 +823,8 @@ func _on_queue_idle() -> void:
 
 func _set_mode(mode: Mode) -> void:
 	_mode = mode
-	_end_turn.disabled = combat == null or combat.phase != CombatState.Phase.PLAYER_TURN
+	_end_turn.disabled = combat == null or combat.phase != CombatState.Phase.PLAYER_TURN or combat.seat.ended_turn \
+			or combat.player.is_dead
 	if mode != Mode.TARGETING:
 		_targeting_card = null
 
@@ -773,6 +883,11 @@ func _on_play_requested(card: CardInstance, target: Combatant) -> void:
 		return
 	_set_mode(Mode.LOCKED)
 	EventBus.tooltip_cleared.emit(null)
+	if combat.is_coop():
+		_awaiting = true
+		Coop.send({"t": "play", "card": combat.hand.find(card), "id": String(card.data.id),
+			"target": combat.enemies.find(target) if target != null else -1})
+		return
 	combat.play_card(card, target)
 
 
@@ -783,10 +898,17 @@ func _end_player_turn() -> void:
 		_hand.end_keyboard_targeting(false)
 	_set_mode(Mode.LOCKED)
 	_clear_highlights()
+	if combat.is_coop():
+		_awaiting = true
+		Coop.send({"t": "end_turn"})
+		return
 	combat.end_player_turn()
 
 
 func _autoplay() -> void:
+	if combat.is_coop():
+		_autoplay_step_coop()
+		return
 	if not combat.pending_choice.is_empty():
 		_auto_resolve_choice()
 		return
@@ -929,7 +1051,8 @@ func _show_result(victory: bool) -> void:
 		_banner.show_banner("Victory", UIStyle.GOLD, 0.6)
 		get_tree().create_timer(UIStyle.dur(1.2)).timeout.connect(func(): _finish(true))
 	else:
-		_result.show_result("Defeat", UIStyle.DAMAGE, "You fell in round %d against %s." % [combat.round_number, _encounter_name()], [
+		var who := "Your party" if combat.is_coop() else "You"
+		_result.show_result("Defeat", UIStyle.DAMAGE, "%s fell in round %d against %s." % [who, combat.round_number, _encounter_name()], [
 			["Continue", func(): _finish(false)],
 		])
 
@@ -983,6 +1106,16 @@ func _use_potion(slot: int, target: Combatant) -> void:
 	_clear_highlights()
 	if potion == null or combat.can_use_potion(potion, target) != "":
 		return
+	if combat.is_coop():
+		_set_mode(Mode.LOCKED)
+		_awaiting = true
+		Coop.send({"t": "potion", "slot": slot, "target": combat.enemies.find(target) if target != null else -1})
+		return
+	_drink(potion, slot, target)
+
+
+## Removes the potion from the local belt and plays it (solo, or our own co-op command).
+func _drink(potion: PotionData, slot: int, target: Combatant) -> void:
 	RunState.remove_potion(slot)
 	EventBus.potion_used.emit(potion, slot)
 	_top_bar.refresh()
@@ -1026,3 +1159,115 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT):
 		_cancel_potion()
 		get_viewport().set_input_as_handled()
+
+
+# =============================================================================
+# Co-op
+# =============================================================================
+
+## Applies one combat command (ours or a partner's), in the shared order.
+func _apply_coop(cmd: Dictionary) -> void:
+	if combat == null or combat.is_over():
+		return
+	var seat := int(cmd.get("seat", 0))
+	var home := seat == combat.home_seat
+	if home:
+		_awaiting = false
+	combat.use_seat(seat)
+	match String(cmd.get("t", "")):
+		"play":
+			var index := int(cmd.get("card", -1))
+			var card: CardInstance = combat.hand[index] if index >= 0 and index < combat.hand.size() else null
+			if card != null and String(card.data.id) != String(cmd.get("id", "")):
+				push_warning("Co-op: card mismatch for seat %d (%s vs %s)" % [seat, card.data.id, cmd.get("id", "")])
+				card = null
+			var target := _enemy_by_index(int(cmd.get("target", -1)))
+			var played := card != null and combat.play_card(card, target)
+			if not played and home and card != null:
+				var reason := combat.can_play(card, target)
+				_hand.return_card(card)
+				_show_message(reason if reason != "" else "Couldn't play that")
+		"end_turn":
+			combat.end_player_turn()
+		"potion":
+			_apply_coop_potion(seat, int(cmd.get("slot", -1)), _enemy_by_index(int(cmd.get("target", -1))))
+		"choice":
+			if not combat.pending_choice.is_empty():
+				var options: Array = combat.pending_choice.options
+				var chosen: Array = []
+				for i in cmd.get("picks", []):
+					if int(i) >= 0 and int(i) < options.size():
+						chosen.append(options[int(i)])
+				if not combat.resolve_choice(chosen) and home:
+					_show_message("Couldn't use that choice")
+	combat.use_seat(combat.home_seat)
+	if combat.is_over() and not _coop_resolved:
+		_coop_resolved = true
+		GameManager.coop_combat_resolved(combat)
+	if not queue.is_busy():
+		_on_queue_idle()
+
+
+## Co-op autoplay (debug key A, tests): one AI action, sent like a real one.
+func _autoplay_step_coop() -> void:
+	if not combat.pending_choice.is_empty():
+		_auto_resolve_choice()
+		return
+	if not _can_act() or _hand.is_dragging():
+		return
+	var best := _ai.best_play(combat)
+	if best.is_empty():
+		_end_player_turn()
+	else:
+		_on_play_requested(best[0], best[1])
+
+
+func _enemy_by_index(index: int) -> Combatant:
+	return combat.enemies[index] if index >= 0 and index < combat.enemies.size() else null
+
+
+func _apply_coop_potion(seat: int, slot: int, target: Combatant) -> void:
+	var belt: Array = RunState.seats[seat].potions
+	if slot < 0 or slot >= belt.size() or belt[slot] == null:
+		return
+	var potion: PotionData = belt[slot]
+	if combat.can_use_potion(potion, target) != "":
+		return
+	if seat == combat.home_seat:
+		_drink(potion, slot, target)
+		return
+	belt[slot] = null
+	var hero := combat.seats[seat].player
+	queue.push(&"potion", hero.id, 0.3, func():
+		AudioManager.play(&"potion")
+		_view(hero).play_cast()
+		_fx.burst(_view(hero).hit_point(), potion.liquid_color, 20, 220, -200))
+	combat.use_potion(potion, target)
+
+
+func _on_seat_updated(seat_index: int) -> void:
+	queue.push(PresentationQueue.INSTANT, 0, 0.0, func(): _refresh_partner(seat_index))
+
+
+func _on_seat_ready_changed(seat_index: int, ready: bool) -> void:
+	queue.push(PresentationQueue.INSTANT, 0, 0.0, func():
+		if seat_index == combat.home_seat:
+			_end_turn.text = "Waiting…" if ready and combat.is_coop() and combat.phase == CombatState.Phase.PLAYER_TURN else "End Turn"
+		else:
+			_refresh_partner(seat_index))
+
+
+## A partner played a card: their hero acts and the card's name pops up.
+func _on_ally_card_played(seat_index: int, card: CardInstance, _targets: Array) -> void:
+	var hero := combat.seats[seat_index].player
+	queue.push(&"ally_play", hero.id, 0.3, func():
+		var view := _view(hero)
+		if view == null:
+			return
+		AudioManager.play(&"card_play")
+		if card.data.type == CardData.CardType.ATTACK:
+			view.play_attack()
+		else:
+			view.play_cast()
+		_fx.number(view.head_point() + Vector2(0, -30), card.data.display_name, UIStyle.GOLD)
+		_refresh_partner(seat_index))

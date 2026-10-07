@@ -25,6 +25,7 @@ RunState="*res://src/autoload/run_state.gd"
 AudioManager="*res://src/autoload/audio_manager.gd"
 SceneRouter="*res://src/autoload/scene_router.gd"
 GameManager="*res://src/autoload/game_manager.gd"
+Coop="*res://src/autoload/coop.gd"
 TooltipLayer="*res://src/autoload/tooltip_layer.gd"
 DebugTools="*res://src/autoload/debug_tools.gd"
 

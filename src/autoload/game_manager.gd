@@ -27,7 +27,11 @@ const SCREENS := {
 	&"rest": "res://src/ui/screens/rest/rest_screen.tscn",
 	&"event": "res://src/ui/screens/event/event_screen.tscn",
 	&"run_summary": "res://src/ui/screens/run_summary/run_summary.tscn",
+	&"coop_lobby": "res://src/ui/screens/coop_lobby/coop_lobby.tscn",
 }
+
+## Co-op: a fallen hero gets back up after a won fight with this share of max HP.
+const COOP_REVIVE_HP := 0.1
 
 ## Set before switching to the combat screen; read by it on _ready.
 var pending_encounter: EncounterData
@@ -39,6 +43,22 @@ var reward_title := "Rewards"
 var pending_event: EventData
 ## Snapshot taken in end_run() for the run-summary screen.
 var last_run_summary: Dictionary = {}
+
+# --- Co-op state (see the Co-op section) ---
+## seat -> map node id the player voted for.
+var coop_votes: Dictionary = {}
+## seat -> true once the player finished the current node (rewards, shop...).
+var coop_done: Dictionary = {}
+## The combat screen applies combat commands; until it's ready they wait here.
+var coop_combat_handler: Callable
+var _coop_combat_inbox: Array = []
+## Shown on the main menu after a co-op run ends abruptly.
+var coop_message := ""
+
+
+func _ready() -> void:
+	Coop.run_starting.connect(start_coop_run)
+	Coop.command_received.connect(_on_coop_command)
 
 
 func go_to_screen(screen_id: StringName) -> void:
@@ -87,6 +107,11 @@ func end_run(victory: bool) -> void:
 	var beat_act2_boss := victory or RunState.act > 2
 	var meta := MetaProgress.record_run(RunState.class_id, victory, floors, RunState.ascension, xp, reached_act2_boss, beat_act2_boss,
 			victory and RunState.act >= FINAL_ACT)
+	var party: Array = []
+	if RunState.coop:
+		for s in RunState.seats:
+			party.append({"name": s.player_name, "class_id": s.class_id, "hp": s.hp, "max_hp": s.max_hp})
+		Coop.finish()
 	MetaProgress.stats["enemies_killed"] += int(RunState.run_stats.get("enemies_killed", 0))
 	MetaProgress.save_meta()
 	last_run_summary = {
@@ -95,7 +120,7 @@ func end_run(victory: bool) -> void:
 		"hp": RunState.hp, "max_hp": RunState.max_hp,
 		"deck": RunState.deck.duplicate(), "relics": RunState.relics.duplicate(),
 		"stats": RunState.run_stats.duplicate(), "seed": RunState.shared_rng.seed_value,
-		"meta": meta,
+		"meta": meta, "party": party,
 	}
 	EventBus.run_ended.emit(victory)
 	RunState.clear()
@@ -103,7 +128,10 @@ func end_run(victory: bool) -> void:
 
 
 func abandon_run() -> void:
+	var was_coop := RunState.coop
 	end_run(false)
+	if was_coop:
+		Coop.leave()  # The others get a "left the game" notice.
 
 
 # --- Map flow -------------------------------------------------------------------
@@ -150,11 +178,13 @@ func start_debug_combat(class_id: StringName = &"pyre_warden") -> void:
 
 
 func on_combat_won(final_hp: int) -> void:
-	RunState.set_hp(final_hp)
 	var node := RunState.current_map_node()
 	var node_type: String = node.get("type", MapGenerator.TYPE_MONSTER)
-	if node_type == MapGenerator.TYPE_MONSTER or node_type == MapGenerator.TYPE_EVENT:
-		RunState.monster_fights += 1
+	if not RunState.coop:
+		# Co-op results were already applied for every player (coop_combat_resolved).
+		RunState.set_hp(final_hp)
+		if node_type == MapGenerator.TYPE_MONSTER or node_type == MapGenerator.TYPE_EVENT:
+			RunState.monster_fights += 1
 	if node_type == MapGenerator.TYPE_BOSS:
 		MetaProgress.stats["bosses_killed"] += 1
 		if RunState.act >= RunState.final_act:
@@ -173,6 +203,15 @@ func on_combat_lost() -> void:
 	end_run(false)
 
 
+## The party left the node behind (rewards taken, shop left...). Co-op: tell
+## the others and wait on the map until everyone is done.
+func _finish_node_coop() -> void:
+	pending_rewards = []
+	pending_event = null
+	go_to_screen(&"map")
+	Coop.send({"t": "done", "snap": RunState.home().to_dict()})
+
+
 func show_rewards(rewards: Array[Dictionary], title: String) -> void:
 	pending_rewards = rewards
 	reward_title = title
@@ -182,9 +221,149 @@ func show_rewards(rewards: Array[Dictionary], title: String) -> void:
 ## A node is finished: save and return to the map (the next act's map after
 ## a boss).
 func complete_node() -> void:
+	if RunState.coop:
+		_finish_node_coop()
+		return
 	pending_rewards = []
 	pending_event = null
 	if String(RunState.current_map_node().get("type", "")) == MapGenerator.TYPE_BOSS and RunState.act < RunState.final_act:
 		RunLogic.advance_act()
 	RunState.save_run()
 	go_to_screen(&"map")
+
+
+# =============================================================================
+# Co-op
+# =============================================================================
+# Every client runs the same run. Shared steps (choosing the next map node,
+# combat) happen through commands that every client applies in the same
+# order; personal steps (rewards, shop, rest, events) run locally and end with
+# a "done" command carrying the player's whole seat. The map waits until
+# everyone is done, then the players vote on the next node.
+
+## Coop.run_starting: build the run every client shares.
+func start_coop_run(payload: Dictionary, my_seat: int) -> void:
+	coop_votes.clear()
+	coop_done.clear()
+	_coop_combat_inbox.clear()
+	coop_message = ""
+	RunState.start_coop(payload.players, int(payload.ascension), int(payload.seed), int(payload.final_act), my_seat)
+	RunState.map_data = MapGenerator.generate(RunState.shared_rng.get_stream(&"map"), 1, RunState.ascension)
+	MetaProgress.stats["runs_started"] += 1
+	MetaProgress.save_meta()
+	EventBus.run_started.emit(RunState.class_id, RunState.ascension, int(payload.seed))
+	EventBus.act_started.emit(1)
+	go_to_screen(&"map")
+
+
+## True while the local player has finished the node but others haven't.
+func coop_waiting() -> bool:
+	return RunState.coop and not coop_done.is_empty() and coop_done.size() < RunState.seats.size()
+
+
+## Names of the players still busy with the current node.
+func coop_busy_players() -> PackedStringArray:
+	var out: PackedStringArray = []
+	for s in RunState.seats:
+		if not coop_done.has(s.index):
+			out.append(s.player_name)
+	return out
+
+
+## Map screen: the local player picks the next node.
+func coop_vote(node_id: String) -> void:
+	if coop_waiting() or not MapGenerator.reachable(RunState.map_data, RunState.current_node).has(node_id):
+		return
+	Coop.send({"t": "vote", "node": node_id})
+
+
+func _on_coop_command(cmd: Dictionary) -> void:
+	if not RunState.active or not RunState.coop:
+		return
+	var seat := int(cmd.get("seat", 0))
+	match String(cmd.get("t", "")):
+		"vote":
+			coop_votes[seat] = String(cmd.node)
+			EventBus.coop_state_changed.emit()
+			if coop_votes.size() >= RunState.seats.size():
+				_coop_resolve_votes()
+		"done":
+			if seat != RunState.home_seat:
+				RunState.seats[seat].from_dict(cmd.snap)
+			coop_done[seat] = true
+			EventBus.coop_state_changed.emit()
+			if coop_done.size() >= RunState.seats.size():
+				_coop_all_done()
+		_:
+			# Combat commands go to the combat screen, in order.
+			_coop_combat_inbox.append(cmd)
+			_coop_pump_combat()
+
+
+## The combat screen registers (or clears) its handler; queued commands flow.
+func set_coop_combat_handler(handler: Callable) -> void:
+	coop_combat_handler = handler
+	_coop_pump_combat()
+
+
+func _coop_pump_combat() -> void:
+	while not _coop_combat_inbox.is_empty() and coop_combat_handler.is_valid():
+		coop_combat_handler.call(_coop_combat_inbox.pop_front())
+
+
+## Everyone voted: the shared node is the agreed one, or a seeded pick among
+## the votes when they differ.
+func _coop_resolve_votes() -> void:
+	var votes: Array = []
+	for s in RunState.seats:
+		votes.append(coop_votes.get(s.index, ""))
+	coop_votes.clear()
+	var node_id: String = votes[0]
+	var unique := {}
+	for v in votes:
+		unique[v] = true
+	if unique.size() > 1:
+		node_id = RunState.shared_rng.pick(votes, &"misc")
+	EventBus.coop_state_changed.emit()
+	select_map_node(node_id)
+
+
+## Everyone finished the node: on to the next act after a boss, then the map.
+func _coop_all_done() -> void:
+	coop_done.clear()
+	if String(RunState.current_map_node().get("type", "")) == MapGenerator.TYPE_BOSS and RunState.act < RunState.final_act:
+		RunLogic.advance_act()
+		go_to_screen(&"map")  # Redraw for the new act.
+	EventBus.coop_state_changed.emit()
+
+
+## Called by the combat screen the moment a co-op fight ends (in command
+## order, on every client): write each hero's result back to their seat.
+func coop_combat_resolved(combat: CombatState) -> void:
+	_coop_combat_inbox.clear()
+	if combat.result != CombatState.Result.VICTORY:
+		return
+	for i in combat.seats.size():
+		var hero := combat.seats[i].player
+		var gold := combat.seats[i].player_gold
+		RunState.with_seat(i, func():
+			var hp := hero.hp
+			if hero.is_dead:
+				hp = maxi(1, ceili(RunState.max_hp * COOP_REVIVE_HP))
+			RunState.set_hp(hp)
+			RunState.add_gold(gold - RunState.gold))
+	var node_type: String = RunState.current_map_node().get("type", MapGenerator.TYPE_MONSTER)
+	if node_type == MapGenerator.TYPE_MONSTER or node_type == MapGenerator.TYPE_EVENT:
+		RunState.monster_fights += 1
+
+
+## The session broke mid-run (someone left or the connection dropped).
+func coop_abort(reason: String) -> void:
+	coop_message = reason
+	coop_votes.clear()
+	coop_done.clear()
+	_coop_combat_inbox.clear()
+	coop_combat_handler = Callable()
+	if RunState.active:
+		RunState.clear()
+	go_to_screen(&"main_menu")

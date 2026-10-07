@@ -21,26 +21,33 @@ func play_turn(combat: CombatState) -> void:
 func _play(combat: CombatState) -> void:
 	var plays := 0
 	while combat.phase == CombatState.Phase.PLAYER_TURN and plays < MAX_PLAYS_PER_TURN:
-		var best: CardInstance = null
-		var best_target: Combatant = null
-		var best_score := 0.0
-		for card in combat.hand:
-			if not combat.is_affordable(card):
-				continue
-			var target := pick_target(combat, card)
-			if combat.can_play(card, target) != "":
-				continue
-			var value := score(combat, card, target)
-			if value > best_score:
-				best_score = value
-				best = card
-				best_target = target
-		if best == null:
+		var best := best_play(combat)
+		if best.is_empty():
 			break
-		combat.play_card(best, best_target)
+		combat.play_card(best[0], best[1])
 		plays += 1
 	if combat.phase == CombatState.Phase.PLAYER_TURN:
 		combat.end_player_turn()
+
+
+## The card worth playing next and its target, as [card, target], or [] when
+## nothing is worth playing (end the turn). Co-op autoplay sends this as a command.
+func best_play(combat: CombatState) -> Array:
+	var best: CardInstance = null
+	var best_target: Combatant = null
+	var best_score := 0.0
+	for card in combat.hand:
+		if not combat.is_affordable(card):
+			continue
+		var target := pick_target(combat, card)
+		if combat.can_play(card, target) != "":
+			continue
+		var value := score(combat, card, target)
+		if value > best_score:
+			best_score = value
+			best = card
+			best_target = target
+	return [best, best_target] if best != null else []
 
 
 ## Single-target cards go to the enemy we can kill, else the weakest one.

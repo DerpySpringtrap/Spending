@@ -1,6 +1,10 @@
 extends Control
 ## The act map: pick the next room. Scrolls to your position; keyboard and
 ## gamepad cycle through the reachable rooms.
+##
+## Co-op: clicking a room casts your vote (you can change it until everyone
+## has voted); a party panel shows each player's HP and whether they're still
+## busy with the last room. The room is chosen once all votes are in.
 
 const ACT_NAMES := {1: "The Drowned Thicket", 2: "The Gilded Catacombs", 3: "The Shattered Observatory", 4: "The Umbral Core"}
 
@@ -10,6 +14,9 @@ var _top_bar: TopBar
 var _pile_viewer: PileViewer
 var _focus_index := 0
 var _leaving := false
+var _party_box: VBoxContainer
+var _status: Label
+var _vote_tags: Array = []
 
 
 func _ready() -> void:
@@ -35,6 +42,10 @@ func _ready() -> void:
 	_pile_viewer = PileViewer.new()
 	add_child(_pile_viewer)
 
+	if RunState.coop:
+		_build_party_panel()
+		EventBus.coop_state_changed.connect(_refresh_coop)
+		_refresh_coop()
 	_scroll_to_current.call_deferred()
 	if RunState.current_node == "":
 		_show_act_title()
@@ -95,6 +106,13 @@ func _build_legend() -> void:
 func _on_node_chosen(node_id: String) -> void:
 	if _leaving or _pile_viewer.visible:
 		return
+	if RunState.coop:
+		if GameManager.coop_waiting():
+			_flash_tip(_view.buttons[node_id], "Waiting for %s." % " and ".join(GameManager.coop_busy_players()))
+			return
+		AudioManager.play_ui_id(&"map_select")
+		GameManager.coop_vote(node_id)
+		return
 	_leaving = true
 	AudioManager.play_ui_id(&"map_select")
 	var b: MapNodeButton = _view.buttons[node_id]
@@ -146,3 +164,75 @@ func _unhandled_input(event: InputEvent) -> void:
 	else:
 		return
 	get_viewport().set_input_as_handled()
+
+
+# --- Co-op ------------------------------------------------------------------------
+
+func _build_party_panel() -> void:
+	var panel := PanelContainer.new()
+	panel.offset_left = 30
+	panel.offset_top = 100
+	panel.offset_right = 360
+	add_child(panel)
+	_party_box = VBoxContainer.new()
+	_party_box.add_theme_constant_override("separation", 6)
+	panel.add_child(_party_box)
+	_status = UIBuild.label("", &"HeadingLabel", 20)
+	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status.custom_minimum_size.x = 300
+	_status.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_status.anchor_left = 0.3
+	_status.anchor_right = 0.7
+	_status.offset_top = 76
+	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_status)
+
+
+func _refresh_coop() -> void:
+	if not is_inside_tree() or not RunState.active:
+		return
+	for child in _party_box.get_children():
+		child.queue_free()
+	_party_box.add_child(UIBuild.label("Party", &"HeadingLabel", 22))
+	var waiting := GameManager.coop_waiting()
+	for s in RunState.seats:
+		var cls := ContentDB.get_character_class(s.class_id)
+		var state := ""
+		if waiting:
+			state = "ready" if GameManager.coop_done.has(s.index) else "busy…"
+		elif GameManager.coop_votes.has(s.index):
+			state = "voted"
+		else:
+			state = "choosing…"
+		var you := " (you)" if s.index == RunState.home_seat else ""
+		var text := "%s%s · %s\n%d/%d HP · %s" % [s.player_name, you, cls.display_name if cls else "?", s.hp, s.max_hp, state]
+		var label := UIBuild.label(text, &"", UIStyle.SIZE_BODY)
+		label.add_theme_color_override("font_color", cls.primary_color if cls else Color.WHITE)
+		_party_box.add_child(label)
+	if waiting:
+		_status.text = "Waiting for %s to finish…" % " and ".join(GameManager.coop_busy_players())
+	else:
+		_status.text = "Vote for the next room (%d/%d voted)" % [GameManager.coop_votes.size(), RunState.seats.size()]
+	for tag in _vote_tags:
+		if is_instance_valid(tag):
+			tag.queue_free()
+	_vote_tags.clear()
+	var per_node := {}
+	for seat_index in GameManager.coop_votes:
+		var node_id: String = GameManager.coop_votes[seat_index]
+		if not _view.buttons.has(node_id):
+			continue
+		var stack: int = per_node.get(node_id, 0)
+		per_node[node_id] = stack + 1
+		var s := RunState.seats[seat_index]
+		var cls := ContentDB.get_character_class(s.class_id)
+		var tag := UIBuild.label(s.player_name, &"", 16)
+		tag.add_theme_color_override("font_color", cls.primary_color if cls else Color.WHITE)
+		tag.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+		tag.add_theme_constant_override("outline_size", 6)
+		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var button: Control = _view.buttons[node_id]
+		button.add_child(tag)
+		tag.position = Vector2(button.size.x + 4, -6 + stack * 18)
+		_vote_tags.append(tag)

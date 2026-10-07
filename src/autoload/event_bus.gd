@@ -70,6 +70,8 @@ signal seat_updated(seat_index: int)
 signal seat_ready_changed(seat_index: int, ready: bool)
 ## Co-op: another hero played a card.
 signal ally_card_played(seat_index: int, card, targets: Array)  ## CardInstance, Array[Combatant]
+## Co-op: votes or "done" flags changed (map screen refreshes its markers).
+signal coop_state_changed()
 signal deck_shuffled(card_count: int)  ## Discard pile shuffled into draw pile.
 
 # --- Damage, block, statuses --------------------------------------------------
