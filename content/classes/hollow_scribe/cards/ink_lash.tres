@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_tsk83"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_hwnm2"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="3_q7q16"]
+[ext_resource type="Resource" path="res://content/statuses/weak.tres" id="4_58p0w"]
+[ext_resource type="Script" path="res://src/combat/effects/spend_class_resource_effect.gd" id="5_8mp1p"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="6_clmh8"]
+
+[sub_resource type="Resource" id="Resource_tsk83"]
+script = ExtResource("2_hwnm2")
+damage_type = 0
+amount = 6
+upgrade_delta = 3
+times = 1
+target = 2
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_hwnm2"]
+script = ExtResource("3_q7q16")
+status = ExtResource("4_58p0w")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 2
+value_key = &"weak"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_q7q16"]
+script = ExtResource("5_8mp1p")
+spend_all = false
+bonus_effects = Array[ExtResource("1_tsk83")]([SubResource("Resource_hwnm2")])
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"inscribe"
+scale = 0
+
+[resource]
+script = ExtResource("6_clmh8")
+id = &"ink_lash"
+display_name = "Ink Lash"
+description = "Deal {dmg} damage to ALL enemies.
+Inscribe {inscribe}: Apply {weak} Weak to ALL enemies."
+card_pool = &"hollow_scribe"
+type = 0
+rarity = 1
+target_mode = 2
+cost = 1
+effects = Array[ExtResource("1_tsk83")]([SubResource("Resource_tsk83"), SubResource("Resource_q7q16")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"ink"])
+on_discard_effects = Array[ExtResource("1_tsk83")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_tsk83")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

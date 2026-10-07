@@ -45,6 +45,15 @@ var stance_changes_this_turn: int = 0
 var queue := ActionQueue.new()
 var _trigger_counts: Dictionary = {}  # "<owner id>:<trigger instance id>" -> int
 var _once_per_turn_fired: Dictionary = {}  # same keys; cleared each player turn
+
+## True when a person is choosing (the combat screen sets it). Otherwise card
+## choices resolve at once through [member auto_choose].
+var interactive := false
+## Callable(options: Array[CardInstance], min_count: int, max_count: int,
+## mode: ChooseCardsEffect.Mode) -> Array. Null = CombatState.default_choice.
+var auto_choose: Callable
+## The choice the player still has to make, or {} (see request_choice).
+var pending_choice: Dictionary = {}
 var _ending := false
 
 
@@ -137,6 +146,8 @@ func get_draw_per_turn() -> int:
 func can_play(card: CardInstance, target: Combatant = null) -> String:
 	if phase != Phase.PLAYER_TURN:
 		return "Not your turn"
+	if not pending_choice.is_empty():
+		return "Choose cards first"
 	if not hand.has(card):
 		return "Card is not in your hand"
 	if not card.data.is_playable_type():
@@ -201,7 +212,7 @@ func start() -> void:
 
 
 func end_player_turn() -> void:
-	if phase != Phase.PLAYER_TURN:
+	if phase != Phase.PLAYER_TURN or not pending_choice.is_empty():
 		return
 	EventBus.player_input_enabled.emit(false)
 	fire(EffectTrigger.Timing.TURN_END, player)
@@ -858,6 +869,9 @@ func fire(timing: EffectTrigger.Timing, owner: Combatant, payload: Dictionary = 
 			for trigger in relic.triggers:
 				if trigger.timing == timing:
 					_queue_trigger(trigger, owner, &"", relic, payload, immediate)
+		for trigger in player.class_data.class_triggers:
+			if trigger.timing == timing:
+				_queue_trigger(trigger, owner, &"", null, payload, immediate)
 	elif owner is EnemyCombatant:
 		var enemy_phase: EnemyPhaseData = owner.current_phase()
 		if enemy_phase:
@@ -903,6 +917,10 @@ func _trigger_condition_met(trigger: EffectTrigger, owner: Combatant, payload: D
 		var card: CardInstance = payload.get("card")
 		if card == null or not card.data.tags.has(trigger.required_card_tag):
 			return false
+	if trigger.required_card_type >= 0:
+		var typed: CardInstance = payload.get("card")
+		if typed == null or (typed.data.type != trigger.required_card_type and typed.data.type != trigger.required_card_type_alt):
+			return false
 	var info: DamageInfo = payload.get("info")
 	match trigger.condition:
 		EffectTrigger.Condition.HIT_WHILE_BLOCKING:
@@ -911,6 +929,8 @@ func _trigger_condition_met(trigger: EffectTrigger, owner: Combatant, payload: D
 			return info != null and info.hp_lost > 0
 		EffectTrigger.Condition.REQUIRES_STATUS:
 			return has_status_or_stance(owner, trigger.required_status_id)
+		EffectTrigger.Condition.FIRST_TURN:
+			return round_number <= 1
 	return true
 
 
@@ -942,10 +962,121 @@ func _run_trigger(trigger: EffectTrigger, owner: Combatant, status_id: StringNam
 
 
 func _run_effects(effects: Array[GameEffect], ctx: EffectContext) -> void:
-	for effect in effects:
+	for i in effects.size():
 		if is_over():
 			return
+		var effect := effects[i]
 		effect.execute(ctx)
+		if not pending_choice.is_empty() and pending_choice.effect == effect and not pending_choice.has("rest"):
+			# Waiting for the player: the rest of this list runs in resolve_choice.
+			var rest: Array[GameEffect] = []
+			rest.assign(effects.slice(i + 1))
+			pending_choice.rest = rest
+			return
+
+
+# =============================================================================
+# Card choices (discard / Erase / take from draw pile)
+# =============================================================================
+
+## Called by ChooseCardsEffect. Resolves immediately when the outcome is
+## forced or nobody is choosing interactively; otherwise stores a pending
+## choice and emits EventBus.card_choice_requested.
+func request_choice(effect: ChooseCardsEffect, ctx: EffectContext) -> void:
+	var options: Array[CardInstance] = []
+	options.assign(draw_pile if effect.mode == ChooseCardsEffect.Mode.DRAW_TO_HAND else hand)
+	var max_count := mini(ctx.amount_for(effect), options.size())
+	var min_count := 0 if effect.up_to else max_count
+	ctx.x_value = 0
+	if max_count <= 0:
+		return
+	if not effect.up_to and options.size() <= max_count:
+		_apply_choice(effect.mode, options.duplicate())
+		ctx.x_value = options.size()
+		return
+	if not interactive or phase != Phase.PLAYER_TURN:
+		var chooser := auto_choose if auto_choose.is_valid() else default_choice
+		var chosen: Array = chooser.call(options, min_count, max_count, effect.mode)
+		chosen = chosen.filter(func(c): return options.has(c)).slice(0, max_count)
+		_apply_choice(effect.mode, chosen)
+		ctx.x_value = chosen.size()
+		return
+	pending_choice = {"effect": effect, "ctx": ctx, "options": options, "min": min_count, "max": max_count}
+	EventBus.player_input_enabled.emit(false)
+	EventBus.card_choice_requested.emit(effect.get_prompt(max_count), options, min_count, max_count)
+
+
+## The player's answer to the pending choice. Returns false if it's invalid.
+func resolve_choice(chosen: Array) -> bool:
+	if pending_choice.is_empty():
+		return false
+	var c := pending_choice
+	if chosen.size() < c.min or chosen.size() > c.max:
+		return false
+	for card in chosen:
+		if not c.options.has(card):
+			return false
+	pending_choice = {}
+	var effect: ChooseCardsEffect = c.effect
+	_apply_choice(effect.mode, chosen)
+	EventBus.card_choice_resolved.emit()
+	var ctx: EffectContext = c.ctx
+	ctx.x_value = chosen.size()
+	_run_effects(c.get("rest", [] as Array[GameEffect]), ctx)
+	_flush()
+	_check_end()
+	if not is_over() and pending_choice.is_empty() and phase == Phase.PLAYER_TURN:
+		EventBus.player_input_enabled.emit(true)
+	return true
+
+
+func _apply_choice(mode: ChooseCardsEffect.Mode, chosen: Array) -> void:
+	for card: CardInstance in chosen:
+		match mode:
+			ChooseCardsEffect.Mode.DISCARD:
+				discard_card(card)
+			ChooseCardsEffect.Mode.EXHAUST:
+				exhaust_card(card)
+			ChooseCardsEffect.Mode.DRAW_TO_HAND:
+				if not draw_pile.has(card):
+					continue
+				draw_pile.erase(card)
+				if hand.size() < player.class_data.max_hand_size:
+					hand.append(card)
+					EventBus.card_drawn.emit(card)
+					fire(EffectTrigger.Timing.CARD_DRAWN, player, {"card": card})
+				else:
+					discard_pile.append(card)
+					EventBus.card_discarded.emit(card, false)
+
+
+## Simple choice policy for the AI, simulations and tests: get rid of Curses
+## and Statuses first, then the cheapest cards; take the priciest card from
+## the draw pile.
+static func default_choice(options: Array, min_count: int, max_count: int, mode: ChooseCardsEffect.Mode) -> Array:
+	var ranked := options.duplicate()
+	if mode == ChooseCardsEffect.Mode.DRAW_TO_HAND:
+		ranked.sort_custom(func(a, b): return _card_worth(a) > _card_worth(b))
+		return ranked.slice(0, max_count)
+	var discarding := mode == ChooseCardsEffect.Mode.DISCARD
+	# When discarding, Footnote cards are the ones you want to throw away.
+	ranked.sort_custom(func(a, b):
+		return _card_worth(a) - (6.0 if discarding and not a.data.on_discard_effects.is_empty() else 0.0) \
+				< _card_worth(b) - (6.0 if discarding and not b.data.on_discard_effects.is_empty() else 0.0))
+	var out: Array = []
+	for card in ranked:
+		var junk: bool = card.data.type == CardData.CardType.STATUS or card.data.type == CardData.CardType.CURSE
+		var has_footnote: bool = not card.data.on_discard_effects.is_empty()
+		if out.size() < min_count or (out.size() < max_count and (junk or (has_footnote and mode == ChooseCardsEffect.Mode.DISCARD))):
+			out.append(card)
+	return out
+
+
+static func _card_worth(card: CardInstance) -> float:
+	if card.data.type == CardData.CardType.STATUS or card.data.type == CardData.CardType.CURSE:
+		return -10.0
+	var attack_bonus := 1.5 if card.data.type == CardData.CardType.ATTACK else 0.0
+	return float(card.data.rarity) * 2.0 + maxf(card.get_cost(), 0) + (1.0 if card.upgraded else 0.0) + attack_bonus
 
 
 func _flush() -> void:

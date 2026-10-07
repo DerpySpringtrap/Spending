@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_qo8fo"]
+[ext_resource type="Script" path="res://src/combat/effects/choose_cards_effect.gd" id="2_7pqed"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="3_pci22"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="4_llbii"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="5_ydx20"]
+
+[sub_resource type="Resource" id="Resource_qo8fo"]
+script = ExtResource("2_7pqed")
+mode = 1
+up_to = false
+prompt = ""
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_7pqed"]
+script = ExtResource("3_pci22")
+amount = 2
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"ink"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_pci22"]
+script = ExtResource("4_llbii")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"draw"
+scale = 0
+
+[resource]
+script = ExtResource("5_ydx20")
+id = &"redact"
+display_name = "Redact"
+description = "Erase a card in your hand.
+Gain {ink} Ink.
+Draw {draw} card."
+card_pool = &"hollow_scribe"
+type = 1
+rarity = 2
+target_mode = 0
+cost = 0
+effects = Array[ExtResource("1_qo8fo")]([SubResource("Resource_qo8fo"), SubResource("Resource_7pqed"), SubResource("Resource_pci22")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"erase"])
+on_discard_effects = Array[ExtResource("1_qo8fo")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_qo8fo")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

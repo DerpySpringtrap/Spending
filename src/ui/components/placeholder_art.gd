@@ -12,6 +12,8 @@ static func build(id: StringName, accent: Color = Color("#E8692C")) -> Node2D:
 			_warden(root, accent)
 		&"moonblade":
 			_moonblade(root, accent)
+		&"hollow_scribe":
+			_scribe(root)
 		&"mire_toad":
 			_toad(root)
 		&"bog_lurker":
@@ -546,3 +548,37 @@ static func _idol(root: Node2D) -> void:
 	_poly(root, rounded_rect(-10, -138, 20, 4, 2), Color("#5A3A10"))
 	_poly(root, ellipse(Vector2(0, -150), 46, 46), Color(g, 0.15))
 	_meta(root, 110, 190)
+
+
+
+static func _scribe(root: Node2D) -> void:
+	var ink := Color("#1C2230")
+	var parchment := Color("#E9DFC7")
+	var crimson := Color("#A3283A")
+	# Loose pages orbiting behind
+	for p in [Vector2(-70, -230), Vector2(60, -250), Vector2(-90, -150)]:
+		var page := PackedVector2Array([p + Vector2(-12, -16), p + Vector2(12, -12), p + Vector2(10, 14), p + Vector2(-14, 10)])
+		_poly(root, page, Color(parchment, 0.8))
+	# Long robe
+	_poly(root, PackedVector2Array([Vector2(-52, 0), Vector2(52, 0), Vector2(30, -176), Vector2(-30, -176)]), ink)
+	_poly(root, PackedVector2Array([Vector2(-8, 0), Vector2(8, 0), Vector2(6, -170), Vector2(-6, -170)]), crimson.darkened(0.2))
+	# Ink-stained hem
+	for x in [-40, -18, 14, 36]:
+		_poly(root, ellipse(Vector2(x, -6), 10, 8), Color("#0E1018"))
+	# Hood with an empty, glowing face
+	_poly(root, ellipse(Vector2(0, -200), 32, 36), ink.lightened(0.08))
+	_poly(root, PackedVector2Array([Vector2(-30, -196), Vector2(0, -246), Vector2(30, -196)]), ink.lightened(0.08))
+	_poly(root, ellipse(Vector2(2, -194), 18, 22), Color("#07080C"))
+	_poly(root, ellipse(Vector2(-6, -196), 3, 4), Color("#8FB4E8"))
+	_poly(root, ellipse(Vector2(8, -196), 3, 4), Color("#8FB4E8"))
+	# Quill-staff (front)
+	_poly(root, rounded_rect(54, -230, 8, 230, 3), Color("#5A4030"))
+	_poly(root, PackedVector2Array([Vector2(58, -230), Vector2(86, -300), Vector2(66, -236)]), parchment)
+	# Floating tome at the shoulder, open, with a crimson ribbon
+	_poly(root, PackedVector2Array([Vector2(-100, -170), Vector2(-64, -162), Vector2(-64, -128), Vector2(-100, -136)]), parchment)
+	_poly(root, PackedVector2Array([Vector2(-64, -162), Vector2(-28, -170), Vector2(-28, -136), Vector2(-64, -128)]), parchment.darkened(0.08))
+	_poly(root, rounded_rect(-66, -164, 4, 40, 1), Color("#5A4030"))
+	_poly(root, rounded_rect(-50, -132, 4, 28, 1), crimson)
+	for i in 3:
+		_poly(root, rounded_rect(-94, -156 + i * 8, 24, 2, 1), Color(ink, 0.6))
+	_meta(root, 200, 280)

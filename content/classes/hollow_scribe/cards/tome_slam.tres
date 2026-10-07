@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_erj6r"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_kich0"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_68rs6"]
+
+[sub_resource type="Resource" id="Resource_erj6r"]
+script = ExtResource("2_kich0")
+damage_type = 0
+amount = 3
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 4
+
+[resource]
+script = ExtResource("3_68rs6")
+id = &"tome_slam"
+display_name = "Tome Slam"
+description = "Deal {dmg} damage (3 for each card in your hand)."
+card_pool = &"hollow_scribe"
+type = 0
+rarity = 2
+target_mode = 1
+cost = 2
+effects = Array[ExtResource("1_erj6r")]([SubResource("Resource_erj6r")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_erj6r")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_erj6r")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = "Deal {dmg} damage (4 for each card in your hand)."
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 2

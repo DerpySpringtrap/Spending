@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_ngy5h"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_7dtul"]
+[ext_resource type="Script" path="res://src/combat/effects/spend_class_resource_effect.gd" id="3_abwly"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_d8x61"]
+
+[sub_resource type="Resource" id="Resource_ngy5h"]
+script = ExtResource("2_7dtul")
+damage_type = 0
+amount = 9
+upgrade_delta = 3
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_7dtul"]
+script = ExtResource("2_7dtul")
+damage_type = 0
+amount = 9
+upgrade_delta = 3
+times = 1
+target = 0
+value_key = &"bonus"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_abwly"]
+script = ExtResource("3_abwly")
+spend_all = false
+bonus_effects = Array[ExtResource("1_ngy5h")]([SubResource("Resource_7dtul")])
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"inscribe"
+scale = 0
+
+[resource]
+script = ExtResource("4_d8x61")
+id = &"black_ink"
+display_name = "Black Ink"
+description = "Deal {dmg} damage.
+Inscribe {inscribe}: Deal {bonus} more damage."
+card_pool = &"hollow_scribe"
+type = 0
+rarity = 2
+target_mode = 1
+cost = 1
+effects = Array[ExtResource("1_ngy5h")]([SubResource("Resource_ngy5h"), SubResource("Resource_abwly")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"ink"])
+on_discard_effects = Array[ExtResource("1_ngy5h")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_ngy5h")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

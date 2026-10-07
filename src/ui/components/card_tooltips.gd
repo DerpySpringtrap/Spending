@@ -12,6 +12,10 @@ const GLOSSARY := {
 	"Shift": "Change to the other phase (Waxing if you have none). Changing phase grants 1 Lunar Charge.",
 	"Lunar Charge": "Gained when you change phase. Change phase at 4 to enter Eclipse.",
 	"Riposte": "In Waning, deal 2 damage back whenever an enemy attacks you.",
+	"Ink": "The Hollow Scribe's resource (up to 10, kept between turns). Gain 1 whenever you discard a card from an effect or Erase a card.",
+	"Inscribe": "If you have enough Ink, spend it to get the bonus. Otherwise the card plays without it.",
+	"Footnote": "Happens when this card is discarded by an effect (not at the end of your turn).",
+	"Erase": "Exhaust: removed from play until the end of combat. Erasing a card gains 1 Ink.",
 	"Eclipse": "Both phases at once, stronger (+3 damage per hit, +3 Block, Riposte 3), plus draw 2. Ends at the end of your turn and resets Lunar Charge.",
 }
 
@@ -29,7 +33,7 @@ static func for_card(card: CardInstance) -> String:
 	var text := card.data.get_description_template(card.upgraded)
 	for keyword in card.data.get_keywords(card.upgraded):
 		if KEYWORDS.has(keyword):
-			sections.append(_section(KEYWORDS[keyword][0], KEYWORDS[keyword][1]))
+			sections.append(_section(CardText.keyword_name(keyword, card.data), KEYWORDS[keyword][1]))
 	if card.data.cost == CardData.COST_UNPLAYABLE:
 		sections.append(_section("Unplayable", "This card can't be played."))
 	for term in GLOSSARY:

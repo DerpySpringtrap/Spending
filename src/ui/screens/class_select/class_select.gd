@@ -3,12 +3,10 @@ extends Control
 ## the rest are shown as coming), ascension level, optional seed, Embark.
 
 ## Built classes in display order.
-const CLASS_ORDER: Array[StringName] = [&"pyre_warden", &"moonblade"]
+const CLASS_ORDER: Array[StringName] = [&"pyre_warden", &"moonblade", &"hollow_scribe"]
 
 ## Display info for classes whose content isn't built yet.
 const PLANNED := [
-	{"id": &"hollow_scribe", "name": "Hollow Scribe", "title": "Author of Unwritten Endings", "color": Color("#A3283A"),
-		"blurb": "Discard and Erase cards for Ink, then rewrite the fight."},
 	{"id": &"rootmother", "name": "Rootmother", "title": "The Walking Grove", "color": Color("#4FD1C5"),
 		"blurb": "Grow saplings that fight and shield for you. Spread rot spores."},
 ]
@@ -42,7 +40,7 @@ func _ready() -> void:
 		var level_text := "Level %d (max)" % level if bounds.y < 0 else "Level %d · %d/%d XP" % [level, xp, bounds.y]
 		var footer := "%d HP · Starting relic: %s\n%s" % [cls.max_hp, cls.starting_relic.display_name, level_text] if unlocked \
 				else "Locked. " + cls.unlock_hint
-		var panel := _class_panel(cls.id, cls.display_name, cls.title, cls.accent_color if id == &"moonblade" else cls.secondary_color,
+		var panel := _class_panel(cls.id, cls.display_name, cls.title, cls.secondary_color if id == &"pyre_warden" else cls.accent_color,
 				cls.description, footer, unlocked, unlocked)
 		panels.append(panel)
 		if unlocked:

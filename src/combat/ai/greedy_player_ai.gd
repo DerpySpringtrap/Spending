@@ -11,6 +11,14 @@ const MAX_PLAYS_PER_TURN := 30
 
 
 func play_turn(combat: CombatState) -> void:
+	# The AI makes its own card choices instantly, even on the combat screen.
+	var was_interactive := combat.interactive
+	combat.interactive = false
+	_play(combat)
+	combat.interactive = was_interactive
+
+
+func _play(combat: CombatState) -> void:
 	var plays := 0
 	while combat.phase == CombatState.Phase.PLAYER_TURN and plays < MAX_PLAYS_PER_TURN:
 		var best: CardInstance = null
@@ -126,6 +134,34 @@ func _evaluate(effects: Array[GameEffect], ctx: EffectContext, totals: Dictionar
 			totals.other += ctx.amount_for(effect) * 4.0
 		elif effect is GainEnergyEffect:
 			totals.other += ctx.amount_for(effect) * 5.0
+		elif effect is ChooseCardsEffect:
+			var n := ctx.amount_for(effect)
+			match effect.mode:
+				ChooseCardsEffect.Mode.DRAW_TO_HAND:
+					totals.other += n * 5.0
+				ChooseCardsEffect.Mode.DISCARD:
+					totals.other += n * (1.5 if combat.player.class_data.class_triggers.size() > 0 else -1.0)
+				ChooseCardsEffect.Mode.EXHAUST:
+					# Erasing junk is great; erasing real cards thins the deck, and
+					# a small deck must not erase itself away.
+					var junk := combat.hand.filter(func(c): return c.data.type == CardData.CardType.STATUS \
+							or c.data.type == CardData.CardType.CURSE).size()
+					var deck_size := combat.draw_pile.size() + combat.discard_pile.size() + combat.hand.size()
+					if junk > 0:
+						totals.other += 4.0
+					elif deck_size <= 12:
+						totals.other -= 30.0
+					else:
+						totals.other -= 2.0
+		elif effect is ExhaustFromHandEffect:
+			var remaining := combat.draw_pile.size() + combat.discard_pile.size() + combat.hand.size()
+			for card in combat.hand:
+				if effect.card_types.is_empty() or effect.card_types.has(card.data.type):
+					var sub := ctx.duplicate_context()
+					_evaluate(effect.per_card_effects, sub, totals)
+					var junk: bool = card.data.type == CardData.CardType.STATUS or card.data.type == CardData.CardType.CURSE
+					if not junk:
+						totals.other -= 30.0 if remaining <= 12 else 3.0
 		elif effect is ChangeStanceEffect:
 			totals.other += _stance_value(combat, effect.stance)
 		elif effect is ConditionalEffect:

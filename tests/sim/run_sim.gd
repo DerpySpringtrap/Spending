@@ -125,7 +125,9 @@ func _fight(enc: EncounterData) -> bool:
 		return true
 	if not combat.player.is_dead:
 		_errors += 1
-		push_error("combat %s timed out" % enc.id)
+		push_error("combat %s timed out (deck: %s | draw %d hand %d discard %d exhausted %d)" % [enc.id,
+			", ".join(RunState.deck.map(func(c): return c.get_display_name())), combat.draw_pile.size(), combat.hand.size(),
+			combat.discard_pile.size(), combat.exhaust_pile.size()])
 	return false
 
 

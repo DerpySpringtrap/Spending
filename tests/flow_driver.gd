@@ -111,6 +111,9 @@ func _play_combat(screen: Node) -> void:
 				_press(b)
 				break
 			return
+		if not screen.combat.pending_choice.is_empty() and not screen.queue.is_busy():
+			await _screen_shot("card_choice", 0.6)
+			screen._auto_resolve_choice()
 		if screen._can_act():
 			if guard == 1 and _visual:
 				await _wait(0.5)

@@ -38,6 +38,10 @@ const STATUS_GLYPHS := {
 	&"soul_link": &"sparkle",
 	&"incense": &"drop",
 	&"golden_tithe": &"coin",
+	&"errata": &"burst",
+	&"cross_reference": &"shield",
+	&"living_manuscript": &"cards",
+	&"cursed_lexicon": &"skull",
 }
 
 const INTENT_GLYPHS := {

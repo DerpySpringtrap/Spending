@@ -25,6 +25,8 @@ How to add cards, statuses, relics and enemies without writing code. Every piece
 | `SummonEnemyEffect` | Adds enemies mid-fight (boss adds) | `enemy`, `amount`, `max_enemies` |
 | `RemoveDebuffsEffect` | Cleanses debuffs (phase changes) | `target` |
 | `ChangeStanceEffect` | Moonblade Wax / Wane / Shift (empty `stance` = Shift; the eclipse status = enter Eclipse) | `stance` |
+| `ChooseCardsEffect` | The player picks cards: discard from hand (Footnotes fire), Erase from hand, or take from the draw pile. Effects after it run once the choice is made, with X = cards chosen | `mode`, `amount`, `up_to`, `prompt` |
+| `ExhaustFromHandEffect` | Erase every card in hand of the listed types, then run effects once per card | `card_types`, `per_card_effects` |
 | `ConditionalEffect` | "If in Waxing, draw 1" (a phase also counts during Eclipse) | `required_status`, `effects`, `else_effects` |
 
 4. **Upgrades:** set `upgrade_delta` on each effect (+3 damage, +1 Burn…), and/or `upgraded_cost`, `upgrade_adds_keywords`, `upgraded_description`.
@@ -39,7 +41,9 @@ How to add cards, statuses, relics and enemies without writing code. Every piece
 - **Stat modifiers** cover most buffs/debuffs: `damage_dealt_flat_per_stack` (Strength), `damage_dealt_multiplier` (Weak), `damage_taken_multiplier` (Vulnerable), `block_gained_*` (Dexterity/Frail), `retains_block`, `skips_turn`.
 - **Decay:** how stacks go down (`DECREMENT_ON_ROUND_END` for Weak-style durations, `HALVE_ON_TURN_END` for Burn…).
 - **Triggers:** `EffectTrigger` = timing + effects. Tick a status with `amount_from_stacks` (Poison: `TURN_START` → `DealDamageEffect(type POISON, target SELF)`). Reactive statuses use `ATTACKED` + `target = ATTACKER` (Thorns).
-- Trigger options: `once_per_turn` ("the first time each turn"), `every_nth`, `required_card_tag`, and `condition` (`REQUIRES_STATUS` + `required_status_id` = only while the owner has that status).
+- **Footnote:** put effects in the card's `on_discard_effects`; they run when an effect discards it (not at end of turn).
+- **Class rules** that are always on (the Scribe's Ink gain) go in `CharacterClassData.class_triggers`, authored like relic triggers.
+- Trigger options: `required_card_type` (+ `_alt`) for "whenever you draw a Curse or Status", `FIRST_TURN` condition, `once_per_turn` ("the first time each turn"), `every_nth`, `required_card_tag`, and `condition` (`REQUIRES_STATUS` + `required_status_id` = only while the owner has that status).
 - A **Power card** is just `ApplyStatusEffect(target SELF)` with a status that carries the triggers.
 
 ## Adding a relic

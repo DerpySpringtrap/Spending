@@ -10,6 +10,7 @@ Requires numpy, scipy and ffmpeg (with libvorbis).
 """
 import math
 import os
+import sys
 import subprocess
 import tempfile
 import wave
@@ -358,6 +359,9 @@ def sfx():
     s["defeat"] = lp(mix(3.0, [(i * 0.35, pluck(midi(57 - [0, 2, 3, 7][i]), 1.2, decay=1.5), 0.7) for i in range(4)] + [(0, pad([midi(45), midi(52)], 3.0, SR, 900, 0.3, 1.5), 1.6)]), 3000)
     s["motif_warden"] = mix(1.3, [(0, brass(midi(43), 0.45, SR, 900), 0.8), (0.32, brass(midi(50), 0.9, SR, 900), 0.8), (0, tom(60, SR), 1.0)])
     s["motif_moonblade"] = mix(1.3, [(i * 0.07, bell(midi(81 + [0, 3, 7, 10, 12, 15][i]), 0.8, decay=0.6), 0.45) for i in range(6)])
+    # Harpsichord-like plucked phrase with a quill scratch.
+    s["motif_scribe"] = mix(1.4, [(i * 0.11, pluck(midi(69 + [0, 5, 3, 8, 7][i]), 0.6, bright=1.6, decay=0.4), 0.5) for i in range(5)]
+        + [(0.55, hp(noise(int(0.12 * SR)), 3000) * env_exp(int(0.12 * SR), 0.05), 0.2)])
     return s
 
 
@@ -408,6 +412,8 @@ def music_menu():
 
 
 def music_map(act=1):
+    if act == 3:
+        return music_map_act3()
     if act == 1:
         tr = Track(80, 8)
         prog = [(note("A2"), "m"), (note("F2"), ""), (note("C3"), ""), (note("G2"), ""), (note("A2"), "m"), (note("F2"), ""), (note("D3"), "m"), (note("E3"), "")]
@@ -486,6 +492,22 @@ def music_combat(kind="normal"):
     return tr.render(0.2)
 
 
+def music_map_act3():
+    """The Shattered Observatory: slow, glassy, starlit. Bells over a wide pad."""
+    tr = Track(70, 8)
+    prog = [(note("D2"), ""), (note("A2"), ""), (note("B2"), "m"), (note("G2"), ""), (note("D2"), ""), (note("A2"), ""), (note("G2"), ""), (note("A2"), "")]
+    lead = ["F#5", "E5", "D5", "B4", "A4", "C#5", "D5", "E5"]
+    for bar, (root, q) in enumerate(prog):
+        b = bar * 4
+        notes = chord_notes(root, q)
+        tr.add(b, pad([midi(n + 12) for n in notes] + [midi(notes[0] + 24)], 4 * tr.beat + 0.6, cutoff=1600, attack=1.2), 0.6, verb=0.7)
+        tr.add(b, bass(midi(root), 4 * tr.beat, drive=0.8), 0.3)
+        for i, idx in enumerate([0, 1, 2, 1, 2, 0, 1, 2]):
+            tr.add(b + i * 0.5, bell(midi(notes[idx] + 24), 1.2, decay=0.7) * 0.5, 0.2, verb=0.6)
+        tr.add(b + 1, bell(midi(note(lead[bar])), 2.6, decay=1.4), 0.24, verb=0.8)
+    return tr.render(0.35)
+
+
 def stinger_free_ambience(kind):
     dur = 32.0
     n = int(dur * MSR)
@@ -506,6 +528,17 @@ def stinger_free_ambience(kind):
             st = RNG.uniform(0, dur)
             d = sweep(RNG.uniform(1400, 2200), 600, 0.06, MSR) * env_exp(int(0.06 * MSR), 0.02, MSR)
             place(out, d * RNG.uniform(0.05, 0.12), int(st * MSR))
+    elif kind == "observatory":
+        # High wind through broken glass, a slow mechanical tick, distant chimes.
+        wind = hp(lp(noise(n), 1800, MSR), 300, MSR)
+        lfo = 0.5 + 0.5 * np.sin(2 * np.pi * np.arange(n) / MSR / 11.0)
+        out += wind * lfo * 0.35
+        for k in range(int(dur / 1.5)):
+            tick = bp(noise(300), 1800, 4000, MSR) * env_exp(300, 0.004, MSR)
+            place(out, tick * 0.08, int(k * 1.5 * MSR))
+        for _ in range(9):
+            st = RNG.uniform(0, dur - 3)
+            place(out, bell(midi(int(RNG.choice([86, 88, 90, 93]))), 3.0, MSR, decay=1.6) * 0.05, int(st * MSR))
     else:
         drone = sine(55, dur, MSR) * 0.3 + sine(55.4, dur, MSR) * 0.3 + sine(82.5, dur, MSR) * 0.1
         out += drone
@@ -521,20 +554,30 @@ def stinger_free_ambience(kind):
 
 
 def main():
+    # --only=name,name writes just those outputs (by file name without .ogg).
+    only = set()
+    for arg in sys.argv[1:]:
+        if arg.startswith("--only="):
+            only = set(arg[len("--only="):].split(","))
+    want = lambda name: not only or name in only
     for name, x in sfx().items():
-        write_ogg(os.path.join(SFX_DIR, name + ".ogg"), x, SR, peak=0.85)
+        if want(name):
+            write_ogg(os.path.join(SFX_DIR, name + ".ogg"), x, SR, peak=0.85)
     tracks = {
-        "menu": music_menu(),
-        "map_act1": music_map(1),
-        "map_act2": music_map(2),
-        "combat": music_combat("normal"),
-        "elite": music_combat("elite"),
-        "boss": music_combat("boss"),
+        "menu": lambda: music_menu(),
+        "map_act1": lambda: music_map(1),
+        "map_act2": lambda: music_map(2),
+        "map_act3": lambda: music_map(3),
+        "combat": lambda: music_combat("normal"),
+        "elite": lambda: music_combat("elite"),
+        "boss": lambda: music_combat("boss"),
     }
-    for name, x in tracks.items():
-        write_ogg(os.path.join(MUSIC_DIR, name + ".ogg"), x, MSR, peak=0.8, quality=3)
-    for name in ("swamp", "crypt"):
-        write_ogg(os.path.join(AMB_DIR, name + ".ogg"), stinger_free_ambience(name), MSR, peak=0.6, quality=2)
+    for name, make in tracks.items():
+        if want(name):
+            write_ogg(os.path.join(MUSIC_DIR, name + ".ogg"), make(), MSR, peak=0.8, quality=3)
+    for name in ("swamp", "crypt", "observatory"):
+        if want(name):
+            write_ogg(os.path.join(AMB_DIR, name + ".ogg"), stinger_free_ambience(name), MSR, peak=0.6, quality=2)
     print("Audio written to assets/audio/")
 
 

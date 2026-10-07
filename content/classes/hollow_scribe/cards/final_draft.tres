@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_2uggv"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="2_u508b"]
+[ext_resource type="Script" path="res://src/combat/effects/exhaust_from_hand_effect.gd" id="3_o2eyp"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_uvm3t"]
+
+[sub_resource type="Resource" id="Resource_2uggv"]
+script = ExtResource("2_u508b")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_u508b"]
+script = ExtResource("3_o2eyp")
+card_types = Array[int]([])
+per_card_effects = Array[ExtResource("1_2uggv")]([SubResource("Resource_2uggv")])
+amount = 0
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[resource]
+script = ExtResource("4_uvm3t")
+id = &"final_draft"
+display_name = "Final Draft"
+description = "Erase all cards in your hand.
+Draw that many."
+card_pool = &"hollow_scribe"
+type = 1
+rarity = 3
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_2uggv")]([SubResource("Resource_u508b")])
+keywords = Array[StringName]([&"exhaust"])
+tags = Array[StringName]([&"erase"])
+on_discard_effects = Array[ExtResource("1_2uggv")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_2uggv")]([])
+can_upgrade = true
+upgraded_cost = 0
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 4

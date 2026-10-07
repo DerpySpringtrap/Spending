@@ -1,0 +1,64 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_msn37"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_8lpym"]
+[ext_resource type="Script" path="res://src/combat/effects/apply_status_effect.gd" id="3_u8ifo"]
+[ext_resource type="Resource" path="res://content/statuses/vulnerable.tres" id="4_ydslm"]
+[ext_resource type="Script" path="res://src/combat/effects/spend_class_resource_effect.gd" id="5_ywh54"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="6_ee0ul"]
+
+[sub_resource type="Resource" id="Resource_msn37"]
+script = ExtResource("2_8lpym")
+damage_type = 0
+amount = 14
+upgrade_delta = 4
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_8lpym"]
+script = ExtResource("3_u8ifo")
+status = ExtResource("4_ydslm")
+amount = 2
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"vuln"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_u8ifo"]
+script = ExtResource("5_ywh54")
+spend_all = false
+bonus_effects = Array[ExtResource("1_msn37")]([SubResource("Resource_8lpym")])
+amount = 3
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &"inscribe"
+scale = 0
+
+[resource]
+script = ExtResource("6_ee0ul")
+id = &"stamp"
+display_name = "Stamp"
+description = "Deal {dmg} damage.
+Inscribe {inscribe}: Apply {vuln} Vulnerable."
+card_pool = &"hollow_scribe"
+type = 0
+rarity = 1
+target_mode = 1
+cost = 2
+effects = Array[ExtResource("1_msn37")]([SubResource("Resource_msn37"), SubResource("Resource_u8ifo")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"ink"])
+on_discard_effects = Array[ExtResource("1_msn37")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_msn37")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

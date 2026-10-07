@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_dqqg3"]
+[ext_resource type="Script" path="res://src/combat/effects/choose_cards_effect.gd" id="2_0hx3q"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="3_j1spr"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="4_2fkra"]
+
+[sub_resource type="Resource" id="Resource_dqqg3"]
+script = ExtResource("2_0hx3q")
+mode = 0
+up_to = true
+prompt = ""
+amount = 3
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"n"
+scale = 0
+
+[sub_resource type="Resource" id="Resource_0hx3q"]
+script = ExtResource("3_j1spr")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 1
+
+[resource]
+script = ExtResource("4_2fkra")
+id = &"revision"
+display_name = "Revision"
+description = "Discard up to {n} cards.
+Draw that many."
+card_pool = &"hollow_scribe"
+type = 1
+rarity = 2
+target_mode = 0
+cost = 1
+effects = Array[ExtResource("1_dqqg3")]([SubResource("Resource_dqqg3"), SubResource("Resource_0hx3q")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([&"footnote"])
+on_discard_effects = Array[ExtResource("1_dqqg3")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_dqqg3")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1

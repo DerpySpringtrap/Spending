@@ -61,6 +61,9 @@ signal card_exhausted(card)
 signal card_retained(card)
 signal card_created(card, pile: StringName)  ## Generated mid-combat.
 signal card_cost_changed(card)
+## A card effect needs the player to pick cards (CombatState.resolve_choice).
+signal card_choice_requested(prompt: String, options: Array, min_count: int, max_count: int)
+signal card_choice_resolved()
 signal deck_shuffled(card_count: int)  ## Discard pile shuffled into draw pile.
 
 # --- Damage, block, statuses --------------------------------------------------

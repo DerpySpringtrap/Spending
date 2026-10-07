@@ -1,0 +1,105 @@
+[gd_resource type="Resource" script_class="CharacterClassData" load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="1_rcchx"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="2_emqet"]
+[ext_resource type="Script" path="res://src/combat/effects/gain_class_resource_effect.gd" id="3_1lw8x"]
+[ext_resource type="Script" path="res://src/data/character_class_data.gd" id="4_wqji5"]
+[ext_resource type="Resource" path="res://content/classes/hollow_scribe/ink_resource.tres" id="5_kim2u"]
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="6_jndgb"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="7_iyf0r"]
+[ext_resource type="Resource" path="res://content/classes/hollow_scribe/cards/scribe_strike.tres" id="8_auxu6"]
+[ext_resource type="Resource" path="res://content/classes/hollow_scribe/cards/scribe_defend.tres" id="9_cbrkf"]
+[ext_resource type="Resource" path="res://content/classes/hollow_scribe/cards/quill_jab.tres" id="10_oig76"]
+[ext_resource type="Resource" path="res://content/classes/hollow_scribe/cards/blot.tres" id="11_xuwil"]
+[ext_resource type="Resource" path="res://content/classes/hollow_scribe/cards/marginalia.tres" id="12_0818d"]
+[ext_resource type="Resource" path="res://content/classes/hollow_scribe/relics/dog_eared_tome.tres" id="13_8r5u8"]
+
+[sub_resource type="Resource" id="Resource_rcchx"]
+script = ExtResource("3_1lw8x")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_emqet"]
+script = ExtResource("1_rcchx")
+timing = 11
+condition = 0
+effects = Array[ExtResource("2_emqet")]([SubResource("Resource_rcchx")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[sub_resource type="Resource" id="Resource_1lw8x"]
+script = ExtResource("3_1lw8x")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_wqji5"]
+script = ExtResource("1_rcchx")
+timing = 12
+condition = 0
+effects = Array[ExtResource("2_emqet")]([SubResource("Resource_1lw8x")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[sub_resource type="Resource" id="Resource_kim2u"]
+script = ExtResource("3_1lw8x")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_jndgb"]
+script = ExtResource("1_rcchx")
+timing = 3
+condition = 0
+effects = Array[ExtResource("2_emqet")]([SubResource("Resource_kim2u")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = false
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("4_wqji5")
+id = &"hollow_scribe"
+display_name = "Hollow Scribe"
+title = "Author of Unwritten Endings"
+description = "An ink-stained archivist bound to a cursed tome. Discard and Erase cards for Ink, then Inscribe it into devastating revisions."
+max_hp = 72
+starting_gold = 99
+energy_per_turn = 3
+cards_per_turn = 5
+max_hand_size = 10
+starting_deck = Array[ExtResource("7_iyf0r")]([ExtResource("8_auxu6"), ExtResource("8_auxu6"), ExtResource("8_auxu6"), ExtResource("8_auxu6"), ExtResource("9_cbrkf"), ExtResource("9_cbrkf"), ExtResource("9_cbrkf"), ExtResource("10_oig76"), ExtResource("11_xuwil"), ExtResource("12_0818d")])
+starting_relic = ExtResource("13_8r5u8")
+secondary_resource = ExtResource("5_kim2u")
+stances = Array[ExtResource("6_jndgb")]([])
+eclipse_effects = Array[ExtResource("2_emqet")]([])
+class_triggers = Array[ExtResource("1_rcchx")]([SubResource("Resource_emqet"), SubResource("Resource_wqji5"), SubResource("Resource_jndgb")])
+primary_color = Color(0.109804, 0.133333, 0.188235, 1)
+secondary_color = Color(0.913725, 0.87451, 0.780392, 1)
+accent_color = Color(0.639216, 0.156863, 0.227451, 1)
+attack_sfx = Array[AudioStream]([])
+unlocked_by_default = false
+unlock_hint = "Reach the Act 2 boss to unlock."

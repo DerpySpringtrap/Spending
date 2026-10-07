@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ClassResourceData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_fpbu7"]
+[ext_resource type="Script" path="res://src/data/class_resource_data.gd" id="2_4asgw"]
+
+[resource]
+script = ExtResource("2_4asgw")
+id = &"ink"
+display_name = "Ink"
+description = "Start each combat with 2. Gain 1 at the start of your turn and whenever you discard a card from an effect or Erase a card. Inscribe spends it for bonuses. Kept between turns (max 10)."
+color = Color(0.415686, 0.560784, 0.847059, 1)
+max_value = 10
+starting_value = 2
+persists_between_turns = true
+on_reach_max_effects = Array[ExtResource("1_fpbu7")]([])
+max_triggers_at_turn_end = false

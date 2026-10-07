@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_bxywa"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_1eyic"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_vhvnv"]
+
+[sub_resource type="Resource" id="Resource_bxywa"]
+script = ExtResource("2_1eyic")
+damage_type = 0
+amount = 4
+upgrade_delta = 1
+times = 1
+target = 0
+value_key = &"dmg"
+scale = 3
+
+[resource]
+script = ExtResource("3_vhvnv")
+id = &"unwritten_ending"
+display_name = "Unwritten Ending"
+description = "Deal {dmg} damage (4 for each card in your Erased pile)."
+card_pool = &"hollow_scribe"
+type = 0
+rarity = 3
+target_mode = 1
+cost = 2
+effects = Array[ExtResource("1_bxywa")]([SubResource("Resource_bxywa")])
+keywords = Array[StringName]([&"exhaust"])
+tags = Array[StringName]([&"erase"])
+on_discard_effects = Array[ExtResource("1_bxywa")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_bxywa")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = "Deal {dmg} damage (5 for each card in your Erased pile)."
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = true
+cost_reduction_per_stance_change = 0
+unlock_level = 1

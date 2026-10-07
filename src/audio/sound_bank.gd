@@ -25,6 +25,7 @@ const SFX := {
 	&"shop_buy": ["shop_buy"], &"turn_player": ["turn_player"], &"turn_enemy": ["turn_enemy"],
 	&"boss_intro": ["boss_intro"], &"victory": ["victory"], &"defeat": ["defeat"],
 	&"motif_pyre_warden": ["motif_warden"], &"motif_moonblade": ["motif_moonblade"],
+	&"motif_hollow_scribe": ["motif_scribe"],
 }
 
 ## Relative loudness per id (dB), so the mix doesn't need tuning at call sites.
@@ -33,14 +34,17 @@ const GAIN_DB := {
 	&"shuffle": -8.0, &"energy": -10.0, &"turn_player": -6.0, &"turn_enemy": -6.0, &"stoke": -8.0,
 	&"poison_tick": -6.0, &"burn_tick": -6.0, &"status_buff": -6.0, &"status_debuff": -6.0,
 	&"block_gain": -4.0, &"map_select": -4.0, &"victory": -4.0, &"motif_pyre_warden": -3.0, &"motif_moonblade": -3.0,
+	&"motif_hollow_scribe": -3.0,
 }
 
 const MUSIC := {
-	&"menu": "menu", &"map_act1": "map_act1", &"map_act2": "map_act2",
+	&"menu": "menu", &"map_act1": "map_act1", &"map_act2": "map_act2", &"map_act3": "map_act3",
 	&"combat": "combat", &"elite": "elite", &"boss": "boss",
 }
 
-const AMBIENCE := {&"swamp": "swamp", &"crypt": "crypt"}
+const AMBIENCE := {&"swamp": "swamp", &"crypt": "crypt", &"observatory": "observatory"}
+## Background ambience per act.
+const ACT_AMBIENCE := {1: &"swamp", 2: &"crypt", 3: &"observatory"}
 
 static var _cache: Dictionary = {}
 

@@ -40,7 +40,7 @@ static func render(card: CardInstance, combat: CombatState = null, target: Comba
 		text = text.replace("{%s}" % key, number)
 	var keyword_text: PackedStringArray = []
 	for keyword in card.data.get_keywords(card.upgraded):
-		keyword_text.append(KEYWORD_NAMES.get(keyword, String(keyword).capitalize()) + ".")
+		keyword_text.append(keyword_name(keyword, card.data) + ".")
 	if not keyword_text.is_empty():
 		text += ("\n" if not text.is_empty() else "") + " ".join(keyword_text)
 	return text
@@ -58,6 +58,13 @@ static func _collect(effects: Array[GameEffect], ctx: EffectContext, upgraded: b
 		if ctx != null and effect is SpendClassResourceEffect:
 			sub_ctx = effect.make_preview_context(ctx)
 		_collect(effect.get_sub_effects(), sub_ctx, upgraded, values)
+
+
+## The Hollow Scribe calls Exhaust "Erase".
+static func keyword_name(keyword: StringName, data: CardData) -> String:
+	if keyword == CardData.KW_EXHAUST and data.card_pool == &"hollow_scribe":
+		return "Erase"
+	return KEYWORD_NAMES.get(keyword, String(keyword).capitalize())
 
 
 ## Short, stable list of every {token} in a template (content validation).

@@ -144,7 +144,7 @@ func _on_screen_changed(screen_id: StringName) -> void:
 			play_ambience(null)
 		&"map", &"reward", &"shop", &"rest", &"event":
 			play_music_id(&"map_act%d" % act)
-			play_ambience_id(&"swamp" if act == 1 else &"crypt")
+			play_ambience_id(SoundBank.ACT_AMBIENCE.get(act, &"crypt"))
 		&"run_summary":
 			stop_music(0.8)
 			play_ambience(null)

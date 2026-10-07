@@ -87,3 +87,15 @@ static func moonblade_combat(enemies: Array, with_relic := false, seed_value := 
 	if with_relic:
 		relics.append(cls.starting_relic)
 	return CombatState.create(cls, deck, cls.max_hp, cls.max_hp, relics, encounter(enemies), 0, RngStreams.new(seed_value))
+
+
+## A combat for any class with its starter deck (and starting relic if asked).
+static func class_combat(class_id: StringName, enemies: Array, with_relic := false, seed_value := 1) -> CombatState:
+	var cls := ContentDB.get_character_class(class_id)
+	var deck: Array[CardInstance] = []
+	for data in cls.starting_deck:
+		deck.append(CardInstance.new(data))
+	var relics: Array[RelicData] = []
+	if with_relic:
+		relics.append(cls.starting_relic)
+	return CombatState.create(cls, deck, cls.max_hp, cls.max_hp, relics, encounter(enemies), 0, RngStreams.new(seed_value))

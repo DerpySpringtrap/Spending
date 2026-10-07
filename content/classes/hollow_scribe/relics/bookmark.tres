@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/data/relic_data.gd" id="1_2ruue"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="2_tc5lc"]
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="3_uu676"]
+[ext_resource type="Script" path="res://src/combat/effects/draw_cards_effect.gd" id="4_0nvwm"]
+
+[sub_resource type="Resource" id="Resource_2ruue"]
+script = ExtResource("4_0nvwm")
+amount = 1
+upgrade_delta = 0
+times = 1
+target = 0
+value_key = &""
+scale = 0
+
+[sub_resource type="Resource" id="Resource_tc5lc"]
+script = ExtResource("2_tc5lc")
+timing = 12
+condition = 0
+effects = Array[ExtResource("3_uu676")]([SubResource("Resource_2ruue")])
+amount_from_stacks = false
+every_nth = 1
+required_card_tag = &""
+required_status_id = &""
+once_per_turn = true
+required_card_type = -1
+required_card_type_alt = -1
+
+[resource]
+script = ExtResource("1_2ruue")
+id = &"bookmark"
+display_name = "Bookmark"
+description = "The first time you Erase a card each turn, draw 1 card."
+flavor = "It always knows where you left off."
+rarity = 2
+class_restriction = &"hollow_scribe"
+triggers = Array[ExtResource("2_tc5lc")]([SubResource("Resource_tc5lc")])
+counter_max = 0
+max_energy_bonus = 0
+draw_per_turn_bonus = 0
+max_hp_bonus = 0
+potion_slot_bonus = 0
+gold_gain_multiplier = 1.0
+shop_price_multiplier = 1.0
+requires_unlock = false
+unlock_level = 3

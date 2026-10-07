@@ -53,6 +53,7 @@ enum Condition {
 	HIT_WHILE_BLOCKING, ## ATTACKED only: the owner had Block when hit.
 	UNBLOCKED_HIT,      ## ATTACKED only: the hit dealt HP damage.
 	REQUIRES_STATUS,    ## The owner has [member required_status_id] (a phase counts while in Eclipse).
+	FIRST_TURN,         ## Only during the first round of combat.
 }
 
 @export var timing: Timing = Timing.TURN_START
@@ -69,3 +70,8 @@ enum Condition {
 @export var required_status_id: StringName = &""
 ## Fires at most once per turn ("the first time you change phase each turn").
 @export var once_per_turn: bool = false
+## Optional filter: only fire if the triggering card is of this
+## CardData.CardType (-1 = any). "Whenever you draw a Curse..."
+@export var required_card_type: int = -1
+## Optional second type accepted alongside [member required_card_type].
+@export var required_card_type_alt: int = -1

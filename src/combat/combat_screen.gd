@@ -108,6 +108,7 @@ func _start_fight() -> void:
 	combat = CombatState.create(RunState.get_class_data(), RunState.deck, RunState.hp, RunState.max_hp,
 			RunState.relics, enc, RunState.ascension, RunState.rng)
 	combat.player_gold = RunState.gold
+	combat.interactive = true
 	_top_bar.refresh()
 	_top_bar.set_location("Act %d · %s" % [RunState.act, String(EncounterData.Pool.keys()[enc.pool]).capitalize()])
 	_gauge.setup(combat.player.get_resource_data(), 0)
@@ -137,7 +138,7 @@ func _start_music(enc: EncounterData) -> void:
 			AudioManager.play_music_id(&"elite", 0.8)
 		_:
 			AudioManager.play_music_id(&"combat", 0.8)
-	AudioManager.play_ambience_id(&"swamp" if RunState.act == 1 else &"crypt")
+	AudioManager.play_ambience_id(SoundBank.ACT_AMBIENCE.get(RunState.act, &"crypt"))
 
 
 func _spawn_view(c: Combatant, parent: Control) -> void:
@@ -227,6 +228,7 @@ func _connect_bus() -> void:
 	_listen(EventBus.combatant_spawned, _on_combatant_spawned)
 	_listen(EventBus.stance_changed, _on_stance_changed)
 	_listen(EventBus.gold_stolen, _on_gold_stolen)
+	_listen(EventBus.card_choice_requested, _on_card_choice_requested)
 	_listen(EventBus.combatant_escaped, _on_combatant_escaped)
 
 
@@ -277,6 +279,30 @@ func _on_stance_changed(_old: StringName, new_stance: StringName) -> void:
 				_banner.show_banner("Eclipse", status.tint.lightened(0.3), 0.3)
 				_fx.shake(8)
 		_fx.burst(view.hit_point(), status.tint, 22 if new_stance != &"eclipse" else 50, 260, -120, 180.0, 1.0))
+
+
+## A card wants the player to pick cards: open the picker once the beats
+## before it have played.
+func _on_card_choice_requested(prompt: String, options: Array, min_count: int, max_count: int) -> void:
+	queue.push(&"choice", 0, 0.0, func():
+		if combat.pending_choice.is_empty():
+			return
+		_set_mode(Mode.LOCKED)
+		_hand.end_keyboard_targeting(false)
+		_pile_viewer.open_multi_picker(prompt, options, min_count, max_count, func(chosen: Array):
+			combat.resolve_choice(chosen)
+			if not queue.is_busy():
+				_on_queue_idle()))
+
+
+## Autoplay / tests: answer a pending choice with the default policy.
+func _auto_resolve_choice() -> void:
+	if combat == null or combat.pending_choice.is_empty():
+		return
+	var c := combat.pending_choice
+	var effect: ChooseCardsEffect = c.effect
+	_pile_viewer.close()
+	combat.resolve_choice(CombatState.default_choice(c.options, c.min, c.max, effect.mode))
 
 
 ## Gold changes hands right away (so a save mid-fight can't dupe it); the
@@ -630,7 +656,7 @@ func _update_piles() -> void:
 
 func _can_act() -> bool:
 	return combat != null and combat.phase == CombatState.Phase.PLAYER_TURN and not queue.is_busy() \
-			and not _pile_viewer.visible and not _result.visible and _potion_slot < 0
+			and not _pile_viewer.visible and not _result.visible and _potion_slot < 0 and combat.pending_choice.is_empty()
 
 
 func _on_queue_idle() -> void:
@@ -720,6 +746,9 @@ func _end_player_turn() -> void:
 
 
 func _autoplay() -> void:
+	if not combat.pending_choice.is_empty():
+		_auto_resolve_choice()
+		return
 	if _can_act() and not _hand.is_dragging():
 		_set_mode(Mode.LOCKED)
 		_ai.play_turn(combat)

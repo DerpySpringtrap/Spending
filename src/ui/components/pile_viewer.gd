@@ -17,12 +17,19 @@ var _grid: GridContainer
 var _scroll: ScrollContainer
 var _panel: PanelContainer
 var _close: Button
+var _confirm: Button
+## Multi-pick mode ("choose_many"): selected views, limits and callback.
+var _selected_views: Array = []
+var _min_pick := 0
+var _max_pick := 0
+var _focus := -1
 
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = false
+	z_index = 200  # Above hand cards, which raise their own z_index up to 100.
 	var dim := ColorRect.new()
 	dim.color = Color(UIStyle.BG_DEEP, 0.82)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -41,7 +48,14 @@ func _ready() -> void:
 	_title = Label.new()
 	_title.theme_type_variation = &"TitleLabel"
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	header.add_child(_title)
+	_confirm = Button.new()
+	_confirm.theme_type_variation = &"PrimaryButton"
+	_confirm.custom_minimum_size = Vector2(220, 0)
+	_confirm.visible = false
+	_confirm.pressed.connect(_on_confirm)
+	header.add_child(_confirm)
 	_close = Button.new()
 	_close.text = "Close (Esc)"
 	_close.pressed.connect(close)
@@ -77,6 +91,65 @@ func open_picker(title: String, cards: Array, mode: String, on_pick: Callable, c
 			if mode == "upgrade":
 				view.hovered.connect(func(v: CardView): _preview_upgrade(v, true))
 				view.unhovered.connect(func(v: CardView): _preview_upgrade(v, false))
+
+
+## Pick between [param min_count] and [param max_count] cards, then Confirm.
+## [param on_done] = Callable(chosen: Array[CardInstance]). Can't be cancelled.
+func open_multi_picker(title: String, cards: Array, min_count: int, max_count: int, on_done: Callable) -> void:
+	open(title, cards, Callable(), true)
+	_mode = "choose_many"
+	_on_pick = on_done
+	_picked = false
+	_min_pick = min_count
+	_max_pick = max_count
+	_selected_views.clear()
+	_focus = -1
+	_close.visible = false
+	_confirm.visible = true
+	for view in _grid.get_children():
+		if view is CardView:
+			view.pressed.connect(func(v: CardView, event: InputEventMouseButton):
+				if event.button_index == MOUSE_BUTTON_LEFT:
+					_toggle(v))
+	_update_confirm()
+	_confirm.grab_focus()
+
+
+func _toggle(view: CardView) -> void:
+	if _picked:
+		return
+	if _selected_views.has(view):
+		_selected_views.erase(view)
+		view.selected = false
+	elif _selected_views.size() < _max_pick:
+		_selected_views.append(view)
+		view.selected = true
+	elif _max_pick == 1 and not _selected_views.is_empty():
+		_selected_views[0].selected = false
+		_selected_views = [view]
+		view.selected = true
+	AudioManager.play_ui_id(&"card_hover")
+	_update_confirm()
+
+
+func _update_confirm() -> void:
+	var n := _selected_views.size()
+	_confirm.disabled = n < _min_pick or n > _max_pick
+	_confirm.text = "Confirm (%d/%d)" % [n, _max_pick]
+
+
+func _on_confirm() -> void:
+	if _picked or _confirm.disabled:
+		return
+	_picked = true
+	var chosen: Array = []
+	for view in _selected_views:
+		chosen.append(view.card)
+	var cb := _on_pick
+	_mode = ""
+	_confirm.visible = false
+	close()
+	cb.call(chosen)
 
 
 func _preview_upgrade(view: CardView, on: bool) -> void:
@@ -120,6 +193,7 @@ func open(title: String, cards: Array, render: Callable = Callable(), sorted: bo
 	_mode = ""
 	_close.text = "Close (Esc)"
 	_close.visible = true
+	_confirm.visible = false
 	for child in _grid.get_children():
 		child.queue_free()
 	var list := cards.duplicate()
@@ -166,6 +240,9 @@ func close() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if _mode == "choose_many" and _keyboard_pick(event):
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_cancel") or (_mode == "" and (event.is_action_pressed("view_draw") or event.is_action_pressed("view_discard") or event.is_action_pressed("view_deck"))):
 		if _close.visible:
 			close()
@@ -176,3 +253,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_up"):
 		_scroll.scroll_vertical -= 320
 		get_viewport().set_input_as_handled()
+
+
+## Keyboard / gamepad for multi-pick: Left/Right moves, Accept toggles the
+## focused card (or confirms when none is focused).
+func _keyboard_pick(event: InputEvent) -> bool:
+	var views := _grid.get_children().filter(func(c): return c is CardView)
+	if views.is_empty():
+		return false
+	if event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right"):
+		_focus = wrapi(_focus + (1 if event.is_action_pressed("ui_right") else -1), 0, views.size())
+		for i in views.size():
+			views[i].modulate = Color(1.15, 1.15, 1.15) if i == _focus else Color.WHITE
+		return true
+	if event.is_action_pressed("ui_accept") and _focus >= 0 and not _confirm.has_focus():
+		_toggle(views[_focus])
+		return true
+	return false

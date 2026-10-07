@@ -28,6 +28,9 @@ extends Resource
 @export var eclipse_stance: StatusEffectData
 ## Effects run on entering the eclipse stance (draw 2).
 @export var eclipse_effects: Array[GameEffect] = []
+## Always-on class rules, authored like relic triggers (Hollow Scribe: gain
+## 1 Ink whenever you discard or Erase a card).
+@export var class_triggers: Array[EffectTrigger] = []
 
 @export_group("Presentation")
 @export var primary_color: Color = Color.WHITE

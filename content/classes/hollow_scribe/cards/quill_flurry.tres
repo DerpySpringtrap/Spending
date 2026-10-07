@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_7q1ww"]
+[ext_resource type="Script" path="res://src/combat/effects/deal_damage_effect.gd" id="2_377r3"]
+[ext_resource type="Script" path="res://src/data/card_data.gd" id="3_yfrvx"]
+
+[sub_resource type="Resource" id="Resource_7q1ww"]
+script = ExtResource("2_377r3")
+damage_type = 0
+amount = 3
+upgrade_delta = 1
+times = 3
+target = 0
+value_key = &"dmg"
+scale = 0
+
+[resource]
+script = ExtResource("3_yfrvx")
+id = &"quill_flurry"
+display_name = "Quill Flurry"
+description = "Deal {dmg} damage 3 times."
+card_pool = &"hollow_scribe"
+type = 0
+rarity = 1
+target_mode = 1
+cost = 1
+effects = Array[ExtResource("1_7q1ww")]([SubResource("Resource_7q1ww")])
+keywords = Array[StringName]([])
+tags = Array[StringName]([])
+on_discard_effects = Array[ExtResource("1_7q1ww")]([])
+end_of_turn_in_hand_effects = Array[ExtResource("1_7q1ww")]([])
+can_upgrade = true
+upgraded_cost = -99
+upgraded_description = ""
+upgrade_adds_keywords = Array[StringName]([])
+upgrade_removes_keywords = Array[StringName]([])
+plays_class_motif = false
+cost_reduction_per_stance_change = 0
+unlock_level = 1
