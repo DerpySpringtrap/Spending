@@ -14,6 +14,8 @@ enum Tier { NORMAL, ELITE, BOSS, MINION, SUMMON }
 ## Short gimmick line shown in the bestiary and on first encounter.
 @export_multiline var gimmick_text: String
 @export var starting_statuses: Array[StatusStack] = []
+## Extra starting statuses at Ascension 15 (boss tricks: Idols that revive...).
+@export var a15_starting_statuses: Array[StatusStack] = []
 ## At least one phase. Bosses list phases in order of descending hp_threshold.
 @export var phases: Array[EnemyPhaseData] = []
 

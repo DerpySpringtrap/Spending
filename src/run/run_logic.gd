@@ -51,6 +51,25 @@ static func roll_card_choices(count: int = 3, odds: Array = CARD_ODDS_NORMAL, st
 	return result
 
 
+## Chance that a reward card comes already upgraded: none in Act 1, more in
+## later acts, halved at Ascension 12.
+static func upgrade_chance() -> float:
+	var chance := 0.0 if RunState.act <= 1 else (0.15 if RunState.act == 2 else 0.25)
+	if RunState.ascension >= AscensionRules.UPGRADED_REWARD_LEVEL:
+		chance *= 0.5
+	return chance
+
+
+## A card reward entry: {"type": "card", "choices": [...], "upgraded": [bool...]}.
+static func card_reward(odds: Array) -> Dictionary:
+	var choices := roll_card_choices(3, odds)
+	var flags: Array[bool] = []
+	var rng := RunState.rng.get_stream(&"rewards")
+	for card in choices:
+		flags.append(card.can_upgrade and rng.randf() < upgrade_chance())
+	return {"type": "card", "choices": choices, "upgraded": flags}
+
+
 static func random_card_of(rarity: CardData.Rarity) -> CardData:
 	var pool := ContentDB.get_reward_pool(RunState.class_id, rarity)
 	return RunState.rng.pick(pool, &"events") if not pool.is_empty() else null
@@ -113,16 +132,16 @@ static func combat_rewards(node_type: String, extra_relic: bool = false) -> Arra
 			var relic := roll_relic()
 			if relic:
 				rewards.append({"type": "relic", "relic": relic})
-			rewards.append({"type": "card", "choices": roll_card_choices(3, CARD_ODDS_ELITE)})
+			rewards.append(card_reward(CARD_ODDS_ELITE))
 		MapGenerator.TYPE_BOSS:
 			rewards.append({"type": "gold", "amount": gold_amount(95, 105)})
 			var boss_relics := roll_boss_relics(3)
 			if not boss_relics.is_empty():
 				rewards.append({"type": "relic_choice", "choices": boss_relics})
-			rewards.append({"type": "card", "choices": roll_card_choices(3, [0.0, 0.0, 100.0])})
+			rewards.append(card_reward([0.0, 0.0, 100.0]))
 		_:
 			rewards.append({"type": "gold", "amount": gold_amount(10, 20)})
-			rewards.append({"type": "card", "choices": roll_card_choices(3, CARD_ODDS_NORMAL)})
+			rewards.append(card_reward(CARD_ODDS_NORMAL))
 	if extra_relic:
 		var bonus := roll_relic()
 		if bonus:

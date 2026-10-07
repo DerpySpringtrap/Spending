@@ -69,6 +69,8 @@ enum Decay {
 @export_range(0.0, 1.0) var revive_hp_percent: float = 0.0
 ## Loses 1 stack whenever the owner loses HP (Gilded Plate: hits strip it).
 @export var lose_stack_on_hp_lost: bool = false
+## The owner heals this fraction of the HP damage its attacks deal (Vampiric).
+@export_range(0.0, 1.0) var attack_lifesteal: float = 0.0
 ## Bonus clauses paid with the class resource (Vent/Inscribe/Graft) cost this
 ## much less, per stack (Living Manuscript).
 @export var resource_cost_reduction_per_stack: int = 0

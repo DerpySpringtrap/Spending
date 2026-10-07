@@ -11,5 +11,6 @@ id = &"a1_drowned_matriarch"
 act = 1
 pool = 3
 enemies = Array[ExtResource("1_fhdsf")]([ExtResource("2_fhdsf"), ExtResource("3_4tjgl"), ExtResource("2_fhdsf")])
+a15_extra_enemies = Array[ExtResource("1_fhdsf")]([ExtResource("2_fhdsf")])
 weight = 1.0
 exclusive_with = Array[StringName]([])

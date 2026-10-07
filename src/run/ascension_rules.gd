@@ -8,6 +8,10 @@ const REST_HEAL_LEVEL := 5
 const START_DAMAGED_LEVEL := 6
 const CURSE_LEVEL := 10
 const POTION_SLOT_LEVEL := 11
+const ELITE_AFFIX_LEVEL := 8
+## Status ids rolled for elites at Ascension 8.
+const ELITE_AFFIXES: Array[StringName] = [&"affix_armored", &"affix_vampiric", &"affix_regenerating", &"affix_enraged"]
+const UPGRADED_REWARD_LEVEL := 12
 const MAX_HP_LEVEL := 14
 const MAX_HP_PENALTY := 5
 

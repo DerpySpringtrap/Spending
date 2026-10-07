@@ -79,6 +79,9 @@ static func create(
 		combat.draw_pile.append(card.clone_for_combat())
 	for enemy_data in p_encounter.enemies:
 		combat.add_enemy(enemy_data)
+	if p_ascension >= 15:
+		for enemy_data in p_encounter.a15_extra_enemies:
+			combat.add_enemy(enemy_data)
 	return combat
 
 
@@ -247,6 +250,8 @@ func start() -> void:
 		EventBus.class_resource_changed.emit(res.id, 0, player.resource_value, res.max_value)
 	for enemy in enemies:
 		_apply_starting_statuses(enemy)
+		if ascension >= AscensionRules.ELITE_AFFIX_LEVEL and enemy.data.tier == EnemyData.Tier.ELITE:
+			_apply_elite_affix(enemy)
 	fire(EffectTrigger.Timing.COMBAT_START, player)
 	for enemy in enemies:
 		fire(EffectTrigger.Timing.COMBAT_START, enemy)
@@ -737,6 +742,10 @@ func deal_damage(source: Combatant, target: Combatant, base: int, type: DamageIn
 			fire(EffectTrigger.Timing.DEALT_ATTACK_DAMAGE, source, {"info": info})
 		if source is SummonCombatant and info.amount > 0:
 			fire(EffectTrigger.Timing.SUMMON_DEALT_DAMAGE, player, {"target": target, "info": info})
+	if info.hp_lost > 0 and type == DamageInfo.Type.ATTACK and source != null and not source.is_dead:
+		var steal := source.stat_flat(&"attack_lifesteal")
+		if steal > 0.0:
+			heal(source, maxi(1, floori(info.hp_lost * steal)))
 	if info.hp_lost > 0:
 		fire(EffectTrigger.Timing.HP_LOST, target, {"info": info})
 		for status_id in target.statuses.keys():
@@ -1192,6 +1201,20 @@ func _flush() -> void:
 func _apply_starting_statuses(enemy: EnemyCombatant) -> void:
 	for entry in enemy.data.starting_statuses:
 		apply_status(enemy, entry.status, entry.stacks, enemy)
+	if ascension >= 15:
+		for entry in enemy.data.a15_starting_statuses:
+			apply_status(enemy, entry.status, entry.stacks, enemy)
+
+
+## Ascension 8: each elite rolls one affix (see AscensionRules.ELITE_AFFIXES).
+func _apply_elite_affix(enemy: EnemyCombatant) -> void:
+	var id: StringName = rng.pick(AscensionRules.ELITE_AFFIXES, &"combat")
+	var status := ContentDB.get_status(id)
+	if status == null:
+		return
+	apply_status(enemy, status, 1, enemy)
+	if id == &"affix_armored":
+		gain_block(enemy, 15)
 
 
 func _roll_intent(enemy: EnemyCombatant) -> void:

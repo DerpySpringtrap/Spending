@@ -90,7 +90,7 @@ func _claim(row: Button) -> void:
 				return
 			AudioManager.play(&"potion")
 		"card":
-			_open_card_choice(row, reward.choices)
+			_open_card_choice(row, reward.choices, reward.get("upgraded", []))
 			return
 		"relic_choice":
 			_open_relic_choice(row, reward.choices)
@@ -133,7 +133,7 @@ func _on_proceed() -> void:
 
 # --- Card choice ------------------------------------------------------------------
 
-func _open_card_choice(row: Button, choices: Array) -> void:
+func _open_card_choice(row: Button, choices: Array, upgraded: Array = []) -> void:
 	_card_overlay = Control.new()
 	_card_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_card_overlay)
@@ -148,11 +148,13 @@ func _open_card_choice(row: Button, choices: Array) -> void:
 	cards_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_child(cards_row)
 	var views: Array = []
-	for data in choices:
+	for i in choices.size():
+		var data: CardData = choices[i]
+		var is_upgraded: bool = i < upgraded.size() and upgraded[i]
 		var holder := Control.new()
 		holder.custom_minimum_size = CardView.SIZE * 1.3
 		cards_row.add_child(holder)
-		var view := CardView.new().setup(CardInstance.new(data))
+		var view := CardView.new().setup(CardInstance.new(data, is_upgraded))
 		view.pivot_offset = CardView.SIZE / 2
 		view.scale = Vector2(1.3, 1.3)
 		view.position = (holder.custom_minimum_size - CardView.SIZE) / 2
@@ -182,7 +184,7 @@ func _pick_card(row: Button, view: CardView) -> void:
 		return
 	_card_overlay.set_meta("picked", true)
 	EventBus.tooltip_cleared.emit(view)
-	RunState.add_card(view.card.data)
+	RunState.add_card(view.card.data, view.card.upgraded)
 	AudioManager.play(&"card_create")
 	view.glowing = true
 	var t := view.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)

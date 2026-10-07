@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/data/game_effect.gd" id="1_eww01"]
+[ext_resource type="Script" path="res://src/data/status_effect_data.gd" id="2_tfu4b"]
+[ext_resource type="Script" path="res://src/data/effect_trigger.gd" id="3_r74ap"]
+
+[resource]
+script = ExtResource("2_tfu4b")
+id = &"affix_armored"
+display_name = "Armored"
+description = "Elite affix: started the fight with 15 Block."
+kind = 2
+stack_mode = 3
+decay = 0
+max_stacks = 999
+allow_negative = false
+hidden = false
+damage_dealt_flat_per_stack = 0
+damage_dealt_multiplier = 1.0
+damage_taken_multiplier = 1.0
+damage_taken_flat_per_stack = 0
+block_gained_flat_per_stack = 0
+block_gained_multiplier = 1.0
+retains_block = false
+skips_turn = false
+revive_hp_percent = 0.0
+lose_stack_on_hp_lost = false
+attack_lifesteal = 0.0
+resource_cost_reduction_per_stack = 0
+max_stack_effects = Array[ExtResource("1_eww01")]([])
+a15_max_stacks = 0
+draw_per_turn_per_stack = 0
+energy_per_turn_per_stack = 0
+triggers = Array[ExtResource("3_r74ap")]([])
+tint = Color(0.560784, 0.627451, 0.709804, 1)

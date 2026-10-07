@@ -9,6 +9,8 @@ enum Pool { EASY, HARD, ELITE, BOSS, EVENT }
 @export var act: int = 1
 @export var pool: Pool = Pool.EASY
 @export var enemies: Array[EnemyData] = []
+## Added at Ascension 15 (the Matriarch's extra Broodling).
+@export var a15_extra_enemies: Array[EnemyData] = []
 @export_range(0.0, 100.0) var weight: float = 1.0
 ## Ids of encounters that shouldn't be rolled right after this one (keeps
 ## consecutive fights varied).

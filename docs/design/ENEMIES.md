@@ -144,13 +144,13 @@ Unlocked per class by winning at the current level.
 | 5 | Rest sites heal 25% of max HP (down from 30%) |
 | 6 | Start each run at 90% HP |
 | 7 | Normal enemies have +10% HP |
-| 8 | Elites have +10% HP and gain one random **affix**: *Armored* (start with 15 Block), *Hasted* (acts twice on turn 1), *Vampiric* (heals 50% of unblocked damage) or *Regenerating* (heals 4/turn) |
+| 8 | Elites have +10% HP and gain one random **affix**: *Armored* (start with 15 Block), *Enraged* (+3 damage per hit), *Vampiric* (heals 50% of unblocked damage) or *Regenerating* (heals 4/turn) |
 | 9 | Bosses have +10% HP |
 | 10 | Start each run with the curse **Weight of Dusk** (Unplayable, Ethereal) |
 | 11 | One fewer potion slot |
-| 12 | Upgraded cards appear 50% less often in rewards |
+| 12 | Upgraded cards appear 50% less often in rewards (normally 15% of reward cards in Act 2, 25% from Act 3) |
 | 13 | Gold rewards −25%; shop prices +10% |
 | 14 | −5 max HP |
-| 15 | Enemies use their enhanced movesets (the per-move `ascension_amount_bonus` fields), and each boss gains an extra trick: Matriarch starts with 3 toads; Hierophant's Idols revive once; Orrery's countdown starts at 4; Sovereign's Umbra threshold drops to 8 |
+| 15 | Enemies use their enhanced movesets (the per-move `ascension_amount_bonus` fields), and each boss gains an extra trick: the Matriarch brings a third Broodling; the Hierophant's Idols revive once; the Orrery starts with 2 Strength; the Sovereign's Umbra threshold drops from 12 to 10 |
 
 **Implementation:** a global `AscensionRules` table in `src/run/` applies HP/damage scaling and map/reward modifiers. Per-move enhancements are authored on `EnemyMoveData` (`ascension_threshold` / `ascension_amount_bonus`), so designers tune them in the inspector.
