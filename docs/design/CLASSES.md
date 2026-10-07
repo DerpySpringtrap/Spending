@@ -243,6 +243,30 @@ Shows the summon rules (front-line soaking, end-of-turn actions) on turn 1 of ev
 
 ---
 
+## 5. Astromancer (planned) — *Keeper of the Spiral Galaxy*
+
+> Requested for later; not scheduled yet. Name and numbers are working placeholders.
+
+**Fantasy:** A star-mage who carries a tiny galaxy around her. She fights by setting cards into orbit around herself and letting them swing back with more force each time they come around. Fits the astronomy feel of Act 3.
+
+**Stats (draft):** ~70 HP · 99 gold · unlock condition to be decided (for example, defeat the Orrery).
+
+### Mechanic: Orbit
+- Some cards say **Launch**: when played, instead of going to the discard pile they enter **Orbit**, a ring of up to 3 slots around her.
+- At the start of each turn, every orbiting card advances one step. When a card completes its orbit, its **Perigee** effect fires (a stronger echo of the card) and it returns to her hand.
+- **Momentum** (resource, 0–10): gained each time a card completes an orbit. Spent by payoff cards ("Spend 3 Momentum: …") or kept for passive bonuses.
+- Archetype ideas: *Satellites* (many small Launch cards for steady echoes), *Slingshot* (speed up orbits for burst turns), *Gravity Well* (hold cards in orbit for defence while Momentum builds).
+
+### Visual identity
+- **Palette:** galaxy purple. Deep violet `#2A1050`, nebula magenta `#B04AD0`, starlight lavender `#D9C8FF`, with soft cyan star specks `#8FE3F0`. Clearly different from the Moonblade's silver-and-navy.
+- **Silhouette:** a woman in a long flowing robe that fades into a starfield at the hem, a spiral galaxy halo behind her, and small glowing planets/cards circling her (the Orbit slots shown on screen).
+- **Card frame:** dark violet with a faint nebula swirl; Launch cards get an orbit-ring border.
+
+### Sound identity
+- Shimmering synth pads, glassy chimes, a soft whoosh as cards pass perigee. **Motif:** rising arpeggio with a reverb tail, like light travelling across space.
+
+---
+
 ## Meta-progression per class
 Each class has an XP track (XP = floors reached + bosses + victory bonus). Tiers unlock in order:
 1. +5 class cards added to the reward pool
