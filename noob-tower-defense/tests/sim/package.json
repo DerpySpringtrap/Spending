@@ -1,0 +1,12 @@
+{
+  "name": "noob-td-sim",
+  "private": true,
+  "type": "module",
+  "description": "Headless simulation tests for the Noob Tower Defense server code",
+  "scripts": {
+    "test": "node run.mjs"
+  },
+  "devDependencies": {
+    "luau-web": "1.5.0"
+  }
+}

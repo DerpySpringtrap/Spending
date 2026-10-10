@@ -1,0 +1,37 @@
+Remotes.VoteReady.OnServerEvent:Fire(alice)
+step(5, function() return phase() == "Intermission" end)
+state:GetAttributeChangedSignal("Phase"):Connect(function()
+	if phase() == "Intermission" then task.delay(0.5, function() Remotes.VoteSkip.OnServerEvent:Fire(alice) end) end
+end)
+Remotes.VoteSkip.OnServerEvent:Fire(alice)
+step(3000, function() return phase() == "GameOver" or phase() == "Victory" end)
+check(phase() == "GameOver", "no defence -> GameOver")
+local overAt = now
+print("lost on wave", state:GetAttribute("Wave"), "at", now, "base", state:GetAttribute("BaseHealth"))
+check(state:GetAttribute("BaseHealth") == 0, "base at 0")
+check(Enemy:GetCount() == 0, "enemies cleared on game over")
+step(12.5)
+check(remoteCount("EnemySpawned", overAt) == 0, "no late spawns after game over")
+check(phase() == "Lobby", "back to lobby")
+-- second match resets
+alice:SetAttribute("Cash", 1) -- simulate leftover (server table is truth; ResetAll fixes it)
+Remotes.VoteReady.OnServerEvent:Fire(alice)
+step(5, function() return phase() == "Intermission" end)
+check(phase() == "Intermission" and state:GetAttribute("BaseHealth") == 150 and alice:GetAttribute("Cash") == 600, "second match resets base + cash")
+-- everyone leaves mid-wave
+Remotes.VoteSkip.OnServerEvent:Fire(alice)
+step(3)
+check(phase() == "Wave", "wave running")
+removePlayer(alice)
+step(0.5)
+check(phase() == "GameOver", "everyone left -> GameOver")
+step(13)
+check(phase() == "Lobby" and timeLeft() == nil, "lobby waits for players")
+local bob = addPlayer("Bob")
+step(1)
+check(timeLeft() ~= nil and bob:GetAttribute("Cash") == 600, "new player starts countdown")
+-- spam votes: rate limiter + phase checks must not error
+for i = 1, 200 do Remotes.VoteSkip.OnServerEvent:Fire(bob); Remotes.VoteReady.OnServerEvent:Fire(bob) end
+step(4)
+check(phase() == "Intermission", "ready vote (under spam) still starts match")
+print("phase log", table.concat(phaseLog, ", "))
